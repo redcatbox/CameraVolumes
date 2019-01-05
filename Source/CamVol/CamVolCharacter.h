@@ -1,4 +1,10 @@
 // Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
+// Dmitriy Barannik aka redbox, 2019
+/**
+* Player pawn stores default camera parameters.
+* Player pawn uses BeginOverlap event of it's collision primitive, to get overlapped camera volume and store it in special array of camera volume actors.
+* Player pawn uses EndOverlap event of it's collision primitive, to remove camera volume from array of camera volume actors.
+*/
 
 #pragma once
 

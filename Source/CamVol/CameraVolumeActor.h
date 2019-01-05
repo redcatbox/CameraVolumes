@@ -1,4 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Dmitriy Barannik aka redbox, 2019
+/**
+* Camera volume actor stores desired camera parameters and volume information.
+* It calculates camera preview, side indicators and volume extents by itself during updating in Editor.
+* This actor and it's parameters are static in context of this algorithm.
+*/
 
 #pragma once
 

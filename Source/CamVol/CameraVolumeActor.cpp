@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Dmitriy Barannik aka redbox, 2019
 
 #include "CameraVolumeActor.h"
 
