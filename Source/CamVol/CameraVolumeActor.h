@@ -92,10 +92,6 @@ public:
 	//--------------------------------------------------
 
 	//Parameters
-	/** Use this to update volume after made changes in editor */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Volume")
-		bool bUpdate;
-
 	/** Priority of camera volume in case of few overlapped volumes */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Volume", Meta = (ClampMin = "-100", ClampMax = "100", UIMin = "-100", UIMax = "100"))
 		int32 Priority;
@@ -195,7 +191,8 @@ public:
 	UPROPERTY()
 		FVector CamVolExtentCorrected;
 
-	UFUNCTION()
+	/** Use this to update volume after made changes in editor, if they are not applied automatically */
+	UFUNCTION(CallInEditor, Category = "Volume")
 		virtual void UpdateVolume();
 
 	UFUNCTION()

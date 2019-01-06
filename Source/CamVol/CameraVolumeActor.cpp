@@ -36,7 +36,6 @@ ACameraVolumeActor::ACameraVolumeActor()
 	CameraComponent->SetupAttachment(RootComponent);
 
 	// Default values
-	bUpdate = false;
 	Priority = 0;
 	VolumeExtent = FVector(500.f, 500.f, 500.f);
 	CameraSmoothTransitionTime = 1.f;
@@ -82,8 +81,6 @@ ACameraVolumeActor::ACameraVolumeActor()
 
 void ACameraVolumeActor::UpdateVolume()
 {
-	bUpdate = false;
-
 	//Reset actor rotation and scale
 	SetActorRotation(FRotator::ZeroRotator);
 	SetActorScale3D(FVector::OneVector);
@@ -232,6 +229,8 @@ void ACameraVolumeActor::UpdateVolume()
 		}
 	}
 	//--------------------------------------------------
+
+	UE_LOG(LogTemp, Log, TEXT("%s updated successfully."), *this->GetName());
 }
 
 FSideInfo ACameraVolumeActor::GetSideInfo(ESide Side)
@@ -270,14 +269,13 @@ void ACameraVolumeActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyC
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 	FName PropertyName = (PropertyChangedEvent.Property != NULL) ? PropertyChangedEvent.Property->GetFName() : NAME_None;
 	if (PropertyName == TEXT("Location") || TEXT("Rotation") || TEXT("Scale")
-		|| TEXT("bUpdate") || TEXT("Priority") || TEXT("VolumeExtent")
+		|| TEXT("Priority") || TEXT("VolumeExtent")
 		|| TEXT("bOverrideCameraFieldOfView") || TEXT("CameraFieldOfView")
 		|| TEXT("CameraOffset")
 		|| TEXT("bFixedCamera") || TEXT("FixedCameraLocation") || TEXT("FixedCameraFocalPoint") || TEXT("bFocalPointIsPlayer")
 		|| TEXT("FrontSide") || TEXT("BackSide") || TEXT("RightSide") || TEXT("LeftSide") || TEXT("TopSide") || TEXT("BottomSide"))
 	{
 		UpdateVolume();
-		UE_LOG(LogTemp, Log, TEXT("CameraVolumeActor (%s) is updated."), *this->GetName());
 	}
 }
 #endif
