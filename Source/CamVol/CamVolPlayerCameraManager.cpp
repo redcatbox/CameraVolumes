@@ -124,7 +124,7 @@ void ACamVolPlayerCameraManager::UpdateCamera(float DeltaTime)
 	}
 }
 
-void ACamVolPlayerCameraManager::GetCurrentCameraVolume(ACameraVolumeActor* CamVol, FVector PlayerPawnLocation, int8 MaxPriorityIndex)
+void ACamVolPlayerCameraManager::GetCurrentCameraVolume(ACameraVolumeActor* CamVol, FVector& PlayerPawnLocation, int8 MaxPriorityIndex)
 {
 	if (CamVol->CamVolWorldMin.X < PlayerPawnLocation.X &&
 		PlayerPawnLocation.X < CamVol->CamVolWorldMax.X &&
@@ -141,7 +141,7 @@ void ACamVolPlayerCameraManager::GetCurrentCameraVolume(ACameraVolumeActor* CamV
 	}
 }
 
-ESide ACamVolPlayerCameraManager::GetNearestVolumeSide(ACameraVolumeActor* CamVol, FVector PlayerPawnLocation, float Distance)
+ESide ACamVolPlayerCameraManager::GetNearestVolumeSide(ACameraVolumeActor* CamVol, FVector& PlayerPawnLocation, float Distance)
 {
 	ESide NearestSide;
 

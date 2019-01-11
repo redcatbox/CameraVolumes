@@ -27,7 +27,7 @@ public:
 
 	/** Get volume side nearest to player location */
 	UFUNCTION()
-		virtual ESide GetNearestVolumeSide(ACameraVolumeActor* CamVol, FVector PlayerPawnLocation, float Distance);
+		virtual ESide GetNearestVolumeSide(ACameraVolumeActor* CamVol, FVector& PlayerPawnLocation, float Distance);
 
 	/** Set transition according to side info */
 	UFUNCTION()
@@ -35,7 +35,7 @@ public:
 
 	/** Check is character pivot inside of volume. */
 	UFUNCTION()
-		virtual void GetCurrentCameraVolume(ACameraVolumeActor* CamVol, FVector PlayerPawnLocation, int8 MaxPriorityIndex);
+		virtual void GetCurrentCameraVolume(ACameraVolumeActor* CamVol, FVector& PlayerPawnLocation, int8 MaxPriorityIndex);
 
 	/** Calculate new camera parameters */
 	UFUNCTION()

@@ -78,7 +78,7 @@ public:
 		float CameraRotationLagSpeed;
 
 	UFUNCTION()
-		virtual void UpdateCamera(FVector CameraLocation, FRotator CameraRotation, float CameraFOV);
+		virtual void UpdateCamera(FVector& CameraLocation, FRotator& CameraRotation, float CameraFOV);
 
 	UPROPERTY()
 		TArray<ACameraVolumeActor*> OverlappingCameraVolumes;

@@ -102,7 +102,7 @@ void ACamVolCharacter::TouchStopped(const ETouchIndex::Type FingerIndex, const F
 	StopJumping();
 }
 
-void ACamVolCharacter::UpdateCamera(FVector CameraLocation, FRotator CameraRotation, float CameraFOV)
+void ACamVolCharacter::UpdateCamera(FVector& CameraLocation, FRotator& CameraRotation, float CameraFOV)
 {
 	if (CameraComponent)
 	{
