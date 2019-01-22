@@ -1,3 +1,4 @@
+//Dmitriy Barannik aka redbox, 2019
 
 #include "CameraVolumeActor.h"
 
@@ -8,9 +9,9 @@ ACameraVolumeActor::ACameraVolumeActor()
 
 	// Default root
 	DefaultSceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultSceneRoot"));
-	RootComponent = DefaultSceneRoot;
 	DefaultSceneRoot->Mobility = EComponentMobility::Static;
-	DefaultSceneRoot->bVisualizeComponent = false;
+	DefaultSceneRoot->bVisible = false;
+	RootComponent = DefaultSceneRoot;
 
 	// Billboard
 	BillboardComponent = CreateDefaultSubobject<UBillboardComponent>(TEXT("BillboardComponent"));
@@ -57,7 +58,7 @@ ACameraVolumeActor::ACameraVolumeActor()
 	*/
 	Text_Indicators.SetNum(13);
 	FName ComponentName;
-	static ConstructorHelpers::FObjectFinder<UMaterialInterface> TextMaterialObj(TEXT("/Engine/EngineMaterials/UnlitText"));
+	static ConstructorHelpers::FObjectFinder<UMaterialInterface> TextMaterialObj(TEXT("/CameraVolumes/Materials/UnlitText.UnlitText"));
 	for (uint8 i = 0; i < 13; i++)
 	{
 		ComponentName = *(FString(TEXT("TextRenderComponent")) + FString::FromInt(i));
@@ -261,8 +262,8 @@ FSideInfo ACameraVolumeActor::GetSideInfo(ESide Side)
 		return BottomSide;
 		break;
 	default:
-		UE_LOG(LogTemp, Warning, TEXT("Unknown side type! Using SideInfo(Open, Cut)"))
-		return FSideInfo(ESideType::EST_Open, ESideTransitionType::ESTT_Cut);
+		UE_LOG(LogTemp, Warning, TEXT("Unknown side type! Using SideInfo(Open, Normal)"))
+		return FSideInfo();
 		break;
 	}
 }

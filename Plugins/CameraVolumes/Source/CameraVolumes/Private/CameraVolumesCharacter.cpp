@@ -1,3 +1,4 @@
+//Dmitriy Barannik aka redbox, 2019
 
 #include "CameraVolumesCharacter.h"
 #include "Camera/CameraComponent.h"

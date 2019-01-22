@@ -1,3 +1,4 @@
+//Dmitriy Barannik aka redbox, 2019
 
 #include "CameraVolumeDynamicActor.h"
 

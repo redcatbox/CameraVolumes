@@ -1,3 +1,4 @@
+//Dmitriy Barannik aka redbox, 2019
 
 /**
 * Camera volume actor stores desired camera parameters and volume information.
@@ -10,6 +11,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "UObject/ConstructorHelpers.h"
+#include "Materials/MaterialInterface.h"
 #include "Components/BillboardComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
@@ -164,10 +166,10 @@ public:
 		FSideInfo BottomSide;
 	//--------------------------------------------------
 
-#if WITH_EDITOR
 	//Sides indicators
 	UPROPERTY()
 		TArray<UTextRenderComponent*> Text_Indicators;
+
 	const float Text_Size = 50.f;
 	const FText Text_Open = FText::FromString("OPEN");
 	const FText Text_Closed = FText::FromString("CLOSED");
@@ -175,7 +177,6 @@ public:
 	const FText Text_Smooth = FText::FromString("SMOOTH");
 	const FText Text_Cut = FText::FromString("CUT");
 	//--------------------------------------------------
-#endif
 
 	UPROPERTY()
 		float CamVolAspectRatio;

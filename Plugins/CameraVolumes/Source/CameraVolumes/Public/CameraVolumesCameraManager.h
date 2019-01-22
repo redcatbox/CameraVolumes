@@ -1,3 +1,4 @@
+//Dmitriy Barannik aka redbox, 2019
 
 /**
 * Player camera manager process camera calculations according to default camera parameters from player pawn or parameters from camera volumes.
@@ -8,6 +9,7 @@
 
 #include "CoreMinimal.h"
 #include "Camera/PlayerCameraManager.h"
+#include "GameFramework/PlayerController.h"
 #include "CameraVolumeDynamicActor.h"
 #include "CameraVolumesFunctionLibrary.h"
 #include "CameraVolumesCharacter.h"

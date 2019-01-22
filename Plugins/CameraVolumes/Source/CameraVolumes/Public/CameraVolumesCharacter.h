@@ -1,3 +1,4 @@
+//Dmitriy Barannik aka redbox, 2019
 
 /**
 * Player pawn stores default camera parameters.
@@ -9,7 +10,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "Runtime/CoreUObject/Public/UObject/ConstructorHelpers.h"
+#include "GameFramework/PlayerController.h"
 #include "CameraVolumeActor.h"
 #include "CameraVolumesCharacter.generated.h"
 
@@ -18,7 +19,7 @@ class CAMERAVOLUMES_API ACameraVolumesCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, Meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* CameraComponent;
 
 	UFUNCTION()
