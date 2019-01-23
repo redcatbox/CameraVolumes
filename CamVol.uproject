@@ -16,7 +16,8 @@
 	"Plugins": [
 		{
 			"Name": "CameraVolumes",
-			"Enabled": true
+			"Enabled": true,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/e9131875bdff43c7aca95facf11001bd"
 		}
 	]
 }

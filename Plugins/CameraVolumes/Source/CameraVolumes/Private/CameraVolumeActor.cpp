@@ -205,7 +205,7 @@ void ACameraVolumeActor::UpdateVolume()
 	//--------------------------------------------------
 
 	this->Modify();
-	UE_LOG(LogTemp, Log, TEXT("%s updated successfully."), *this->GetName());
+	//UE_LOG(LogTemp, Log, TEXT("%s updated successfully."), *this->GetName());
 }
 
 void ACameraVolumeActor::UpdateVolumeExtents()
@@ -263,7 +263,7 @@ FSideInfo ACameraVolumeActor::GetSideInfo(ESide Side)
 		break;
 	default:
 		UE_LOG(LogTemp, Warning, TEXT("Unknown side type! Using SideInfo(Open, Normal)"))
-		return FSideInfo();
+			return FSideInfo();
 		break;
 	}
 }
@@ -295,8 +295,7 @@ void ACameraVolumeActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyC
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 	FName PropertyName = (PropertyChangedEvent.Property != NULL) ? PropertyChangedEvent.Property->GetFName() : NAME_None;
-	if (PropertyName == TEXT("Transform") || TEXT("Location") || TEXT("Rotation") || TEXT("Scale")
-		|| TEXT("Priority") || TEXT("VolumeExtent")
+	if (PropertyName == TEXT("Priority") || TEXT("VolumeExtent")
 		|| TEXT("bOverrideCameraFieldOfView") || TEXT("CameraFieldOfView")
 		|| TEXT("CameraOffset")
 		|| TEXT("bFixedCamera") || TEXT("FixedCameraLocation") || TEXT("FixedCameraFocalPoint") || TEXT("bFocalPointIsPlayer")
@@ -304,5 +303,23 @@ void ACameraVolumeActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyC
 	{
 		UpdateVolume();
 	}
+}
+
+void ACameraVolumeActor::EditorApplyTranslation(const FVector& DeltaTranslation, bool bAltDown, bool bShiftDown, bool bCtrlDown)
+{
+	Super::EditorApplyTranslation(DeltaTranslation, bAltDown, bShiftDown, bCtrlDown);
+	UpdateVolume();
+}
+
+void ACameraVolumeActor::EditorApplyRotation(const FRotator& DeltaRotation, bool bAltDown, bool bShiftDown, bool bCtrlDown)
+{
+	Super::EditorApplyRotation(DeltaRotation, bAltDown, bShiftDown, bCtrlDown);
+	UpdateVolume();
+}
+
+void ACameraVolumeActor::EditorApplyScale(const FVector& DeltaScale, const FVector* PivotLocation, bool bAltDown, bool bShiftDown, bool bCtrlDown)
+{
+	Super::EditorApplyScale(DeltaScale, PivotLocation, bAltDown, bShiftDown, bCtrlDown);
+	UpdateVolume();
 }
 #endif

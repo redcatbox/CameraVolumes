@@ -4,13 +4,13 @@
 	"VersionName": "1.0",
 	"FriendlyName": "CameraVolumes",
 	"Description": "Advanced side-scroller camera behavior",
-	"EngineVersion" : "4.21.0",
 	"Category": "CameraVolumes",
 	"CreatedBy": "Dmitriy Barannik aka redbox",
 	"CreatedByURL": "",
 	"DocsURL": "https://github.com/redcatbox/CameraVolumes/wiki",
-	"MarketplaceURL": "",
+	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/e9131875bdff43c7aca95facf11001bd",
 	"SupportURL": "",
+	"EngineVersion": "4.21.0",
 	"CanContainContent": true,
 	"IsBetaVersion": false,
 	"Installed": true,
@@ -19,8 +19,7 @@
 			"Name": "CameraVolumes",
 			"Type": "Runtime",
 			"LoadingPhase": "Default",
-			"WhitelistPlatforms" :
-			[
+			"WhitelistPlatforms": [
 				"Win64",
 				"Win32"
 			]
