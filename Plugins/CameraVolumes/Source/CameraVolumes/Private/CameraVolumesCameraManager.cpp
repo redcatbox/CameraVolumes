@@ -170,7 +170,8 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 			NewCameraOffset = NewCameraLocation.X; // Side-scroller
 			//NewCameraOffset = NewCameraLocation.Z; // Top-down
 			if (CameraVolume->bOverrideCameraOffset)
-				NewCameraOffset = CameraVolume->CameraOffset;
+				NewCameraOffset = PlayerPawnLocation.X + CameraVolume->CameraOffset; // Side-scroller
+				//NewCameraOffset = PlayerPawnLocation.Z + CameraVolume->CameraOffset; // Top-down
 
 			if (CameraVolume->CamVolAspectRatio >= PlayerCamAspectRatio) // Horizontal movement
 				// Side-scroller
