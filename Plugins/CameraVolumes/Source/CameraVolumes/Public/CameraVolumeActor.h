@@ -217,6 +217,8 @@ protected:
 	const FText Text_Cut = FText::FromString("CUT");
 	//--------------------------------------------------
 
+	const float DefaultCameraFOV = 90.f;
+	const float DefaultCameraOffset = 1000.f;
 	const float OpenEdgeOffset = 10000.f;
 
 public:

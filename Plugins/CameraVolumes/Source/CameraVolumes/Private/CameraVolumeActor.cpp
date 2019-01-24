@@ -38,10 +38,10 @@ ACameraVolumeActor::ACameraVolumeActor()
 	CameraSmoothTransitionTime = 1.f;
 
 	bOverrideCameraFieldOfView = false;
-	CameraFieldOfView = 90.f;
+	CameraFieldOfView = DefaultCameraFOV;
 
 	bOverrideCameraOffset = false;
-	CameraOffset = 1000.f;
+	CameraOffset = DefaultCameraOffset;
 
 	bFixedCamera = false;
 	FixedCameraLocation = FVector(CameraOffset, 0.f, 0.f); // Side-scroller
@@ -91,6 +91,14 @@ void ACameraVolumeActor::UpdateVolume()
 
 	if (bOverrideCameraFieldOfView)
 		CameraComponent->FieldOfView = CameraFieldOfView;
+	else
+	{
+		CameraFieldOfView = DefaultCameraFOV;
+		CameraComponent->FieldOfView = CameraFieldOfView;
+	}
+
+	if (!bOverrideCameraOffset)
+		CameraOffset = DefaultCameraOffset;
 
 	bFocalPointEditCond = bFixedCamera && !bFocalPointIsPlayer;
 	if (bFixedCamera)
@@ -98,9 +106,7 @@ void ACameraVolumeActor::UpdateVolume()
 		CameraComponent->SetRelativeLocation(FixedCameraLocation);
 		CameraOffset = FixedCameraLocation.X;
 		if (bFocalPointIsPlayer)
-		{
 			FixedCameraFocalPoint = FVector(0.f, 0.f, 0.f);
-		}
 		FixedCameraRotation = FRotationMatrix::MakeFromX(FixedCameraFocalPoint - FixedCameraLocation).Rotator();
 		CameraComponent->SetRelativeRotation(FixedCameraRotation);
 	}
@@ -296,12 +302,10 @@ void ACameraVolumeActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyC
 	FName PropertyName = (PropertyChangedEvent.Property != NULL) ? PropertyChangedEvent.Property->GetFName() : NAME_None;
 	if (PropertyName == TEXT("Priority") || TEXT("VolumeExtent")
 		|| TEXT("bOverrideCameraFieldOfView") || TEXT("CameraFieldOfView")
-		|| TEXT("CameraOffset")
-		|| TEXT("bFixedCamera") || TEXT("FixedCameraLocation") || TEXT("FixedCameraFocalPoint") || TEXT("bFocalPointIsPlayer")
+		|| TEXT("bOverrideCameraOffset") || TEXT("CameraOffset")
+		|| TEXT("bFixedCamera") || TEXT("FixedCameraLocation") || TEXT("FixedCameraFocalPoint")
 		|| TEXT("FrontSide") || TEXT("BackSide") || TEXT("RightSide") || TEXT("LeftSide") || TEXT("TopSide") || TEXT("BottomSide"))
-	{
 		UpdateVolume();
-	}
 }
 
 void ACameraVolumeActor::EditorApplyTranslation(const FVector& DeltaTranslation, bool bAltDown, bool bShiftDown, bool bCtrlDown)
