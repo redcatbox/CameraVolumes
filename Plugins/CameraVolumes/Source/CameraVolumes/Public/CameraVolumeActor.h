@@ -80,6 +80,7 @@ public:
 	// Sets default values for this actor's properties
 	ACameraVolumeActor();
 
+protected:
 	//Components
 	UPROPERTY()
 		USceneComponent* DefaultSceneRoot;
@@ -94,6 +95,7 @@ public:
 		UCameraComponent* CameraComponent;
 	//--------------------------------------------------
 
+public:
 	//Parameters
 	/** Priority of camera volume in case of few overlapped volumes */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Volume", Meta = (ClampMin = "-100", ClampMax = "100", UIMin = "-100", UIMax = "100"))
@@ -130,10 +132,12 @@ public:
 	/** New camera fixed location */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera|FixedCamera", Meta = (EditCondition = "bFixedCamera", MakeEditWidget = true))
 		FVector FixedCameraLocation;
-	
+
+protected:
 	UPROPERTY()
 		bool bFocalPointEditCond;
 
+public:
 	/** Location that fixed camera look at */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera|FixedCamera", Meta = (EditCondition = "bFocalPointEditCond", MakeEditWidget = true))
 		FVector FixedCameraFocalPoint;
@@ -166,18 +170,6 @@ public:
 		FSideInfo BottomSide;
 	//--------------------------------------------------
 
-	//Sides indicators
-	UPROPERTY()
-		TArray<UTextRenderComponent*> Text_Indicators;
-
-	const float Text_Size = 50.f;
-	const FText Text_Open = FText::FromString("OPEN");
-	const FText Text_Closed = FText::FromString("CLOSED");
-	const FText Text_Normal = FText::FromString("NORMAL");
-	const FText Text_Smooth = FText::FromString("SMOOTH");
-	const FText Text_Cut = FText::FromString("CUT");
-	//--------------------------------------------------
-
 	UPROPERTY()
 		float CamVolAspectRatio;
 
@@ -200,10 +192,6 @@ public:
 	UFUNCTION(CallInEditor, Category = "Volume")
 		virtual void UpdateVolume();
 
-	/** Update volume extents. Can be called for dynamic camera volume */
-	UFUNCTION(BlueprintCallable)
-		virtual void UpdateVolumeExtents();
-
 	/** Get side info */
 	UFUNCTION(BlueprintCallable)
 		virtual FSideInfo GetSideInfo(ESide Side);
@@ -212,9 +200,26 @@ public:
 	UFUNCTION(BlueprintCallable)
 		virtual ESide GetNearestVolumeSide(FVector& PlayerPawnLocation);
 
+protected:
+	/** Update volume extents. Can be called for dynamic camera volume */
+	UFUNCTION(BlueprintCallable)
+		virtual void UpdateVolumeExtents();
+
+	//Sides indicators
+	UPROPERTY()
+		TArray<UTextRenderComponent*> Text_Indicators;
+
+	const float Text_Size = 50.f;
+	const FText Text_Open = FText::FromString("OPEN");
+	const FText Text_Closed = FText::FromString("CLOSED");
+	const FText Text_Normal = FText::FromString("NORMAL");
+	const FText Text_Smooth = FText::FromString("SMOOTH");
+	const FText Text_Cut = FText::FromString("CUT");
+	//--------------------------------------------------
+
 	const float OpenEdgeOffset = 10000.f;
 
-	//Override PostEditChangeProperty
+public:
 #if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 	virtual void EditorApplyTranslation(const FVector& DeltaTranslation, bool bAltDown, bool bShiftDown, bool bCtrlDown) override;

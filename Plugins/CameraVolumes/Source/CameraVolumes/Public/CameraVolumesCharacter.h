@@ -67,9 +67,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Lag", Meta = (EditCondition = "bEnableCameraFOVLag", ClampMin = "0.1", ClampMax = "100.0", UIMin = "0.1", UIMax = "100.0"))
 		float CameraFOVLagSpeed;
 
+	/** Updates camera by camera manager*/
 	UFUNCTION()
 		virtual void UpdateCamera(FVector& CameraLocation, FRotator& CameraRotation, float CameraFOV);
 
+	/** Overlapping camera volumes */
 	UPROPERTY()
 		TArray<ACameraVolumeActor*> OverlappingCameraVolumes;
 
