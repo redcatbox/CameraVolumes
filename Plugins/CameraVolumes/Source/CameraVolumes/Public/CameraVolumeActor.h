@@ -192,6 +192,10 @@ public:
 	UFUNCTION(CallInEditor, Category = "Volume")
 		virtual void UpdateVolume();
 
+	/** Update volume extents. Can be called for dynamic camera volume */
+	UFUNCTION(BlueprintCallable, Category = "Volume")
+		virtual void UpdateVolumeExtents();
+
 	/** Get side info */
 	UFUNCTION(BlueprintCallable)
 		virtual FSideInfo GetSideInfo(ESide Side);
@@ -201,10 +205,6 @@ public:
 		virtual ESide GetNearestVolumeSide(FVector& PlayerPawnLocation);
 
 protected:
-	/** Update volume extents. Can be called for dynamic camera volume */
-	UFUNCTION(BlueprintCallable)
-		virtual void UpdateVolumeExtents();
-
 	//Sides indicators
 	UPROPERTY()
 		TArray<UTextRenderComponent*> Text_Indicators;

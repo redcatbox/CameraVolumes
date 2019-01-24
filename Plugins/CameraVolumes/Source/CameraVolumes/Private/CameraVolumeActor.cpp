@@ -153,26 +153,26 @@ void ACameraVolumeActor::UpdateVolume()
 		else if (i == 5)
 		{
 			SideInfo = RightSide;
-			Text_Indicators[5]->SetRelativeLocation(FVector(VolumeExtent.X, -VolumeExtent.Y + 2.f * Text_Size, 0.5f * Text_Size));
-			Text_Indicators[6]->SetRelativeLocation(FVector(VolumeExtent.X, -VolumeExtent.Y + 2.f * Text_Size, -0.5f * Text_Size));
+			Text_Indicators[i]->SetRelativeLocation(FVector(VolumeExtent.X, -VolumeExtent.Y + 2.f * Text_Size, 0.5f * Text_Size));
+			Text_Indicators[i + 1]->SetRelativeLocation(FVector(VolumeExtent.X, -VolumeExtent.Y + 2.f * Text_Size, -0.5f * Text_Size));
 		}
 		else if (i == 7)
 		{
 			SideInfo = LeftSide;
-			Text_Indicators[7]->SetRelativeLocation(FVector(VolumeExtent.X, VolumeExtent.Y - 2.f * Text_Size, 0.5f * Text_Size));
-			Text_Indicators[8]->SetRelativeLocation(FVector(VolumeExtent.X, VolumeExtent.Y - 2.f * Text_Size, -0.5f * Text_Size));
+			Text_Indicators[i]->SetRelativeLocation(FVector(VolumeExtent.X, VolumeExtent.Y - 2.f * Text_Size, 0.5f * Text_Size));
+			Text_Indicators[i + 1]->SetRelativeLocation(FVector(VolumeExtent.X, VolumeExtent.Y - 2.f * Text_Size, -0.5f * Text_Size));
 		}
 		else if (i == 9)
 		{
 			SideInfo = TopSide;
-			Text_Indicators[9]->SetRelativeLocation(FVector(VolumeExtent.X, 0.f, VolumeExtent.Z - 0.5f * Text_Size));
-			Text_Indicators[10]->SetRelativeLocation(FVector(VolumeExtent.X, 0.f, VolumeExtent.Z - 1.5f * Text_Size));
+			Text_Indicators[i]->SetRelativeLocation(FVector(VolumeExtent.X, 0.f, VolumeExtent.Z - 0.5f * Text_Size));
+			Text_Indicators[i + 1]->SetRelativeLocation(FVector(VolumeExtent.X, 0.f, VolumeExtent.Z - 1.5f * Text_Size));
 		}
 		else if (i == 11)
 		{
 			SideInfo = BottomSide;
-			Text_Indicators[11]->SetRelativeLocation(FVector(VolumeExtent.X, 0.f, -VolumeExtent.Z + 1.5f * Text_Size));
-			Text_Indicators[12]->SetRelativeLocation(FVector(VolumeExtent.X, 0.f, -VolumeExtent.Z + 0.5f * Text_Size));
+			Text_Indicators[i]->SetRelativeLocation(FVector(VolumeExtent.X, 0.f, -VolumeExtent.Z + 1.5f * Text_Size));
+			Text_Indicators[i + 1]->SetRelativeLocation(FVector(VolumeExtent.X, 0.f, -VolumeExtent.Z + 0.5f * Text_Size));
 		}
 
 		if (SideInfo.SideType == ESideType::EST_Closed)
@@ -205,7 +205,6 @@ void ACameraVolumeActor::UpdateVolume()
 	//--------------------------------------------------
 
 	this->Modify();
-	//UE_LOG(LogTemp, Log, TEXT("%s updated successfully."), *this->GetName());
 }
 
 void ACameraVolumeActor::UpdateVolumeExtents()
