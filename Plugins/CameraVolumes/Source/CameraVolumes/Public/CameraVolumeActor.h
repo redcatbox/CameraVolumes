@@ -122,7 +122,7 @@ public:
 		bool bOverrideCameraOffset;
 
 	/** New camera offset */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera|MovableCamera", Meta = (EditCondition = "bOverrideCameraOffset", UIMin = "10.0", UIMax = "10000.0", ClampMin = "10.0", ClampMax = "10000.0"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera|MovableCamera", Meta = (EditCondition = "bOverrideCameraOffset"))
 		float CameraOffset;
 
 	/** Should camera use fixed location? */
