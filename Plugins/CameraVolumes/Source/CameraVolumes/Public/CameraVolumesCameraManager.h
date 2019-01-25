@@ -36,6 +36,10 @@ public:
 	UFUNCTION()
 		virtual void CalcNewCameraParams(ACameraVolumeActor* CameraVolume, float DeltaTime);
 
+	/** Should perform camera calculations? Use this to enable/disable camera updates if it's necessary. */
+	UFUNCTION(BlueprintCallable, Meta = (Category = "CameraVolumes"))
+		virtual void SetUpdateCamera(bool bNewUpdateCamera);
+
 protected:
 	UPROPERTY()
 		ACameraVolumesCharacter* PlayerPawn;
@@ -81,4 +85,7 @@ protected:
 
 	UPROPERTY()
 		bool bNeedsCutTransition;
+
+	UPROPERTY()
+		bool bUpdateCamera;
 };
