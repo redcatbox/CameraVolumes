@@ -1,8 +1,7 @@
 //Dmitriy Barannik aka redbox, 2019
 
 /**
-* Player camera manager process camera calculations according to default camera parameters from player pawn or parameters from camera volumes.
-* You can find information about basic algorithm in the end of file.
+* Player camera manager performs camera calculations according to default camera parameters from player pawn or parameters from camera volumes.
 */
 
 #pragma once
@@ -24,7 +23,7 @@ public:
 	ACameraVolumesCameraManager();
 	virtual void UpdateCamera(float DeltaTime) override;
 
-	/** This condition can be used for optimization purpose. You can disable it on loading/cutscenes/etc. */
+	/** This condition used for optimization purpose. Player character will enable/disable it according to overlapping camera volumes. */
 	UPROPERTY()
 		bool bCheckCameraVolumes;
 

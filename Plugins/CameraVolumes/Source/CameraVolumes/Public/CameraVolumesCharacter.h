@@ -1,9 +1,9 @@
 //Dmitriy Barannik aka redbox, 2019
 
 /**
-* Player pawn stores default camera parameters.
-* Player pawn uses BeginOverlap event of it's collision primitive, to get overlapped camera volume and store it in special array of camera volume actors.
-* Player pawn uses EndOverlap event of it's collision primitive, to remove camera volume from array of camera volume actors.
+* Player pawn stores default camera parameters and camera component.
+* Player pawn uses BeginOverlap event of it's capsule collision primitive, to get overlapped camera volume and store it in special array of camera volume actors.
+* Player pawn uses EndOverlap event of it's capsule collision primitive, to remove camera volume from array of camera volume actors.
 */
 
 #pragma once
@@ -19,6 +19,7 @@ class CAMERAVOLUMES_API ACameraVolumesCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
+	/** Camera component */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, Meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* CameraComponent;
 
@@ -31,11 +32,11 @@ class CAMERAVOLUMES_API ACameraVolumesCharacter : public ACharacter
 public:
 	ACameraVolumesCharacter();
 
-	/** Default camera relative location */
+	/** Default camera RELATIVE location */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
 		FVector DefaultCameraLocation;
 
-	/** Default camera world rotation */
+	/** Default camera WORLD rotation */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
 		FRotator DefaultCameraRotation;
 
