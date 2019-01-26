@@ -35,21 +35,22 @@ ACameraVolumeActor::ACameraVolumeActor()
 	// Default values
 	Priority = 0;
 	VolumeExtent = FVector(500.f, 500.f, 500.f);
-	CameraSmoothTransitionTime = 1.f;
+
+	CameraMobility = ECameraMobility::ECM_Movable;
+
+	bOverrideCameraLocation = false;
+	CameraLocation = DefaultCameraLocation;
+	bCameraLocationRelativeToVolume = false;
+
+	bOverrideCameraFocalPoint = false;
+	CameraFocalPoint = DefaultCameraFocalPoint;
+	bIsCameraStatic = false;
+	bFocalPointIsPlayer = true;
 
 	bOverrideCameraFieldOfView = false;
 	CameraFieldOfView = DefaultCameraFOV;
 
-	bOverrideCameraOffset = false;
-	CameraOffset = DefaultCameraOffset;
-
-	bFixedCamera = false;
-	FixedCameraLocation = FVector(CameraOffset, 0.f, 0.f); // Side-scroller
-	//FixedCameraLocation = FVector(0.f, 0.f, CameraOffset); // Top-down
-	bFocalPointEditCond = false;
-	FixedCameraFocalPoint = FVector::ZeroVector;
-	bFocalPointIsPlayer = false;
-	FixedCameraRotation = FRotator::ZeroRotator;
+	CameraSmoothTransitionTime = 1.f;
 
 	/**
 	*	Sides indicators
@@ -89,38 +90,35 @@ void ACameraVolumeActor::UpdateVolume()
 	BillboardComponent->SetRelativeScale3D(FVector(5.f, 1.f, 1.f));
 	BoxComponent->SetBoxExtent(VolumeExtent);
 
+	if (!bOverrideCameraLocation)
+	{
+		CameraLocation = DefaultCameraLocation;
+		bCameraLocationRelativeToVolume = false;
+	}
+
+	if (!bOverrideCameraFocalPoint)
+		CameraFocalPoint = DefaultCameraFocalPoint;
+
+	switch (CameraMobility)
+	{
+	case ECameraMobility::ECM_Movable:
+		bIsCameraStatic = false;
+		bFocalPointIsPlayer = true;
+		break;
+	case ECameraMobility::ECM_Static:
+		bIsCameraStatic = true;
+		break;
+	}
+
+	CameraRotation = FRotationMatrix::MakeFromX(CameraFocalPoint - CameraLocation).ToQuat();
+	CameraComponent->SetRelativeLocationAndRotation(CameraLocation, CameraRotation);
+
 	if (bOverrideCameraFieldOfView)
 		CameraComponent->FieldOfView = CameraFieldOfView;
 	else
 	{
 		CameraFieldOfView = DefaultCameraFOV;
 		CameraComponent->FieldOfView = CameraFieldOfView;
-	}
-
-	if (!bOverrideCameraOffset)
-		CameraOffset = DefaultCameraOffset;
-
-	bFocalPointEditCond = bFixedCamera && !bFocalPointIsPlayer;
-	if (bFixedCamera)
-	{
-		CameraComponent->SetRelativeLocation(FixedCameraLocation);
-		CameraOffset = FixedCameraLocation.X;
-		if (bFocalPointIsPlayer)
-			FixedCameraFocalPoint = FVector(0.f, 0.f, 0.f);
-		FixedCameraRotation = FRotationMatrix::MakeFromX(FixedCameraFocalPoint - FixedCameraLocation).Rotator();
-		CameraComponent->SetRelativeRotation(FixedCameraRotation);
-	}
-	else
-	{
-		// Side-scroller
-		FixedCameraLocation = FVector(CameraOffset, 0.f, 0.f);
-		CameraComponent->SetRelativeLocation(FixedCameraLocation);
-		CameraComponent->SetRelativeRotation(FRotator(0.f, 180.f, 0.f));
-
-		// Top-down
-		//FixedCameraLocation = FVector(0.f, 0.f, CameraOffset);
-		//CameraComponent->SetRelativeLocation(FixedCameraLocation);
-		//CameraComponent->SetRelativeRotation(FRotator(-90.f, 180.f, 0.f));
 	}
 	//--------------------------------------------------
 
@@ -300,10 +298,11 @@ void ACameraVolumeActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyC
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 	FName PropertyName = (PropertyChangedEvent.Property != NULL) ? PropertyChangedEvent.Property->GetFName() : NAME_None;
-	if (PropertyName == TEXT("Priority") || TEXT("VolumeExtent")
+	if (PropertyName == TEXT("CameraMobility")
+		|| TEXT("Priority") || TEXT("VolumeExtent")
+		|| TEXT("bOverrideCameraLocation") || TEXT("CameraLocation")
+		|| TEXT("bOverrideCameraFocalPoint") || TEXT("CameraFocalPoint")
 		|| TEXT("bOverrideCameraFieldOfView") || TEXT("CameraFieldOfView")
-		|| TEXT("bOverrideCameraOffset") || TEXT("CameraOffset")
-		|| TEXT("bFixedCamera") || TEXT("FixedCameraLocation") || TEXT("FixedCameraFocalPoint")
 		|| TEXT("FrontSide") || TEXT("BackSide") || TEXT("RightSide") || TEXT("LeftSide") || TEXT("TopSide") || TEXT("BottomSide"))
 		UpdateVolume();
 }

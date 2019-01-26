@@ -13,29 +13,23 @@ ACameraVolumesCharacter::ACameraVolumesCharacter()
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ACameraVolumesCharacter::OnCapsuleComponentBeginOverlapDelegate);
 	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &ACameraVolumesCharacter::OnCapsuleComponentEndOverlapDelegate);
 
-	// Side-scroller camera defaults
+	// Camera defaults
 	DefaultCameraLocation = FVector(1000.f, 0.f, 0.f);
-	DefaultCameraRotation = FRotator(0.f, 180.f, 0.f);
+	DefaultCameraFocalPoint = FVector::ZeroVector;
 	DefaultCameraFieldOfView = 90.f;
-
-	// Top-down camera defaults
-	//DefaultCameraLocation = FVector(0.f, 0.f, 1000.f);
-	//DefaultCameraRotation = FRotator(-90.f, 180.f, 0.f);
-	//DefaultCameraFieldOfView = 90.f;
 
 	// Camera lag
 	bEnableCameraLocationLag = false;
 	CameraLocationLagSpeed = 10.0f;
 	bEnableCameraRotationLag = false;
 	CameraRotationLagSpeed = 10.0f;
-	bEnableCameraFOVLag = false;
-	CameraFOVLagSpeed = 10.f;
+	bEnableCameraFOVInterpolation = false;
+	CameraFOVInterpolationSpeed = 10.f;
 
 	// Create a camera
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	CameraComponent->bUsePawnControlRotation = false; // We don't want the controller rotating the camera
-	CameraComponent->SetRelativeLocationAndRotation(DefaultCameraLocation, DefaultCameraRotation.Quaternion());
-	CameraComponent->SetFieldOfView(DefaultCameraFieldOfView);
+	UpdateCameraComponent();
 
 	// Don't rotate when the controller rotates.
 	bUseControllerRotationPitch = false;
@@ -47,7 +41,7 @@ ACameraVolumesCharacter::ACameraVolumesCharacter()
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 720.f, 0.f); // ...at this rotation rate
 }
 
-void ACameraVolumesCharacter::UpdateCamera(FVector& CameraLocation, FRotator& CameraRotation, float CameraFOV)
+void ACameraVolumesCharacter::UpdateCamera(FVector& CameraLocation, FQuat& CameraRotation, float CameraFOV)
 {
 	if (CameraComponent)
 	{
@@ -88,10 +82,16 @@ void ACameraVolumesCharacter::PostEditChangeProperty(FPropertyChangedEvent& Prop
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 	FName PropertyName = (PropertyChangedEvent.Property != NULL) ? PropertyChangedEvent.Property->GetFName() : NAME_None;
-	if (PropertyName == TEXT("DefaultCameraLocation") || TEXT("DefaultCameraRotation") || TEXT("DefaultCameraFieldOfView"))
+	if (PropertyName == TEXT("DefaultCameraLocation") || TEXT("DefaultCameraFocalPoint") || TEXT("DefaultCameraFieldOfView"))
 	{
-		CameraComponent->SetRelativeLocationAndRotation(DefaultCameraLocation, DefaultCameraRotation.Quaternion());
-		CameraComponent->SetFieldOfView(DefaultCameraFieldOfView);
+		UpdateCameraComponent();
 	}
 }
 #endif
+
+void ACameraVolumesCharacter::UpdateCameraComponent()
+{
+	DefaultCameraRotation = FRotationMatrix::MakeFromX(DefaultCameraFocalPoint - DefaultCameraLocation).ToQuat();
+	CameraComponent->SetRelativeLocationAndRotation(DefaultCameraLocation, DefaultCameraRotation);
+	CameraComponent->SetFieldOfView(DefaultCameraFieldOfView);
+}

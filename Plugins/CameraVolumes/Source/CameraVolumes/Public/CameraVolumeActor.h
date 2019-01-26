@@ -71,7 +71,14 @@ struct FSideInfo
 	}
 };
 
-UCLASS()
+UENUM(BlueprintType)
+enum class ECameraMobility : uint8
+{
+	ECM_Movable	UMETA(DisplayName = "Movable"),
+	ECM_Static	UMETA(DisplayName = "Static")
+};
+
+UCLASS(AutoExpandCategories = (Volume, Camera))
 class CAMERAVOLUMES_API ACameraVolumeActor : public AActor
 {
 	GENERATED_BODY()
@@ -105,69 +112,76 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Volume", Meta = (MakeEditWidget = true))
 		FVector VolumeExtent;
 
-	/** Time of smooth camera transition */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera|Transition", Meta = (ClampMin = "0.1", ClampMax = "10.0", UIMin = "0.1", UIMax = "10.0"))
-		float CameraSmoothTransitionTime;
+	/** Camera mobility */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
+		ECameraMobility CameraMobility;
 
-	/** Should override camera FOV? */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera|FieldOfView")
-		bool bOverrideCameraFieldOfView;
-
-	/** New camera FOV */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera|FieldOfView", Meta = (EditCondition = "bOverrideCameraFieldOfView", UIMin = "5.0", UIMax = "170", ClampMin = "0.001", ClampMax = "360.0", Units = deg))
-		float CameraFieldOfView;
-
-	/** Should override camera offset? */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera|MovableCamera")
-		bool bOverrideCameraOffset;
+	/** Should override camera location? */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
+		bool bOverrideCameraLocation;
 
 	/** New camera offset */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera|MovableCamera", Meta = (EditCondition = "bOverrideCameraOffset"))
-		float CameraOffset;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", Meta = (EditCondition = "bOverrideCameraLocation"))
+		FVector CameraLocation;
 
-	/** Should camera use fixed location? */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera|FixedCamera")
-		bool bFixedCamera;
+	/** Should camera location be relative to volume? */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", Meta = (EditCondition = "bOverrideCameraLocation"))
+		bool bCameraLocationRelativeToVolume;
 
-	/** New camera fixed location */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera|FixedCamera", Meta = (EditCondition = "bFixedCamera", MakeEditWidget = true))
-		FVector FixedCameraLocation;
+	/** Should override camera focal point? */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
+		bool bOverrideCameraFocalPoint;
+
+	/** Location that fixed camera look at */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", Meta = (EditCondition = "bOverrideCameraFocalPoint", MakeEditWidget = true))
+		FVector CameraFocalPoint;
 
 protected:
 	UPROPERTY()
-		bool bFocalPointEditCond;
+		bool bIsCameraStatic;
 
 public:
-	/** Location that fixed camera look at */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera|FixedCamera", Meta = (EditCondition = "bFocalPointEditCond", MakeEditWidget = true))
-		FVector FixedCameraFocalPoint;
+	/** Returns is volume uses static camera settings */
+	FORCEINLINE bool GetIsCameraStatic() const { return bIsCameraStatic; }
 
-	/** Should fixed camera look at player pawn? */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera|FixedCamera", Meta = (EditCondition = "bFixedCamera"))
+	/** Should fixed camera look at player character pivot? */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", Meta = (EditCondition = "bIsCameraStatic"))
 		bool bFocalPointIsPlayer;
-
+	
 	UPROPERTY()
-		FRotator FixedCameraRotation;
+		FQuat CameraRotation;
+
+		/** Should override camera FOV? */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
+		bool bOverrideCameraFieldOfView;
+
+	/** New camera FOV */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", Meta = (EditCondition = "bOverrideCameraFieldOfView", UIMin = "5.0", UIMax = "170", ClampMin = "0.001", ClampMax = "360.0", Units = deg))
+		float CameraFieldOfView;
 	//--------------------------------------------------
 
 	// Sides info
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))
 		FSideInfo FrontSide;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))
 		FSideInfo BackSide;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))
 		FSideInfo RightSide;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))
 		FSideInfo LeftSide;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))
 		FSideInfo TopSide;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))
 		FSideInfo BottomSide;
+
+	/** Time of smooth camera transition */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", Meta = (ClampMin = "0.1", ClampMax = "10.0", UIMin = "0.1", UIMax = "10.0"))
+		float CameraSmoothTransitionTime;
 	//--------------------------------------------------
 
 	UPROPERTY()
@@ -217,8 +231,10 @@ protected:
 	const FText Text_Cut = FText::FromString("CUT");
 	//--------------------------------------------------
 
+	const FVector DefaultCameraLocation = FVector(1000.f, 0.f, 0.f); // Side-scroller
+//const FVector DefaultCameraLocation = FVector(0.f, 0.f, 1000.f); // Top-down
+	const FVector DefaultCameraFocalPoint = FVector::ZeroVector;
 	const float DefaultCameraFOV = 90.f;
-	const float DefaultCameraOffset = 1000.f;
 	const float OpenEdgeOffset = 10000.f;
 
 public:

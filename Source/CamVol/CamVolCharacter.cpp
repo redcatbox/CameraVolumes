@@ -34,8 +34,8 @@ ACamVolCharacter::ACamVolCharacter()
 	CameraLocationLagSpeed = 5.f;
 	bEnableCameraRotationLag = true;
 	CameraRotationLagSpeed = 5.f;
-	bEnableCameraFOVLag = true;
-	CameraFOVLagSpeed = 5.f;
+	bEnableCameraFOVInterpolation = true;
+	CameraFOVInterpolationSpeed = 5.f;
 }
 
 // Input

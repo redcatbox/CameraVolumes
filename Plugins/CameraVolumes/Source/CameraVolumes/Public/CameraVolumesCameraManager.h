@@ -62,10 +62,10 @@ protected:
 		FVector NewCameraLocation;
 
 	UPROPERTY()
-		FRotator OldCameraRotation;
+		FQuat OldCameraRotation;
 
 	UPROPERTY()
-		FRotator NewCameraRotation;
+		FQuat NewCameraRotation;
 
 	UPROPERTY()
 		float OldCameraFOV;
