@@ -40,7 +40,7 @@ ACameraVolumeActor::ACameraVolumeActor()
 
 	bOverrideCameraLocation = false;
 	CameraLocation = DefaultCameraLocation;
-	bCameraLocationRelativeToVolume = false;
+	bCameraLocationRelativeToVolume = true;
 
 	bOverrideCameraFocalPoint = false;
 	CameraFocalPoint = DefaultCameraFocalPoint;
@@ -91,10 +91,7 @@ void ACameraVolumeActor::UpdateVolume()
 	BoxComponent->SetBoxExtent(VolumeExtent);
 
 	if (!bOverrideCameraLocation)
-	{
 		CameraLocation = DefaultCameraLocation;
-		bCameraLocationRelativeToVolume = false;
-	}
 
 	if (!bOverrideCameraFocalPoint)
 		CameraFocalPoint = DefaultCameraFocalPoint;
@@ -214,8 +211,6 @@ void ACameraVolumeActor::UpdateVolume()
 void ACameraVolumeActor::UpdateVolumeExtents()
 {
 	VolumeExtent = VolumeExtent.GetAbs();
-	CamVolAspectRatio = VolumeExtent.Y / VolumeExtent.Z; // YZ Side-scroller
-	//CamVolAspectRatio = VolumeExtent.Y / VolumeExtent.X; // YX Top-down
 	CamVolWorldMax = GetActorLocation() + VolumeExtent;
 	CamVolWorldMin = CamVolWorldMax - VolumeExtent * 2.f;
 	CamVolWorldMinCorrected = CamVolWorldMin;
@@ -240,6 +235,8 @@ void ACameraVolumeActor::UpdateVolumeExtents()
 		CamVolWorldMinCorrected.Z = CamVolWorldMinCorrected.Z - OpenEdgeOffset;
 
 	CamVolExtentCorrected = (CamVolWorldMaxCorrected - CamVolWorldMinCorrected) * 0.5f;
+	CamVolAspectRatio = CamVolExtentCorrected.Y / CamVolExtentCorrected.Z; // YZ Side-scroller
+	//CamVolAspectRatio = CamVolExtentCorrected.Y / CamVolExtentCorrected.X; // YX Top-down
 }
 
 FSideInfo ACameraVolumeActor::GetSideInfo(ESide Side)

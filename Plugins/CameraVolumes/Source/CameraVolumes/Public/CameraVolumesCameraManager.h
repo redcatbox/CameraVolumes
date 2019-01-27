@@ -41,10 +41,10 @@ public:
 
 protected:
 	UPROPERTY()
-		ACameraVolumesCharacter* PlayerPawn;
+		ACameraVolumesCharacter* PlayerCharacter;
 
 	UPROPERTY()
-		FVector PlayerPawnLocation;
+		FVector PlayerCharacterLocation;
 
 	UPROPERTY()
 		TArray<AActor*> OverlappingActors;
