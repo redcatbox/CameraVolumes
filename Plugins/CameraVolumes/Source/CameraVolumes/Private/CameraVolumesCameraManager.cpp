@@ -1,7 +1,6 @@
 //Dmitriy Barannik aka redbox, 2019
 
 #include "CameraVolumesCameraManager.h"
-#include "DrawDebugHelpers.h"
 
 ACameraVolumesCameraManager::ACameraVolumesCameraManager()
 {
@@ -150,7 +149,14 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 			NewCameraFOV = CameraVolume->CameraFieldOfView;
 
 		float PlayerCamFOVTangens = FMath::Tan((PI / (180.f)) * (NewCameraFOV * 0.5f));
-		float PlayerCamAspectRatio = PlayerCharacter->GetCameraComponent()->AspectRatio;
+		float ScreenAspectRatio;
+		if (GEngine)
+		{
+			const FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
+			ScreenAspectRatio = ViewportSize.X / ViewportSize.Y;
+		}
+		else
+			ScreenAspectRatio = PlayerCharacter->GetCameraComponent()->AspectRatio;
 
 		// Location and Rotation
 		if (CameraVolume->GetIsCameraStatic())
@@ -190,27 +196,27 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 			FVector DeltaExtent = FVector::ZeroVector;
 			// Side-scroller
 			DeltaExtent.Y = FMath::Abs(CameraVolume->CamVolWorldMaxCorrected.X * PlayerCamFOVTangens);
-			DeltaExtent = FVector(0.f, DeltaExtent.Y, DeltaExtent.Y / PlayerCamAspectRatio);
+			DeltaExtent = FVector(0.f, DeltaExtent.Y, DeltaExtent.Y / ScreenAspectRatio);
 			// Top-down
 			//DeltaExtent.Y = FMath::Abs(PlayerCamFOVTangens * CameraVolume->CamVolWorldMaxCorrected.Z);
-			//DeltaExtent = FVector(DeltaExtent.Y / PlayerCamAspectRatio, DeltaExtent.Y, 0.f);
+			//DeltaExtent = FVector(DeltaExtent.Y / ScreenAspectRatio, DeltaExtent.Y, 0.f);
 			FVector NewCamVolExtentCorrected = CameraVolume->CamVolExtentCorrected + DeltaExtent;
 			FVector NewCamVolWorldMinCorrected = CameraVolume->CamVolWorldMinCorrected - DeltaExtent;
 			FVector NewCamVolWorldMaxCorrected = CameraVolume->CamVolWorldMaxCorrected + DeltaExtent;
 
-			if (CameraVolume->CamVolAspectRatio >= PlayerCamAspectRatio) // Horizontal movement
+			if (CameraVolume->CamVolAspectRatio >= ScreenAspectRatio) // Horizontal movement
 				// Side-scroller
-				CameraOffset = FMath::Clamp(CameraOffset, CameraOffset, NewCamVolExtentCorrected.Z * PlayerCamAspectRatio / PlayerCamFOVTangens);
+				CameraOffset = FMath::Clamp(CameraOffset, CameraOffset, NewCamVolExtentCorrected.Z * ScreenAspectRatio / PlayerCamFOVTangens);
 			// Top-down
-			//CameraOffset = FMath::Clamp(CameraOffset, CameraOffset, NewCamVolExtentCorrected.X * PlayerCamAspectRatio / PlayerCamFOVTangens);
+			//CameraOffset = FMath::Clamp(CameraOffset, CameraOffset, NewCamVolExtentCorrected.X * ScreenAspectRatio / PlayerCamFOVTangens);
 			else // Vertical movement
 				CameraOffset = FMath::Clamp(CameraOffset, CameraOffset, NewCamVolExtentCorrected.Y / PlayerCamFOVTangens);
 
 			// Calculate screen world extent at depth
 			FVector ScreenExtent = FVector::ZeroVector;
 			ScreenExtent.Y = FMath::Abs(CameraOffset * PlayerCamFOVTangens); // Side-scroller
-			ScreenExtent = FVector(0.f, ScreenExtent.Y, ScreenExtent.Y / PlayerCamAspectRatio);
-			//ScreenExtent = FVector(ScreenExtent.Y / PlayerCamAspectRatio, ScreenExtent.Y, 0.f); // Top-down
+			ScreenExtent = FVector(0.f, ScreenExtent.Y, ScreenExtent.Y / ScreenAspectRatio);
+			//ScreenExtent = FVector(ScreenExtent.Y / ScreenAspectRatio, ScreenExtent.Y, 0.f); // Top-down
 			FVector ScreenWorldMin = (NewCamVolWorldMinCorrected + ScreenExtent);
 			FVector ScreenWorldMax = (NewCamVolWorldMaxCorrected - ScreenExtent);
 

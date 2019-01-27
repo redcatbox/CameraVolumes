@@ -13,6 +13,3 @@ class ACamVolGameMode : public AGameModeBase
 public:
 	ACamVolGameMode();
 };
-
-
-

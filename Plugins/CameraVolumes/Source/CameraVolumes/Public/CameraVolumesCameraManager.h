@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "Engine/Engine.h"
 #include "Camera/PlayerCameraManager.h"
 #include "GameFramework/PlayerController.h"
 #include "CameraVolumeDynamicActor.h"

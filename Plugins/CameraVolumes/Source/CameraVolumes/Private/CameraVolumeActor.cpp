@@ -104,6 +104,7 @@ void ACameraVolumeActor::UpdateVolume()
 		break;
 	case ECameraMobility::ECM_Static:
 		bIsCameraStatic = true;
+		bOverrideCameraFocalPoint = true;
 		break;
 	}
 

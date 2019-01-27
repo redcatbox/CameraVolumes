@@ -120,7 +120,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
 		bool bOverrideCameraLocation;
 
-	/** New camera offset */
+	/** New camera location */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", Meta = (EditCondition = "bOverrideCameraLocation"))
 		FVector CameraLocation;
 
@@ -132,7 +132,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
 		bool bOverrideCameraFocalPoint;
 
-	/** Location that fixed camera look at */
+	/** New camera focal point */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", Meta = (EditCondition = "bOverrideCameraFocalPoint", MakeEditWidget = true))
 		FVector CameraFocalPoint;
 
@@ -144,7 +144,7 @@ public:
 	/** Returns is volume uses static camera settings */
 	FORCEINLINE bool GetIsCameraStatic() const { return bIsCameraStatic; }
 
-	/** Should fixed camera look at player character pivot? */
+	/** Should camera look at player character? */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", Meta = (EditCondition = "bIsCameraStatic"))
 		bool bFocalPointIsPlayer;
 	
@@ -158,6 +158,10 @@ public:
 	/** New camera FOV */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", Meta = (EditCondition = "bOverrideCameraFieldOfView", UIMin = "5.0", UIMax = "170", ClampMin = "0.001", ClampMax = "360.0", Units = deg))
 		float CameraFieldOfView;
+
+	/** Time of smooth camera transition */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", Meta = (ClampMin = "0.1", ClampMax = "10.0", UIMin = "0.1", UIMax = "10.0"))
+		float CameraSmoothTransitionTime;
 	//--------------------------------------------------
 
 	// Sides info
@@ -178,10 +182,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))
 		FSideInfo BottomSide;
-
-	/** Time of smooth camera transition */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", Meta = (ClampMin = "0.1", ClampMax = "10.0", UIMin = "0.1", UIMax = "10.0"))
-		float CameraSmoothTransitionTime;
 	//--------------------------------------------------
 
 	UPROPERTY()
@@ -203,19 +203,19 @@ public:
 		FVector CamVolExtentCorrected;
 
 	/** Use this to update volume after made changes in editor, if they are not applied automatically */
-	UFUNCTION(CallInEditor, Category = "Volume")
+	UFUNCTION(CallInEditor, Category = "CameraVolumes")
 		virtual void UpdateVolume();
 
 	/** Update volume extents. Can be called for dynamic camera volume */
-	UFUNCTION(BlueprintCallable, Category = "Volume")
+	UFUNCTION(BlueprintCallable, Category = "CameraVolumes")
 		virtual void UpdateVolumeExtents();
 
 	/** Get side info */
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "CameraVolumes")
 		virtual FSideInfo GetSideInfo(ESide Side);
 
 	/** Get volume side nearest to player location */
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "CameraVolumes")
 		virtual ESide GetNearestVolumeSide(FVector& PlayerPawnLocation);
 
 protected:
