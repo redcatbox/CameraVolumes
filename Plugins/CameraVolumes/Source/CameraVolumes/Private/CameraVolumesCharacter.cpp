@@ -23,8 +23,20 @@ ACameraVolumesCharacter::ACameraVolumesCharacter()
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
+<<<<<<< HEAD
+<<<<<<< HEAD
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 720.f, 0.f);
+=======
+
+	// Configure character movement
+	GetCharacterMovement()->bOrientRotationToMovement = true; // Face in the direction we are moving...
+	GetCharacterMovement()->RotationRate = FRotator(0.f, 720.f, 0.f); // ...at this rotation rate
+>>>>>>> b8d6390... refactoring to match paper2d integration
+=======
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->RotationRate = FRotator(0.f, 720.f, 0.f);
+>>>>>>> 072045c... changed coord system
 }
 
 void ACameraVolumesCharacter::OnCapsuleComponentBeginOverlapDelegate(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -49,10 +61,39 @@ void ACameraVolumesCharacter::OnCapsuleComponentEndOverlapDelegate(UPrimitiveCom
 {
 	ACameraVolumeActor* CameraVolume = Cast<ACameraVolumeActor>(OtherActor);
 	if (CameraVolume)
+<<<<<<< HEAD
+<<<<<<< HEAD
 		GetCameraComponent()->OverlappingCameraVolumes.Remove(CameraVolume);
+=======
+		OverlappingCameraVolumes.Remove(CameraVolume);
+=======
+		GetCameraComponent()->OverlappingCameraVolumes.Remove(CameraVolume);
+>>>>>>> 6384029... fixed paper 2d character
+}
+<<<<<<< HEAD
+
+//Update with changed property
+#if WITH_EDITOR
+void ACameraVolumesCharacter::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+	FName PropertyName = (PropertyChangedEvent.Property != NULL) ? PropertyChangedEvent.Property->GetFName() : NAME_None;
+	if (PropertyName == TEXT("DefaultCameraLocation") || TEXT("DefaultCameraFocalPoint") || TEXT("DefaultCameraFieldOfView"))
+		UpdateCameraComponent();
+>>>>>>> 55a984a... in progress
 }
 
 UCameraVolumesCameraComponent* ACameraVolumesCharacter::GetCameraComponent() const
 {
 	return CameraComponent;
 }
+<<<<<<< HEAD
+=======
+>>>>>>> b8d6390... refactoring to match paper2d integration
+=======
+
+UCameraVolumesCameraComponent* ACameraVolumesCharacter::GetCameraComponent() const
+{
+	return CameraComponent;
+}
+>>>>>>> ec14146... added character interface

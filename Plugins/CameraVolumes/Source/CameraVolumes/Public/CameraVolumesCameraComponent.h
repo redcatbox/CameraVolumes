@@ -4,7 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Camera/CameraComponent.h"
+<<<<<<< HEAD
+<<<<<<< HEAD
 #include "CameraVolumeActor.h"
+=======
+>>>>>>> b8d6390... refactoring to match paper2d integration
+=======
+#include "CameraVolumeActor.h"
+>>>>>>> a8e85d6... fff
 #include "CameraVolumesCameraComponent.generated.h"
 
 UCLASS(AutoExpandCategories = (DefaultCameraParameters))
@@ -58,10 +65,19 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DefaultCameraParameters", Meta = (EditCondition = "bEnableCameraFOVInterpolation", ClampMin = "0.1", ClampMax = "100.0", UIMin = "0.1", UIMax = "100.0"))
 		float CameraFOVInterpolationSpeed;
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 6384029... fixed paper 2d character
 	/** Overlapping camera volumes */
 	UPROPERTY()
 		TArray<ACameraVolumeActor*> OverlappingCameraVolumes;
 
+<<<<<<< HEAD
+=======
+>>>>>>> b8d6390... refactoring to match paper2d integration
+=======
+>>>>>>> 6384029... fixed paper 2d character
 	/** Updates camera by camera manager*/
 	UFUNCTION()
 		virtual void UpdateCamera(FVector& CameraLocation, FQuat& CameraRotation, float CameraFOV);

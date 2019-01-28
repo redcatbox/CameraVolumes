@@ -3,6 +3,10 @@
 #pragma once
 #include "CameraVolumesTypes.generated.h"
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> ec14146... added character interface
 //UENUM(BlueprintType)
 //enum class ECameraOrientation : uint8
 //{
@@ -10,6 +14,11 @@
 //	ECO_TopDown			UMETA(DisplayName = "TopDown") // Perform calculations in YX plane
 //};
 
+<<<<<<< HEAD
+=======
+>>>>>>> b8d6390... refactoring to match paper2d integration
+=======
+>>>>>>> ec14146... added character interface
 UENUM(BlueprintType)
 enum class ECameraMobility : uint8
 {
@@ -18,6 +27,19 @@ enum class ECameraMobility : uint8
 };
 
 UENUM(BlueprintType)
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+enum class ECameraOrientation : uint8
+{
+	ECO_SideScroller	UMETA(DisplayName = "SideScroller"), // Perform calculations in YZ plane
+	ECO_TopDown			UMETA(DisplayName = "TopDown") // Perform calculations in YX plane
+};
+
+UENUM(BlueprintType)
+>>>>>>> b8d6390... refactoring to match paper2d integration
+=======
+>>>>>>> ec14146... added character interface
 enum class ESide : uint8
 {
 	ES_Unknown	UMETA(DisplayName = "Unknown"),

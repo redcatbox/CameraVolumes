@@ -33,4 +33,13 @@ protected:
 
 	UPROPERTY()
 		FVector OldVolumeLocation;
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+	UPROPERTY()
+		FVector NewVolumeLocation;
+>>>>>>> a8e85d6... fff
+=======
+>>>>>>> 14484cc... fixed dynamic volume update
 };

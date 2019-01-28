@@ -6,8 +6,17 @@
 UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 {
 	// Camera defaults
+<<<<<<< HEAD
+<<<<<<< HEAD
 	DefaultCameraLocation = FVector(0.f, 1000.f, 0.f); //Side-scroller
 	//DefaultCameraLocation = FVector(0.f, 0.f, 1000.f); //Top-down
+=======
+	DefaultCameraLocation = FVector(1000.f, 0.f, 0.f);
+>>>>>>> b8d6390... refactoring to match paper2d integration
+=======
+	DefaultCameraLocation = FVector(0.f, 1000.f, 0.f); //Side-scroller
+	//DefaultCameraLocation = FVector(0.f, 0.f, 1000.f); //Top-down
+>>>>>>> 072045c... changed coord system
 	DefaultCameraFocalPoint = FVector::ZeroVector;
 	DefaultCameraRoll = 0.f;
 	DefaultCameraFieldOfView = 90.f;
@@ -42,10 +51,20 @@ void UCameraVolumesCameraComponent::PostEditChangeProperty(FPropertyChangedEvent
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 	FName PropertyName = (PropertyChangedEvent.Property != NULL) ? PropertyChangedEvent.Property->GetFName() : NAME_None;
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 072045c... changed coord system
 	if (PropertyName == TEXT("DefaultCameraLocation")
 		|| TEXT("DefaultCameraFocalPoint")
 		|| TEXT("DefaultCameraRoll")
 		|| TEXT("DefaultCameraFieldOfView"))
+<<<<<<< HEAD
+=======
+	if (PropertyName == TEXT("DefaultCameraLocation") || TEXT("DefaultCameraFocalPoint") || TEXT("DefaultCameraRoll") || TEXT("DefaultCameraFieldOfView"))
+>>>>>>> b8d6390... refactoring to match paper2d integration
+=======
+>>>>>>> 072045c... changed coord system
 		UpdateCameraComponent();
 }
 #endif
