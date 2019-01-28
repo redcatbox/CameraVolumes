@@ -1,17 +1,17 @@
 //Dmitriy Barannik aka redbox, 2019
 
-#include "CameraVolumesCharacter.h"
+#include "CameraVolumesPaperCharacter.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "CameraVolumesCameraManager.h"
 
-ACameraVolumesCharacter::ACameraVolumesCharacter()
+ACameraVolumesPaperCharacter::ACameraVolumesPaperCharacter()
 {
 	// Bind overlap events
-	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ACameraVolumesCharacter::OnCapsuleComponentBeginOverlapDelegate);
-	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &ACameraVolumesCharacter::OnCapsuleComponentEndOverlapDelegate);
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ACameraVolumesPaperCharacter::OnCapsuleComponentBeginOverlapDelegate);
+	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &ACameraVolumesPaperCharacter::OnCapsuleComponentEndOverlapDelegate);
 
 	// Camera defaults
 	DefaultCameraLocation = FVector(1000.f, 0.f, 0.f);
@@ -37,11 +37,10 @@ ACameraVolumesCharacter::ACameraVolumesCharacter()
 	bUseControllerRotationRoll = false;
 
 	// Configure character movement
-	GetCharacterMovement()->bOrientRotationToMovement = true; // Face in the direction we are moving...
-	GetCharacterMovement()->RotationRate = FRotator(0.f, 720.f, 0.f); // ...at this rotation rate
+	GetCharacterMovement()->bOrientRotationToMovement = false; // Prevent automatic rotation behavior on the character
 }
 
-void ACameraVolumesCharacter::UpdateCamera(FVector& CameraLocation, FQuat& CameraRotation, float CameraFOV)
+void ACameraVolumesPaperCharacter::UpdateCamera(FVector& CameraLocation, FQuat& CameraRotation, float CameraFOV)
 {
 	if (CameraComponent)
 	{
@@ -51,7 +50,7 @@ void ACameraVolumesCharacter::UpdateCamera(FVector& CameraLocation, FQuat& Camer
 	}
 }
 
-void ACameraVolumesCharacter::OnCapsuleComponentBeginOverlapDelegate(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ACameraVolumesPaperCharacter::OnCapsuleComponentBeginOverlapDelegate(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	ACameraVolumeActor* CameraVolume = Cast<ACameraVolumeActor>(OtherActor);
 	if (CameraVolume)
@@ -69,7 +68,7 @@ void ACameraVolumesCharacter::OnCapsuleComponentBeginOverlapDelegate(UPrimitiveC
 	}
 }
 
-void ACameraVolumesCharacter::OnCapsuleComponentEndOverlapDelegate(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void ACameraVolumesPaperCharacter::OnCapsuleComponentEndOverlapDelegate(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	ACameraVolumeActor* CameraVolume = Cast<ACameraVolumeActor>(OtherActor);
 	if (CameraVolume)
@@ -78,7 +77,7 @@ void ACameraVolumesCharacter::OnCapsuleComponentEndOverlapDelegate(UPrimitiveCom
 
 //Update with changed property
 #if WITH_EDITOR
-void ACameraVolumesCharacter::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+void ACameraVolumesPaperCharacter::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 	FName PropertyName = (PropertyChangedEvent.Property != NULL) ? PropertyChangedEvent.Property->GetFName() : NAME_None;
@@ -87,7 +86,7 @@ void ACameraVolumesCharacter::PostEditChangeProperty(FPropertyChangedEvent& Prop
 }
 #endif
 
-void ACameraVolumesCharacter::UpdateCameraComponent()
+void ACameraVolumesPaperCharacter::UpdateCameraComponent()
 {
 	DefaultCameraRotation = FRotationMatrix::MakeFromX(DefaultCameraFocalPoint - DefaultCameraLocation).ToQuat();
 	CameraComponent->SetRelativeLocationAndRotation(DefaultCameraLocation, DefaultCameraRotation);

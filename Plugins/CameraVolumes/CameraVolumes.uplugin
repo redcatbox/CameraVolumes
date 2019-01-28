@@ -24,5 +24,11 @@
 				"Win32"
 			]
 		}
-	]
+	],
+	"Plugins": [
+		{
+			"Name": "Paper2D",
+			"Enabled": true
+		}
+	]  
 }

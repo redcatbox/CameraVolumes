@@ -26,6 +26,7 @@ public class CameraVolumes : ModuleRules
 			new string[]
 			{
 				"Core",
+				"Paper2D"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
