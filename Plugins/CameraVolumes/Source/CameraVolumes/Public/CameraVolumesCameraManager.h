@@ -14,7 +14,7 @@
 #include "CameraVolumesCharacter.h"
 #include "CameraVolumesCameraManager.generated.h"
 
-UCLASS()
+UCLASS(Config=CameraVolumes)
 class CAMERAVOLUMES_API ACameraVolumesCameraManager : public APlayerCameraManager
 {
 	GENERATED_BODY()
@@ -22,6 +22,9 @@ class CAMERAVOLUMES_API ACameraVolumesCameraManager : public APlayerCameraManage
 public:
 	ACameraVolumesCameraManager();
 	virtual void UpdateCamera(float DeltaTime) override;
+
+	UPROPERTY(Config)
+		bool bOnly2DCalculations;
 
 	/** This condition used for optimization purpose. Player character will enable/disable it according to overlapping camera volumes. */
 	UPROPERTY()
