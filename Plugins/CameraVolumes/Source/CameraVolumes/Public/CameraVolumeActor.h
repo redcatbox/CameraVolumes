@@ -90,16 +90,16 @@ public:
 protected:
 	//Components
 	UPROPERTY()
-		USceneComponent* DefaultSceneRoot;
+		class USceneComponent* DefaultSceneRoot;
 
 	UPROPERTY()
-		UBillboardComponent* BillboardComponent;
+		class UBillboardComponent* BillboardComponent;
 
 	UPROPERTY()
-		UBoxComponent* BoxComponent;
+		class UBoxComponent* BoxComponent;
 
 	UPROPERTY()
-		UCameraComponent* CameraComponent;
+		class UCameraComponent* CameraComponent;
 	//--------------------------------------------------
 
 public:

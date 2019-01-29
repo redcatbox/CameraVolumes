@@ -40,6 +40,11 @@ ACameraVolumesPaperCharacter::ACameraVolumesPaperCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = false; // Prevent automatic rotation behavior on the character
 }
 
+void ACameraVolumesPaperCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+}
+
 void ACameraVolumesPaperCharacter::UpdateCamera(FVector& CameraLocation, FQuat& CameraRotation, float CameraFOV)
 {
 	if (CameraComponent)

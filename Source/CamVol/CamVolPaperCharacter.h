@@ -2,6 +2,8 @@
 #pragma once
 
 #include "CameraVolumesPaperCharacter.h"
+#include "PaperFlipbook.h"
+#include "PaperFlipbookComponent.h"
 #include "CamVolPaperCharacter.generated.h"
 
 UCLASS(config=Game)
@@ -16,8 +18,8 @@ public:
 
 protected:
 	// The animation to play while running around
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Animations)
-	class UPaperFlipbook* RunningAnimation;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
+		class UPaperFlipbook* RunningAnimation;
 
 	// The animation to play while idle (standing still)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)

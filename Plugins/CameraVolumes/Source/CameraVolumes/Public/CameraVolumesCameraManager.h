@@ -41,7 +41,7 @@ public:
 
 protected:
 	UPROPERTY()
-		ACameraVolumesCharacter* PlayerCharacter;
+		class ACameraVolumesCharacter* PlayerCharacter;
 
 	UPROPERTY()
 		FVector PlayerCharacterLocation;
@@ -50,10 +50,10 @@ protected:
 		TArray<AActor*> OverlappingActors;
 
 	UPROPERTY()
-		ACameraVolumeActor* CamVolCurrent;
+		class ACameraVolumeActor* CamVolCurrent;
 
 	UPROPERTY()
-		ACameraVolumeActor* CamVolPrevious;
+		class ACameraVolumeActor* CamVolPrevious;
 
 	UPROPERTY()
 		FVector OldCameraLocation;

@@ -31,6 +31,7 @@ class CAMERAVOLUMES_API ACameraVolumesPaperCharacter : public APaperCharacter
 
 public:
 	ACameraVolumesPaperCharacter();
+	virtual void PostInitializeComponents() override;
 
 	/** Default camera RELATIVE location */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DefaultCameraParameters", Meta = (MakeEditWidget = true))

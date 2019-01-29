@@ -13,6 +13,7 @@ ACamVolCharacter::ACamVolCharacter()
 	// Mesh
 	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -96.f));
 	GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
+
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletalMeshObj(TEXT("/Game/Mannequin/Character/Mesh/SK_Mannequin"));
 	if (SkeletalMeshObj.Object)
 		GetMesh()->SetSkeletalMesh(SkeletalMeshObj.Object, true);
