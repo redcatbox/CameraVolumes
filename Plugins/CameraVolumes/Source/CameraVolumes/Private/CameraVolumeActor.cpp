@@ -1,6 +1,7 @@
 //Dmitriy Barannik aka redbox, 2019
 
 #include "CameraVolumeActor.h"
+#include "CameraVolumesFunctionLibrary.h"
 
 ACameraVolumeActor::ACameraVolumeActor()
 {
@@ -36,19 +37,19 @@ ACameraVolumeActor::ACameraVolumeActor()
 	Priority = 0;
 	VolumeExtent = FVector(500.f, 500.f, 500.f);
 
+	CameraOrientation = ECameraOrientation::ECO_SideScroller;
 	CameraMobility = ECameraMobility::ECM_Movable;
 
 	bOverrideCameraLocation = false;
-	CameraLocation = DefaultCameraLocation;
 	bCameraLocationRelativeToVolume = true;
 
-	bOverrideCameraFocalPoint = false;
-	CameraFocalPoint = DefaultCameraFocalPoint;
-	bIsCameraStatic = false;
+	bOverrideCameraRotation = false;
+	CameraFocalPoint = FVector::ZeroVector;
+	CameraRoll = 0.f;
 	bFocalPointIsPlayer = true;
 
 	bOverrideCameraFieldOfView = false;
-	CameraFieldOfView = DefaultCameraFOV;
+	CameraFieldOfView = 90.f;
 
 	CameraSmoothTransitionTime = 1.f;
 
@@ -82,6 +83,8 @@ void ACameraVolumeActor::UpdateVolume()
 	SetActorRotation(FRotator::ZeroRotator);
 	SetActorScale3D(FVector::OneVector);
 
+
+
 	//Extents
 	UpdateVolumeExtents();
 
@@ -91,10 +94,20 @@ void ACameraVolumeActor::UpdateVolume()
 	BoxComponent->SetBoxExtent(VolumeExtent);
 
 	if (!bOverrideCameraLocation)
-		CameraLocation = DefaultCameraLocation;
+	{
+		switch (CameraOrientation)
+		{
+		case ECameraOrientation::ECO_SideScroller:
+			CameraLocation = FVector(1000.f, 0.f, 0.f);
+			break;
+		case ECameraOrientation::ECO_TopDown:
+			CameraLocation = FVector(0.f, 0.f, 1000.f);
+			break;
+		}
+	}
 
-	if (!bOverrideCameraFocalPoint)
-		CameraFocalPoint = DefaultCameraFocalPoint;
+	if (!bOverrideCameraRotation)
+		CameraFocalPoint = FVector::ZeroVector;
 
 	switch (CameraMobility)
 	{
@@ -104,28 +117,23 @@ void ACameraVolumeActor::UpdateVolume()
 		break;
 	case ECameraMobility::ECM_Static:
 		bIsCameraStatic = true;
-		bOverrideCameraFocalPoint = true;
+		bFocalPointIsPlayer = false;
 		break;
 	}
 
-	CameraRotation = FRotationMatrix::MakeFromX(CameraFocalPoint - CameraLocation).ToQuat();
+	CameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(CameraLocation, CameraFocalPoint, CameraRoll);
 	CameraComponent->SetRelativeLocationAndRotation(CameraLocation, CameraRotation);
 
 	if (bOverrideCameraFieldOfView)
 		CameraComponent->FieldOfView = CameraFieldOfView;
 	else
 	{
-		CameraFieldOfView = DefaultCameraFOV;
+		CameraFieldOfView = 90.f;
 		CameraComponent->FieldOfView = CameraFieldOfView;
 	}
 	//--------------------------------------------------
 
 	//Indicators
-	// Side-scroller screen should be aligned on CamVolWorldMax.X coordinate, so front side must be closed.
-	//FrontSide.SideType = ESideType::EST_Closed;
-	// Top-down screen should be aligned on CamVolWorldMax.Z coordinate, so top side must be closed.
-	//TopSide.SideType = ESideType::EST_Closed;
-
 	//Priority
 	Text_Indicators[0]->SetText(FText::FromString(FString::FromInt(Priority)));
 	Text_Indicators[0]->SetTextRenderColor(FColor::White);
@@ -290,6 +298,44 @@ ESide ACameraVolumeActor::GetNearestVolumeSide(FVector& PlayerPawnLocation)
 	return NearestSide;
 }
 
+ESide ACameraVolumeActor::GetNearestVolumeSide2DYZ(FVector& PlayerPawnLocation)
+{
+	ESide NearestSide = ESide::ES_Unknown;
+	TMap<ESide, float> Sides;
+	Sides.Add(ESide::ES_Right, FMath::Abs(PlayerPawnLocation.Y - CamVolWorldMin.Y));
+	Sides.Add(ESide::ES_Left, FMath::Abs(PlayerPawnLocation.Y - CamVolWorldMax.Y));
+	Sides.Add(ESide::ES_Top, FMath::Abs(PlayerPawnLocation.Z - CamVolWorldMax.Z));
+	Sides.Add(ESide::ES_Bottom, FMath::Abs(PlayerPawnLocation.Z - CamVolWorldMin.Z));
+	Sides.ValueSort([](float Min, float Max) { return Min < Max; });
+
+	for (auto& Pair : Sides)
+	{
+		NearestSide = Pair.Key;
+		break;
+	}
+
+	return NearestSide;
+}
+
+ESide ACameraVolumeActor::GetNearestVolumeSide2DYX(FVector& PlayerPawnLocation)
+{
+	ESide NearestSide = ESide::ES_Unknown;
+	TMap<ESide, float> Sides;
+	Sides.Add(ESide::ES_Front, FMath::Abs(PlayerPawnLocation.X - CamVolWorldMax.X));
+	Sides.Add(ESide::ES_Back, FMath::Abs(PlayerPawnLocation.X - CamVolWorldMin.X));
+	Sides.Add(ESide::ES_Right, FMath::Abs(PlayerPawnLocation.Y - CamVolWorldMin.Y));
+	Sides.Add(ESide::ES_Left, FMath::Abs(PlayerPawnLocation.Y - CamVolWorldMax.Y));
+	Sides.ValueSort([](float Min, float Max) { return Min < Max; });
+
+	for (auto& Pair : Sides)
+	{
+		NearestSide = Pair.Key;
+		break;
+	}
+
+	return NearestSide;
+}
+
 //Update with changed property
 #if WITH_EDITOR
 void ACameraVolumeActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
@@ -299,7 +345,7 @@ void ACameraVolumeActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyC
 	if (PropertyName == TEXT("CameraMobility")
 		|| TEXT("Priority") || TEXT("VolumeExtent")
 		|| TEXT("bOverrideCameraLocation") || TEXT("CameraLocation")
-		|| TEXT("bOverrideCameraFocalPoint") || TEXT("CameraFocalPoint")
+		|| TEXT("bOverrideCameraRotation") || TEXT("CameraFocalPoint") || TEXT("CameraRoll")
 		|| TEXT("bOverrideCameraFieldOfView") || TEXT("CameraFieldOfView")
 		|| TEXT("FrontSide") || TEXT("BackSide") || TEXT("RightSide") || TEXT("LeftSide") || TEXT("TopSide") || TEXT("BottomSide"))
 		UpdateVolume();

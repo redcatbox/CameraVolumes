@@ -8,13 +8,13 @@
 
 #include "Engine/Engine.h"
 #include "Camera/PlayerCameraManager.h"
-#include "GameFramework/PlayerController.h"
 #include "CameraVolumeDynamicActor.h"
 #include "CameraVolumesFunctionLibrary.h"
 #include "CameraVolumesCharacter.h"
+#include "CameraVolumesPaperCharacter.h"
 #include "CameraVolumesCameraManager.generated.h"
 
-UCLASS(Config=CameraVolumes)
+UCLASS()
 class CAMERAVOLUMES_API ACameraVolumesCameraManager : public APlayerCameraManager
 {
 	GENERATED_BODY()
@@ -22,13 +22,6 @@ class CAMERAVOLUMES_API ACameraVolumesCameraManager : public APlayerCameraManage
 public:
 	ACameraVolumesCameraManager();
 	virtual void UpdateCamera(float DeltaTime) override;
-
-	UPROPERTY(Config)
-		bool bOnly2DCalculations;
-
-	/** This condition used for optimization purpose. Player character will enable/disable it according to overlapping camera volumes. */
-	UPROPERTY()
-		bool bCheckCameraVolumes;
 
 	/** Set transition according to side info */
 	UFUNCTION()
@@ -42,12 +35,22 @@ public:
 	UFUNCTION(BlueprintCallable, Meta = (Category = "CameraVolumes"))
 		virtual void SetUpdateCamera(bool bNewUpdateCamera);
 
+	/** Should check for camera volumes. Used by Player Character according to overlapping camera volumes. */
+	UFUNCTION(BlueprintCallable, Meta = (Category = "CameraVolumes"))
+		virtual void SetCheckCameraVolumes(bool bNewCheck);
+	
 protected:
 	UPROPERTY()
 		class ACameraVolumesCharacter* PlayerCharacter;
 
 	UPROPERTY()
-		FVector PlayerCharacterLocation;
+		class ACameraVolumesPaperCharacter* PlayerPaperCharacter;
+
+	UPROPERTY()
+		class UCameraVolumesCameraComponent* CameraComponent;
+
+	UPROPERTY()
+		FVector PlayerLocation;
 
 	UPROPERTY()
 		TArray<AActor*> OverlappingActors;
@@ -87,6 +90,9 @@ protected:
 
 	UPROPERTY()
 		bool bNeedsCutTransition;
+
+	UPROPERTY()
+		bool bCheckCameraVolumes;
 
 	UPROPERTY()
 		bool bUpdateCamera;

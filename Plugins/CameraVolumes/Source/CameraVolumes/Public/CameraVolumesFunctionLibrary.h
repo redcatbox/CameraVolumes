@@ -17,15 +17,27 @@ public:
 	UFUNCTION(BlueprintCallable, Meta = (Category = "CameraVolumes"))
 		static ACameraVolumeActor* GetCurrentCameraVolume(TArray<ACameraVolumeActor*> CameraVolumes, FVector& PlayerPawnLocation);
 
-	/** Get current camera volume from array of volumes according to 4 sides, coordinates and priority */
+	/** Get current camera volume from array of volumes according to 4 sides, YZ plane, coordinates and priority */
 	UFUNCTION(BlueprintCallable, Meta = (Category = "CameraVolumes"))
-		static ACameraVolumeActor* GetCurrentCameraVolume2D(TArray<ACameraVolumeActor*> CameraVolumes, FVector& PlayerPawnLocation);
+		static ACameraVolumeActor* GetCurrentCameraVolume2DYZ(TArray<ACameraVolumeActor*> CameraVolumes, FVector& PlayerPawnLocation);
 
-	/** Compare sides is them are in pair Front/Back, Right/Left, Top/Bottom */
+	/** Get current camera volume from array of volumes according to 4 sides, YX plane, coordinates and priority */
+	UFUNCTION(BlueprintCallable, Meta = (Category = "CameraVolumes"))
+		static ACameraVolumeActor* GetCurrentCameraVolume2DYX(TArray<ACameraVolumeActor*> CameraVolumes, FVector& PlayerPawnLocation);
+
+	/** Check is sides are in pair Front/Back, Right/Left, Top/Bottom */
 	UFUNCTION(BlueprintCallable, Meta = (Category = "CameraVolumes"))
 		static bool CompareSidesPairs(ESide SideA, ESide SideB);
 
-	/** Compare sides is them are in pair Right/Left, Top/Bottom */
+	/** Check is sides are in pair Right/Left, Top/Bottom */
 	UFUNCTION(BlueprintCallable, Meta = (Category = "CameraVolumes"))
-		static bool CompareSidesPairs2D(ESide SideA, ESide SideB);
+		static bool CompareSidesPairs2DYZ(ESide SideA, ESide SideB);
+
+	/** Check is sides are in pair Front/Back, Right/Left */
+	UFUNCTION(BlueprintCallable, Meta = (Category = "CameraVolumes"))
+		static bool CompareSidesPairs2DYX(ESide SideA, ESide SideB);
+
+	/** Calculate camera rotation from position, focal point and roll */
+	UFUNCTION(BlueprintCallable, Meta = (Category = "CameraVolumes"))
+		static FQuat CalculateCameraRotation(FVector& CameraLocation, FVector& CameraFocalPoint, float CameraRoll);
 };
