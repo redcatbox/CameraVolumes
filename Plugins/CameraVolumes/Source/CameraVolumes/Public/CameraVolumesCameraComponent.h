@@ -57,6 +57,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DefaultCameraParameters", Meta = (EditCondition = "bEnableCameraFOVInterpolation", ClampMin = "0.1", ClampMax = "100.0", UIMin = "0.1", UIMax = "100.0"))
 		float CameraFOVInterpolationSpeed;
 
+	/** Overlapping camera volumes */
+	UPROPERTY()
+		TArray<ACameraVolumeActor*> OverlappingCameraVolumes;
+
 	/** Updates camera by camera manager*/
 	UFUNCTION()
 		virtual void UpdateCamera(FVector& CameraLocation, FQuat& CameraRotation, float CameraFOV);

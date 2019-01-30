@@ -138,7 +138,10 @@ public:
 	//--------------------------------------------------
 
 	UPROPERTY()
-		float CamVolAspectRatio;
+		float CamVolAspectRatioYZ;
+
+	UPROPERTY()
+		float CamVolAspectRatioYX;
 
 	UPROPERTY()
 		FVector CamVolWorldMin;

@@ -34,7 +34,7 @@ void ACameraVolumesCharacter::OnCapsuleComponentBeginOverlapDelegate(UPrimitiveC
 	ACameraVolumeActor* CameraVolume = Cast<ACameraVolumeActor>(OtherActor);
 	if (CameraVolume)
 	{
-		OverlappingCameraVolumes.AddUnique(CameraVolume);
+		GetCameraComponent()->OverlappingCameraVolumes.AddUnique(CameraVolume);
 
 		// Update camera volumes check condition in PlayerCameraManager
 		APlayerController* PC = Cast<APlayerController>(GetController());
@@ -51,5 +51,5 @@ void ACameraVolumesCharacter::OnCapsuleComponentEndOverlapDelegate(UPrimitiveCom
 {
 	ACameraVolumeActor* CameraVolume = Cast<ACameraVolumeActor>(OtherActor);
 	if (CameraVolume)
-		OverlappingCameraVolumes.Remove(CameraVolume);
+		GetCameraComponent()->OverlappingCameraVolumes.Remove(CameraVolume);
 }

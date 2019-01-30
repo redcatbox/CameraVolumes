@@ -32,10 +32,6 @@ class CAMERAVOLUMES_API ACameraVolumesCharacter : public ACharacter
 public:
 	ACameraVolumesCharacter();
 
-	/** Overlapping camera volumes */
-	UPROPERTY()
-		TArray<ACameraVolumeActor*> OverlappingCameraVolumes;
-
 	/** Returns CameraComponent subobject */
 	FORCEINLINE class UCameraVolumesCameraComponent* GetCameraComponent() const { return CameraComponent; }
 };

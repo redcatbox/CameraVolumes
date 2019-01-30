@@ -72,7 +72,6 @@ void ACamVolPaperCharacter::Tick(float DeltaSeconds)
 // Input
 void ACamVolPaperCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
-	// Note: the 'Jump' action and the 'MoveRight' axis are bound to actual keys/buttons/sticks in DefaultInput.ini (editable from Project Settings..Input)
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ACamVolPaperCharacter::MoveRight);
@@ -95,9 +94,9 @@ void ACamVolPaperCharacter::UpdateCharacter()
 	// Set the rotation so that the character faces his direction of travel.
 	if (Controller)
 	{
-		if (TravelDirection >= 0.f)
+		if (TravelDirection < 0.f)
 			Controller->SetControlRotation(FRotator(0.f, 0.f, 0.f));
-		else if (TravelDirection < 0.f)
+		else if (TravelDirection > 0.f)
 			Controller->SetControlRotation(FRotator(0.f, 180.f, 0.f));
 	}
 }

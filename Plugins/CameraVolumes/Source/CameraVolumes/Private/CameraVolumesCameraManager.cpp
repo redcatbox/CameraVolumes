@@ -38,25 +38,28 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 	{
 		bool bCharacterValid = false;
 		APawn* PlayerPawn = GetOwningPlayerController()->GetPawn();
-		PlayerCharacter = Cast<ACameraVolumesCharacter>(PlayerPawn);
-		if (PlayerCharacter)
+		if (PlayerPawn)
 		{
-			bCharacterValid = true;
-			CameraComponent = PlayerCharacter->GetCameraComponent();
-		}
-		else
-		{
-			PlayerPaperCharacter = Cast<ACameraVolumesPaperCharacter>(PlayerPawn);
-			if (PlayerPaperCharacter)
+			PlayerCharacter = Cast<ACameraVolumesCharacter>(PlayerPawn);
+			if (PlayerCharacter)
 			{
 				bCharacterValid = true;
-				CameraComponent = PlayerPaperCharacter->GetCameraComponent();
+				CameraComponent = PlayerCharacter->GetCameraComponent();
+			}
+			else
+			{
+				PlayerPaperCharacter = Cast<ACameraVolumesPaperCharacter>(PlayerPawn);
+				if (PlayerPaperCharacter)
+				{
+					bCharacterValid = true;
+					CameraComponent = PlayerPaperCharacter->GetCameraComponent();
+				}
 			}
 		}
-
+		
 		if (bCharacterValid)
 		{
-			PlayerLocation = PlayerCharacter->GetActorLocation();
+			PlayerLocation = PlayerPawn->GetActorLocation();
 
 			// Prepare params
 			CamVolPrevious = CamVolCurrent;
@@ -71,21 +74,21 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 			if (bCheckCameraVolumes)
 			{
 				// Try to get overlapping camera volumes stored in pawn
-				if (PlayerCharacter->OverlappingCameraVolumes.Num() > 0)
-					CamVolCurrent = UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(PlayerCharacter->OverlappingCameraVolumes, PlayerLocation);
+				if (CameraComponent->OverlappingCameraVolumes.Num() > 0)
+					CamVolCurrent = UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(CameraComponent->OverlappingCameraVolumes, PlayerLocation);
 				// Try to get camera volumes from actors overlapping pawn
 				else
 				{
 					OverlappingActors.Empty();
-					PlayerCharacter->GetOverlappingActors(OverlappingActors, ACameraVolumeActor::StaticClass());
+					PlayerPawn->GetOverlappingActors(OverlappingActors, ACameraVolumeActor::StaticClass());
 					if (OverlappingActors.Num() > 0)
 					{
 						TArray<ACameraVolumeActor*> OverlappingCameraVolumes;
 						for (AActor* Actor : OverlappingActors)
 						{
-							ACameraVolumeActor* CamVol = Cast<ACameraVolumeActor>(Actor);
-							if (CamVol)
-								OverlappingCameraVolumes.Add(CamVol);
+							ACameraVolumeActor* CameraVolume = Cast<ACameraVolumeActor>(Actor);
+							if (CameraVolume)
+								OverlappingCameraVolumes.Add(CameraVolume);
 						}
 						CamVolCurrent = UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(OverlappingCameraVolumes, PlayerLocation);
 					}
@@ -228,7 +231,7 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 			FVector NewCamVolWorldMinCorrected = CameraVolume->CamVolWorldMinCorrected - DeltaExtent;
 			FVector NewCamVolWorldMaxCorrected = CameraVolume->CamVolWorldMaxCorrected + DeltaExtent;
 
-			if (CameraVolume->CamVolAspectRatio >= ScreenAspectRatio) // Horizontal movement
+			if (CameraVolume->CamVolAspectRatioYZ >= ScreenAspectRatio) // Horizontal movement
 				// Side-scroller
 				CameraOffset = FMath::Clamp(CameraOffset, CameraOffset, NewCamVolExtentCorrected.Z * ScreenAspectRatio / PlayerCamFOVTangens);
 			// Top-down

@@ -244,8 +244,8 @@ void ACameraVolumeActor::UpdateVolumeExtents()
 		CamVolWorldMinCorrected.Z = CamVolWorldMinCorrected.Z - OpenEdgeOffset;
 
 	CamVolExtentCorrected = (CamVolWorldMaxCorrected - CamVolWorldMinCorrected) * 0.5f;
-	CamVolAspectRatio = CamVolExtentCorrected.Y / CamVolExtentCorrected.Z; // YZ Side-scroller
-	//CamVolAspectRatio = CamVolExtentCorrected.Y / CamVolExtentCorrected.X; // YX Top-down
+	CamVolAspectRatioYZ = CamVolExtentCorrected.Y / CamVolExtentCorrected.Z;
+	CamVolAspectRatioYX = CamVolExtentCorrected.Y / CamVolExtentCorrected.X;
 }
 
 FSideInfo ACameraVolumeActor::GetSideInfo(ESide Side)

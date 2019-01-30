@@ -21,7 +21,7 @@ ACameraVolumesPaperCharacter::ACameraVolumesPaperCharacter()
 
 	// Don't rotate when the controller rotates.
 	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = false;
+	bUseControllerRotationYaw = true;
 	bUseControllerRotationRoll = false;
 
 	// Configure character movement
@@ -38,7 +38,7 @@ void ACameraVolumesPaperCharacter::OnCapsuleComponentBeginOverlapDelegate(UPrimi
 	ACameraVolumeActor* CameraVolume = Cast<ACameraVolumeActor>(OtherActor);
 	if (CameraVolume)
 	{
-		OverlappingCameraVolumes.AddUnique(CameraVolume);
+		GetCameraComponent()->OverlappingCameraVolumes.AddUnique(CameraVolume);
 
 		// Update camera volumes check condition in PlayerCameraManager
 		APlayerController* PC = Cast<APlayerController>(GetController());
@@ -55,5 +55,5 @@ void ACameraVolumesPaperCharacter::OnCapsuleComponentEndOverlapDelegate(UPrimiti
 {
 	ACameraVolumeActor* CameraVolume = Cast<ACameraVolumeActor>(OtherActor);
 	if (CameraVolume)
-		OverlappingCameraVolumes.Remove(CameraVolume);
+		GetCameraComponent()->OverlappingCameraVolumes.Remove(CameraVolume);
 }
