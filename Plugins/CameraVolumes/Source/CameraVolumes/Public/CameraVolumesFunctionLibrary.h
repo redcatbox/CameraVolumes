@@ -17,25 +17,9 @@ public:
 	UFUNCTION(BlueprintCallable, Meta = (Category = "CameraVolumes"))
 		static ACameraVolumeActor* GetCurrentCameraVolume(TArray<ACameraVolumeActor*> CameraVolumes, FVector& PlayerPawnLocation);
 
-	/** Get current camera volume from array of volumes according to 4 sides, YZ plane, coordinates and priority */
-	UFUNCTION(BlueprintCallable, Meta = (Category = "CameraVolumes"))
-		static ACameraVolumeActor* GetCurrentCameraVolume2DYZ(TArray<ACameraVolumeActor*> CameraVolumes, FVector& PlayerPawnLocation);
-
-	/** Get current camera volume from array of volumes according to 4 sides, YX plane, coordinates and priority */
-	UFUNCTION(BlueprintCallable, Meta = (Category = "CameraVolumes"))
-		static ACameraVolumeActor* GetCurrentCameraVolume2DYX(TArray<ACameraVolumeActor*> CameraVolumes, FVector& PlayerPawnLocation);
-
 	/** Check is sides are in pair Front/Back, Right/Left, Top/Bottom */
 	UFUNCTION(BlueprintCallable, Meta = (Category = "CameraVolumes"))
 		static bool CompareSidesPairs(ESide SideA, ESide SideB);
-
-	/** Check is sides are in pair Right/Left, Top/Bottom */
-	UFUNCTION(BlueprintCallable, Meta = (Category = "CameraVolumes"))
-		static bool CompareSidesPairs2DYZ(ESide SideA, ESide SideB);
-
-	/** Check is sides are in pair Front/Back, Right/Left */
-	UFUNCTION(BlueprintCallable, Meta = (Category = "CameraVolumes"))
-		static bool CompareSidesPairs2DYX(ESide SideA, ESide SideB);
 
 	/** Calculate camera rotation from position, focal point and roll */
 	UFUNCTION(BlueprintCallable, Meta = (Category = "CameraVolumes"))

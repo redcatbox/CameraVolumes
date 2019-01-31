@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Camera/CameraComponent.h"
+#include "CameraVolumeActor.h"
 #include "CameraVolumesCameraComponent.generated.h"
 
 UCLASS(AutoExpandCategories = (DefaultCameraParameters))

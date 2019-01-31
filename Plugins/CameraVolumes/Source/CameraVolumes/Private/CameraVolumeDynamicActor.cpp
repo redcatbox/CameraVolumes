@@ -10,6 +10,9 @@ ACameraVolumeDynamicActor::ACameraVolumeDynamicActor()
 	// Default root
 	DefaultSceneRoot->Mobility = EComponentMobility::Movable;
 	bActive = false;
+
+	OldVolumeLocation = FVector::ZeroVector;
+	NewVolumeLocation = FVector::ZeroVector;
 }
 
 void ACameraVolumeDynamicActor::Tick(float DeltaTime)
@@ -17,6 +20,15 @@ void ACameraVolumeDynamicActor::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	if (bActive)
 		UpdateVolumeExtents();
+}
+
+void ACameraVolumeDynamicActor::UpdateVolumeExtents()
+{
+	OldVolumeLocation = NewVolumeLocation;
+	NewVolumeLocation = GetActorLocation();
+	FVector LocationDelta = NewVolumeLocation - OldVolumeLocation;
+	CamVolWorldMinCorrected += LocationDelta;
+	CamVolWorldMaxCorrected += LocationDelta;
 }
 
 void ACameraVolumeDynamicActor::SetActive(bool bNewActive)

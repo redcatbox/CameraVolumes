@@ -22,7 +22,17 @@ public:
 	UFUNCTION()
 		virtual void SetActive(bool bNewActive);
 
+	/** Update volume extents for dynamic camera volume */
+	UFUNCTION(BlueprintCallable, Category = "CameraVolumes")
+		virtual void UpdateVolumeExtents();
+
 protected:
 	UPROPERTY()
 		bool bActive;
+
+	UPROPERTY()
+		FVector OldVolumeLocation;
+
+	UPROPERTY()
+		FVector NewVolumeLocation;
 };

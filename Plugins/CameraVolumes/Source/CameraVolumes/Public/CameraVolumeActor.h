@@ -19,7 +19,7 @@
 #include "CameraVolumesTypes.h"
 #include "CameraVolumeActor.generated.h"
 
-UCLASS(AutoExpandCategories = (Volume, Camera))
+UCLASS(Config = CameraVolumes, AutoExpandCategories = (Volume, Camera))
 class CAMERAVOLUMES_API ACameraVolumeActor : public AActor
 {
 	GENERATED_BODY()
@@ -54,12 +54,29 @@ public:
 		FVector VolumeExtent;
 
 	/** Preffered camera orientation to perform calculations */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Camera")
 		ECameraOrientation CameraOrientation;
 
-	/** Perform calculations in 2D */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
-		bool b2DCalculations;
+protected:
+	UPROPERTY()
+		bool bIsCameraSideScroller;
+
+public:
+	/** Returns is volume uses horizontal camera settings */
+	FORCEINLINE bool GetIsCameraSideScroller() const { return bIsCameraSideScroller; }
+
+protected:
+	UPROPERTY()
+		bool bUseZeroDepthExtentEditCond;
+
+public:
+	/** Use zero volume extent by depth for camera blocking */
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Camera", Meta = (EditCondition = "bOverrideCameraLocation"))
+		bool bUseZeroDepthExtent;
+
+	/** Enable all volume sides */
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Camera")
+		bool bUse6DOFVolume;
 
 	/** Camera mobility */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
@@ -118,10 +135,10 @@ public:
 	//--------------------------------------------------
 
 	// Sides info
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties, EditCondition = "bCameraVolume3DEditCond"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties, EditCondition = "bTopDownEditCond"))
 		FSideInfo FrontSide;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties, EditCondition = "bCameraVolume3DEditCond"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties, EditCondition = "bTopDownEditCond"))
 		FSideInfo BackSide;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))
@@ -130,18 +147,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))
 		FSideInfo LeftSide;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties, EditCondition = "bSideScrollerEditCond"))
 		FSideInfo TopSide;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties, EditCondition = "bSideScrollerEditCond"))
 		FSideInfo BottomSide;
 	//--------------------------------------------------
 
 	UPROPERTY()
-		float CamVolAspectRatioYZ;
-
-	UPROPERTY()
-		float CamVolAspectRatioYX;
+		float CamVolAspectRatio;
 
 	UPROPERTY()
 		FVector CamVolWorldMin;
@@ -159,12 +173,12 @@ public:
 		FVector CamVolExtentCorrected;
 
 	/** Use this to update volume after made changes in editor, if they are not applied automatically */
-	UFUNCTION(CallInEditor, Category = "CameraVolumes")
+	UFUNCTION(CallInEditor, Category = "Volume")
 		virtual void UpdateVolume();
 
-	/** Update volume extents. Can be called for dynamic camera volume */
+	/** Calculate volume extents */
 	UFUNCTION(BlueprintCallable, Category = "CameraVolumes")
-		virtual void UpdateVolumeExtents();
+		virtual void CalculateVolumeExtents();
 
 	/** Get side info */
 	UFUNCTION(BlueprintCallable, Category = "CameraVolumes")
@@ -174,21 +188,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "CameraVolumes")
 		virtual ESide GetNearestVolumeSide(FVector& PlayerPawnLocation);
 
-	/** Get volume side nearest to player location in 2D for YZ plane */
-	UFUNCTION(BlueprintCallable, Category = "CameraVolumes")
-		virtual ESide GetNearestVolumeSide2DYZ(FVector& PlayerPawnLocation);
-
-	/** Get volume side nearest to player location in 2D for YX plane */
-	UFUNCTION(BlueprintCallable, Category = "CameraVolumes")
-		virtual ESide GetNearestVolumeSide2DYX(FVector& PlayerPawnLocation);
-
 protected:
-	// Enable/disable things according to 2D or 3D camera volume calculations
-	UPROPERTY()
-		bool bCameraVolume3DEditCond;
-
-
-
 	//Sides indicators
 	UPROPERTY()
 		TArray<UTextRenderComponent*> Text_Indicators;
