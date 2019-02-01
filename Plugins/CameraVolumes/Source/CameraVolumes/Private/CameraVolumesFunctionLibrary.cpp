@@ -30,8 +30,9 @@ ACameraVolumeActor* UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(TArray
 	return Result;
 }
 
-bool UCameraVolumesFunctionLibrary::CompareSidesPairs(ESide SideA, ESide SideB)
+bool UCameraVolumesFunctionLibrary::CompareSidesPairs(ESide SideA, ESide SideB, bool b6SidesVolume)
 {
+	if (b6SidesVolume)
 	if ((SideA == ESide::ES_Front && SideB == ESide::ES_Back)
 		|| (SideA == ESide::ES_Back && SideB == ESide::ES_Front)
 		|| (SideA == ESide::ES_Right && SideB == ESide::ES_Left)
@@ -39,6 +40,19 @@ bool UCameraVolumesFunctionLibrary::CompareSidesPairs(ESide SideA, ESide SideB)
 		|| (SideA == ESide::ES_Top && SideB == ESide::ES_Bottom)
 		|| (SideA == ESide::ES_Bottom && SideB == ESide::ES_Top))
 		return true;
+	else
+		//Side-scroller
+		if ((SideA == ESide::ES_Right && SideB == ESide::ES_Left)
+			|| (SideA == ESide::ES_Left && SideB == ESide::ES_Right)
+			|| (SideA == ESide::ES_Top && SideB == ESide::ES_Bottom)
+			|| (SideA == ESide::ES_Bottom && SideB == ESide::ES_Top))
+			return true;
+		//Top-down
+		//if ((SideA == ESide::ES_Front && SideB == ESide::ES_Back)
+		//	|| (SideA == ESide::ES_Back && SideB == ESide::ES_Front)
+		//	|| (SideA == ESide::ES_Right && SideB == ESide::ES_Left)
+		//	|| (SideA == ESide::ES_Left && SideB == ESide::ES_Right))
+		//	return true;
 
 	return false;
 }

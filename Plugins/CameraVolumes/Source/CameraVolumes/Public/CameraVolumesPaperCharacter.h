@@ -11,11 +11,11 @@
 #include "CoreMinimal.h"
 #include "PaperCharacter.h"
 #include "CameraVolumeActor.h"
-#include "CameraVolumesCameraComponent.h"
+#include "CameraVolumesCharacterInterface.h"
 #include "CameraVolumesPaperCharacter.generated.h"
 
 UCLASS()
-class CAMERAVOLUMES_API ACameraVolumesPaperCharacter : public APaperCharacter
+class CAMERAVOLUMES_API ACameraVolumesPaperCharacter : public APaperCharacter, public ICameraVolumesCharacterInterface
 {
 	GENERATED_BODY()
 
@@ -23,16 +23,11 @@ class CAMERAVOLUMES_API ACameraVolumesPaperCharacter : public APaperCharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Meta = (AllowPrivateAccess = "true"))
 		class UCameraVolumesCameraComponent* CameraComponent;
 
-	UFUNCTION()
-		void OnCapsuleComponentBeginOverlapDelegate(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION()
-		void OnCapsuleComponentEndOverlapDelegate(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	virtual void OnCapsuleComponentBeginOverlapDelegate(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
+	virtual void OnCapsuleComponentEndOverlapDelegate(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
 
 public:
 	ACameraVolumesPaperCharacter();
 	virtual void PostInitializeComponents() override;
-
-	/** Returns CameraComponent subobject */
-	FORCEINLINE class UCameraVolumesCameraComponent* GetCameraComponent() const { return CameraComponent; }
+	virtual UCameraVolumesCameraComponent* GetCameraComponent() const override;
 };

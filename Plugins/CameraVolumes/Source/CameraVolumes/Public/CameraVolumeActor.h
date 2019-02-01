@@ -53,17 +53,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Volume", Meta = (MakeEditWidget = true))
 		FVector VolumeExtent;
 
-	/** Preffered camera orientation to perform calculations */
-	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Camera")
-		ECameraOrientation CameraOrientation;
+//	/** Preffered camera orientation to perform calculations */
+//	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Camera")
+//		ECameraOrientation CameraOrientation;
 
-protected:
-	UPROPERTY()
-		bool bIsCameraSideScroller;
+//protected:
+//	UPROPERTY()
+//		bool bIsCameraSideScroller;
 
-public:
-	/** Returns is volume uses horizontal camera settings */
-	FORCEINLINE bool GetIsCameraSideScroller() const { return bIsCameraSideScroller; }
+//public:
+//	/** Returns is volume uses horizontal camera settings */
+//	FORCEINLINE bool GetIsCameraSideScroller() const { return bIsCameraSideScroller; }
 
 protected:
 	UPROPERTY()
@@ -135,10 +135,10 @@ public:
 	//--------------------------------------------------
 
 	// Sides info
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties, EditCondition = "bTopDownEditCond"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))
 		FSideInfo FrontSide;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties, EditCondition = "bTopDownEditCond"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))
 		FSideInfo BackSide;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))
@@ -147,10 +147,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))
 		FSideInfo LeftSide;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties, EditCondition = "bSideScrollerEditCond"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))
 		FSideInfo TopSide;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties, EditCondition = "bSideScrollerEditCond"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))
 		FSideInfo BottomSide;
 	//--------------------------------------------------
 

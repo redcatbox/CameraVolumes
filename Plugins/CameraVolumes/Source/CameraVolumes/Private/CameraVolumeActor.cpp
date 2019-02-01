@@ -37,7 +37,7 @@ ACameraVolumeActor::ACameraVolumeActor()
 	Priority = 0;
 	VolumeExtent = FVector(500.f, 500.f, 500.f);
 
-	CameraOrientation = ECameraOrientation::ECO_SideScroller;
+	//CameraOrientation = ECameraOrientation::ECO_SideScroller;
 	bUseZeroDepthExtentEditCond = true;
 	bUseZeroDepthExtent = false;
 	bUse6DOFVolume = false;
@@ -95,15 +95,15 @@ void ACameraVolumeActor::UpdateVolume()
 	BillboardComponent->SetRelativeScale3D(FVector(5.f, 1.f, 1.f));
 	BoxComponent->SetBoxExtent(VolumeExtent);
 
-	switch (CameraOrientation)
-	{
-	case ECameraOrientation::ECO_SideScroller:
-		bIsCameraSideScroller = true;
-		break;
-	case ECameraOrientation::ECO_TopDown:
-		bIsCameraSideScroller = false;
-		break;
-	}
+	//switch (CameraOrientation)
+	//{
+	//case ECameraOrientation::ECO_SideScroller:
+	//	bIsCameraSideScroller = true;
+	//	break;
+	//case ECameraOrientation::ECO_TopDown:
+	//	bIsCameraSideScroller = false;
+	//	break;
+	//}
 
 	if (bUse6DOFVolume)
 	{
@@ -126,12 +126,8 @@ void ACameraVolumeActor::UpdateVolume()
 	}
 
 	if (!bOverrideCameraLocation)
-	{
-		if (bIsCameraSideScroller)
-			CameraLocation = FVector(1000.f, 0.f, 0.f);
-		else
-			CameraLocation = FVector(0.f, 0.f, 1000.f);
-	}
+		CameraLocation = FVector(1000.f, 0.f, 0.f); //Side-scroller
+		//	CameraLocation = FVector(0.f, 0.f, 1000.f); //Top-down
 
 	if (!bOverrideCameraRotation)
 		CameraFocalPoint = FVector::ZeroVector;
@@ -153,10 +149,10 @@ void ACameraVolumeActor::UpdateVolume()
 	Text_Indicators[0]->SetText(FText::FromString(FString::FromInt(Priority)));
 	Text_Indicators[0]->SetTextRenderColor(FColor::White);
 	Text_Indicators[0]->SetWorldSize(2.f * Text_Size);
-	if (bIsCameraSideScroller)
-		Text_Indicators[0]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X, 0.f, 2.f * Text_Size), FRotator(0.f, 0.f, 0.f));
-	else
-		Text_Indicators[0]->SetRelativeLocationAndRotation(FVector(-2.f * Text_Size, 0.f, VolumeExtent.Z), FRotator(90.f, 0.f, 0.f));
+	//Side-scroller
+	Text_Indicators[0]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X, 0.f, 2.f * Text_Size), FRotator(0.f, 0.f, 0.f));
+	//Top-down
+	//	Text_Indicators[0]->SetRelativeLocationAndRotation(FVector(-2.f * Text_Size, 0.f, VolumeExtent.Z), FRotator(90.f, 0.f, 0.f));
 
 	//Sides
 	for (uint8 i = 1; i <= 12; i = i + 2)
@@ -180,30 +176,22 @@ void ACameraVolumeActor::UpdateVolume()
 		else if (i == 5)
 		{
 			SideInfo = RightSide;
-			if (bIsCameraSideScroller)
-			{
-				Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X, -VolumeExtent.Y + 2.f * Text_Size, 0.5f * Text_Size), FRotator(0.f, 0.f, 0.f));
-				Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X, -VolumeExtent.Y + 2.f * Text_Size, -0.5f * Text_Size), FRotator(0.f, 0.f, 0.f));
-			}
-			else
-			{
-				Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(-0.5f * Text_Size, -VolumeExtent.Y + 2.f * Text_Size, VolumeExtent.Z), FRotator(90.f, 0.f, 0.f));
-				Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(0.5f * Text_Size, -VolumeExtent.Y + 2.f * Text_Size, VolumeExtent.Z), FRotator(90.f, 0.f, 0.f));
-			}
+			//Side-scroller
+			Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X, -VolumeExtent.Y + 2.f * Text_Size, 0.5f * Text_Size), FRotator(0.f, 0.f, 0.f));
+			Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X, -VolumeExtent.Y + 2.f * Text_Size, -0.5f * Text_Size), FRotator(0.f, 0.f, 0.f));
+			//Top-down
+			//	Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(-0.5f * Text_Size, -VolumeExtent.Y + 2.f * Text_Size, VolumeExtent.Z), FRotator(90.f, 0.f, 0.f));
+			//	Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(0.5f * Text_Size, -VolumeExtent.Y + 2.f * Text_Size, VolumeExtent.Z), FRotator(90.f, 0.f, 0.f));
 		}
 		else if (i == 7)
 		{
 			SideInfo = LeftSide;
-			if (bIsCameraSideScroller)
-			{
-				Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X, VolumeExtent.Y - 2.f * Text_Size, 0.5f * Text_Size), FRotator(0.f, 0.f, 0.f));
-				Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X, VolumeExtent.Y - 2.f * Text_Size, -0.5f * Text_Size), FRotator(0.f, 0.f, 0.f));
-			}
-			else
-			{
-				Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(-0.5f * Text_Size, VolumeExtent.Y - 2.f * Text_Size, VolumeExtent.Z), FRotator(90.f, 0.f, 0.f));
-				Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(0.5f * Text_Size, VolumeExtent.Y - 2.f * Text_Size, VolumeExtent.Z), FRotator(90.f, 0.f, 0.f));
-			}
+			//Side-scroller
+			Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X, VolumeExtent.Y - 2.f * Text_Size, 0.5f * Text_Size), FRotator(0.f, 0.f, 0.f));
+			Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X, VolumeExtent.Y - 2.f * Text_Size, -0.5f * Text_Size), FRotator(0.f, 0.f, 0.f));
+			//Top-down
+			//	Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(-0.5f * Text_Size, VolumeExtent.Y - 2.f * Text_Size, VolumeExtent.Z), FRotator(90.f, 0.f, 0.f));
+			//	Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(0.5f * Text_Size, VolumeExtent.Y - 2.f * Text_Size, VolumeExtent.Z), FRotator(90.f, 0.f, 0.f));
 		}
 		else if (i == 9)
 		{
@@ -258,52 +246,37 @@ void ACameraVolumeActor::CalculateVolumeExtents()
 	CamVolWorldMinCorrected = CamVolWorldMin;
 	CamVolWorldMaxCorrected = CamVolWorldMax;
 
-	if (bUse6DOFVolume)
-	{
-		if (FrontSide.SideType == ESideType::EST_Open)
-			CamVolWorldMaxCorrected.X = CamVolWorldMaxCorrected.X + OpenEdgeOffset;
+	if (FrontSide.SideType == ESideType::EST_Open)
+		CamVolWorldMaxCorrected.X = CamVolWorldMaxCorrected.X + OpenEdgeOffset;
 
-		if (BackSide.SideType == ESideType::EST_Open)
-			CamVolWorldMinCorrected.X = CamVolWorldMinCorrected.X - OpenEdgeOffset;
+	if (BackSide.SideType == ESideType::EST_Open)
+		CamVolWorldMinCorrected.X = CamVolWorldMinCorrected.X - OpenEdgeOffset;
 
-		if (RightSide.SideType == ESideType::EST_Open)
-			CamVolWorldMinCorrected.Y = CamVolWorldMinCorrected.Y - OpenEdgeOffset;
+	if (RightSide.SideType == ESideType::EST_Open)
+		CamVolWorldMinCorrected.Y = CamVolWorldMinCorrected.Y - OpenEdgeOffset;
 
-		if (LeftSide.SideType == ESideType::EST_Open)
-			CamVolWorldMaxCorrected.Y = CamVolWorldMaxCorrected.Y + OpenEdgeOffset;
+	if (LeftSide.SideType == ESideType::EST_Open)
+		CamVolWorldMaxCorrected.Y = CamVolWorldMaxCorrected.Y + OpenEdgeOffset;
 
-		if (TopSide.SideType == ESideType::EST_Open)
-			CamVolWorldMaxCorrected.Z = CamVolWorldMaxCorrected.Z + OpenEdgeOffset;
+	if (TopSide.SideType == ESideType::EST_Open)
+		CamVolWorldMaxCorrected.Z = CamVolWorldMaxCorrected.Z + OpenEdgeOffset;
 
-		if (BottomSide.SideType == ESideType::EST_Open)
-			CamVolWorldMinCorrected.Z = CamVolWorldMinCorrected.Z - OpenEdgeOffset;
-	}
-	else
-	{
-		if (bIsCameraSideScroller)
-		{
-
-		}
-		else
-		{
-
-		}
-	}
-
-	CamVolExtentCorrected = (CamVolWorldMaxCorrected - CamVolWorldMinCorrected) * 0.5f;
+	if (BottomSide.SideType == ESideType::EST_Open)
+		CamVolWorldMinCorrected.Z = CamVolWorldMinCorrected.Z - OpenEdgeOffset;
 
 	if (bUseZeroDepthExtent)
 	{
-		if (bIsCameraSideScroller)
-			CamVolExtentCorrected.X = 0.f;
-		else
-			CamVolExtentCorrected.Z = 0.f;
+		//Side-scroller
+		CamVolWorldMinCorrected.X = 0.f;
+		CamVolWorldMaxCorrected.X = 0.f;
+		//Top-down
+		//CamVolWorldMinCorrected.Z = 0.f;
+		//CamVolWorldMaxCorrected.Z = 0.f;
 	}
 
-	if (bIsCameraSideScroller)
-		CamVolAspectRatio = CamVolExtentCorrected.Y / CamVolExtentCorrected.Z;
-	else
-		CamVolAspectRatio = CamVolExtentCorrected.Y / CamVolExtentCorrected.X;
+	CamVolExtentCorrected = (CamVolWorldMaxCorrected - CamVolWorldMinCorrected) * 0.5f;
+	CamVolAspectRatio = CamVolExtentCorrected.Y / CamVolExtentCorrected.Z; //Side-scroller
+	//CamVolAspectRatio = CamVolExtentCorrected.Y / CamVolExtentCorrected.X; //Top-down
 }
 
 FSideInfo ACameraVolumeActor::GetSideInfo(ESide Side)
@@ -351,20 +324,16 @@ ESide ACameraVolumeActor::GetNearestVolumeSide(FVector& PlayerPawnLocation)
 	}
 	else
 	{
-		if (bIsCameraSideScroller)
-		{
-			Sides.Add(ESide::ES_Right, FMath::Abs(PlayerPawnLocation.Y - CamVolWorldMin.Y));
-			Sides.Add(ESide::ES_Left, FMath::Abs(PlayerPawnLocation.Y - CamVolWorldMax.Y));
-			Sides.Add(ESide::ES_Top, FMath::Abs(PlayerPawnLocation.Z - CamVolWorldMax.Z));
-			Sides.Add(ESide::ES_Bottom, FMath::Abs(PlayerPawnLocation.Z - CamVolWorldMin.Z));
-		}
-		else
-		{
-			Sides.Add(ESide::ES_Front, FMath::Abs(PlayerPawnLocation.X - CamVolWorldMax.X));
-			Sides.Add(ESide::ES_Back, FMath::Abs(PlayerPawnLocation.X - CamVolWorldMin.X));
-			Sides.Add(ESide::ES_Right, FMath::Abs(PlayerPawnLocation.Y - CamVolWorldMin.Y));
-			Sides.Add(ESide::ES_Left, FMath::Abs(PlayerPawnLocation.Y - CamVolWorldMax.Y));
-		}
+		//Side-scroller
+		Sides.Add(ESide::ES_Right, FMath::Abs(PlayerPawnLocation.Y - CamVolWorldMin.Y));
+		Sides.Add(ESide::ES_Left, FMath::Abs(PlayerPawnLocation.Y - CamVolWorldMax.Y));
+		Sides.Add(ESide::ES_Top, FMath::Abs(PlayerPawnLocation.Z - CamVolWorldMax.Z));
+		Sides.Add(ESide::ES_Bottom, FMath::Abs(PlayerPawnLocation.Z - CamVolWorldMin.Z));
+		//Top-down
+		//	Sides.Add(ESide::ES_Front, FMath::Abs(PlayerPawnLocation.X - CamVolWorldMax.X));
+		//	Sides.Add(ESide::ES_Back, FMath::Abs(PlayerPawnLocation.X - CamVolWorldMin.X));
+		//	Sides.Add(ESide::ES_Right, FMath::Abs(PlayerPawnLocation.Y - CamVolWorldMin.Y));
+		//	Sides.Add(ESide::ES_Left, FMath::Abs(PlayerPawnLocation.Y - CamVolWorldMax.Y));
 	}
 
 	Sides.ValueSort([](float Min, float Max) { return Min < Max; });
@@ -385,7 +354,7 @@ void ACameraVolumeActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyC
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 	FName PropertyName = (PropertyChangedEvent.Property != NULL) ? PropertyChangedEvent.Property->GetFName() : NAME_None;
 	if (PropertyName == TEXT("Priority") || TEXT("VolumeExtent")
-		|| TEXT("CameraMobility") || TEXT("CameraOrientation") || TEXT("bUse6DOFVolume") || TEXT("bUseZeroDepthExtent")
+		|| TEXT("CameraMobility") /*|| TEXT("CameraOrientation")*/ || TEXT("bUse6DOFVolume") || TEXT("bUseZeroDepthExtent")
 		|| TEXT("bOverrideCameraLocation") || TEXT("CameraLocation")
 		|| TEXT("bOverrideCameraRotation") || TEXT("CameraFocalPoint") || TEXT("CameraRoll")
 		|| TEXT("bOverrideCameraFieldOfView") || TEXT("CameraFieldOfView")

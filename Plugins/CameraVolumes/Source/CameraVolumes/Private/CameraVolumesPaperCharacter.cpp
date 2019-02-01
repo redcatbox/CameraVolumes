@@ -57,3 +57,8 @@ void ACameraVolumesPaperCharacter::OnCapsuleComponentEndOverlapDelegate(UPrimiti
 	if (CameraVolume)
 		GetCameraComponent()->OverlappingCameraVolumes.Remove(CameraVolume);
 }
+
+UCameraVolumesCameraComponent* ACameraVolumesPaperCharacter::GetCameraComponent() const
+{
+	return CameraComponent;
+}

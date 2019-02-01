@@ -10,8 +10,6 @@
 #include "Camera/PlayerCameraManager.h"
 #include "CameraVolumeDynamicActor.h"
 #include "CameraVolumesFunctionLibrary.h"
-#include "CameraVolumesCharacter.h"
-#include "CameraVolumesPaperCharacter.h"
 #include "CameraVolumesCameraManager.generated.h"
 
 UCLASS(Config = CameraVolumes)
@@ -40,15 +38,8 @@ public:
 		virtual void SetCheckCameraVolumes(bool bNewCheck);
 	
 protected:
-	UPROPERTY(Config)
-		bool bTestConfig;
-
-	UPROPERTY()
-		class ACameraVolumesCharacter* PlayerCharacter;
-
-	UPROPERTY()
-		class ACameraVolumesPaperCharacter* PlayerPaperCharacter;
-
+	//UPROPERTY(Config)
+	//	bool bTestConfig;
 	UPROPERTY()
 		class UCameraVolumesCameraComponent* CameraComponent;
 

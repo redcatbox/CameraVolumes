@@ -53,3 +53,8 @@ void ACameraVolumesCharacter::OnCapsuleComponentEndOverlapDelegate(UPrimitiveCom
 	if (CameraVolume)
 		GetCameraComponent()->OverlappingCameraVolumes.Remove(CameraVolume);
 }
+
+UCameraVolumesCameraComponent* ACameraVolumesCharacter::GetCameraComponent() const
+{
+	return CameraComponent;
+}

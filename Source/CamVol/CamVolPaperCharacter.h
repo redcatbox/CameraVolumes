@@ -6,7 +6,7 @@
 #include "PaperFlipbookComponent.h"
 #include "CamVolPaperCharacter.generated.h"
 
-UCLASS(config=Game)
+UCLASS(Config=Game)
 class ACamVolPaperCharacter : public ACameraVolumesPaperCharacter
 {
 	GENERATED_BODY()

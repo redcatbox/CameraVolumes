@@ -3,18 +3,18 @@
 #pragma once
 #include "CameraVolumesTypes.generated.h"
 
+//UENUM(BlueprintType)
+//enum class ECameraOrientation : uint8
+//{
+//	ECO_SideScroller	UMETA(DisplayName = "SideScroller"), // Perform calculations in YZ plane
+//	ECO_TopDown			UMETA(DisplayName = "TopDown") // Perform calculations in YX plane
+//};
+
 UENUM(BlueprintType)
 enum class ECameraMobility : uint8
 {
 	ECM_Movable	UMETA(DisplayName = "Movable"),
 	ECM_Static	UMETA(DisplayName = "Static")
-};
-
-UENUM(BlueprintType)
-enum class ECameraOrientation : uint8
-{
-	ECO_SideScroller	UMETA(DisplayName = "SideScroller"), // Perform calculations in YZ plane
-	ECO_TopDown			UMETA(DisplayName = "TopDown") // Perform calculations in YX plane
 };
 
 UENUM(BlueprintType)
