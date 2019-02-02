@@ -70,7 +70,7 @@ protected:
 		bool bUseZeroDepthExtentEditCond;
 
 public:
-	/** Use zero volume extent by depth for camera blocking */
+	/** (For 2D games) Use zero volume extent by depth for camera blocking */
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Camera", Meta = (EditCondition = "bOverrideCameraLocation"))
 		bool bUseZeroDepthExtent;
 

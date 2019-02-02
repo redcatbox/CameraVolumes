@@ -28,5 +28,5 @@ class CAMERAVOLUMES_API ACameraVolumesCharacter : public ACharacter, public ICam
 
 public:
 	ACameraVolumesCharacter();
-	virtual UCameraVolumesCameraComponent* GetCameraComponent() const override;
+	virtual class UCameraVolumesCameraComponent* GetCameraComponent() const override;
 };

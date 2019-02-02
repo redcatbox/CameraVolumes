@@ -38,6 +38,7 @@ ACameraVolumeActor::ACameraVolumeActor()
 	VolumeExtent = FVector(500.f, 500.f, 500.f);
 
 	//CameraOrientation = ECameraOrientation::ECO_SideScroller;
+
 	bUseZeroDepthExtentEditCond = true;
 	bUseZeroDepthExtent = false;
 	bUse6DOFVolume = false;
@@ -164,14 +165,34 @@ void ACameraVolumeActor::UpdateVolume()
 		if (i == 1)
 		{
 			SideInfo = FrontSide;
-			Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X - 1.5f * Text_Size, 0.f, VolumeExtent.Z), FRotator(90.f, 0.f, 0.f));
-			Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X - 0.5f * Text_Size, 0.f, VolumeExtent.Z), FRotator(90.f, 0.f, 0.f));
+			if (bUse6DOFVolume)
+			{
+				Text_Indicators[i]->SetVisibility(true);
+				Text_Indicators[i + 1]->SetVisibility(true);
+				Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X - 1.5f * Text_Size, 0.f, VolumeExtent.Z), FRotator(90.f, 0.f, 0.f));
+				Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X - 0.5f * Text_Size, 0.f, VolumeExtent.Z), FRotator(90.f, 0.f, 0.f));
+			}
+			else
+			{
+				Text_Indicators[i]->SetVisibility(false);
+				Text_Indicators[i + 1]->SetVisibility(false);
+			}
 		}
 		else if (i == 3)
 		{
 			SideInfo = BackSide;
-			Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(-VolumeExtent.X + 0.5f * Text_Size, 0.f, VolumeExtent.Z), FRotator(90.f, 0.f, 0.f));
-			Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(-VolumeExtent.X + 1.5f * Text_Size, 0.f, VolumeExtent.Z), FRotator(90.f, 0.f, 0.f));
+			if (bUse6DOFVolume)
+			{
+				Text_Indicators[i]->SetVisibility(true);
+				Text_Indicators[i + 1]->SetVisibility(true);
+				Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(-VolumeExtent.X + 0.5f * Text_Size, 0.f, VolumeExtent.Z), FRotator(90.f, 0.f, 0.f));
+				Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(-VolumeExtent.X + 1.5f * Text_Size, 0.f, VolumeExtent.Z), FRotator(90.f, 0.f, 0.f));
+			}
+			else
+			{
+				Text_Indicators[i]->SetVisibility(false);
+				Text_Indicators[i + 1]->SetVisibility(false);
+			}
 		}
 		else if (i == 5)
 		{

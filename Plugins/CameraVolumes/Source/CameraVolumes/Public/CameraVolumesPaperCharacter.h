@@ -29,5 +29,5 @@ class CAMERAVOLUMES_API ACameraVolumesPaperCharacter : public APaperCharacter, p
 public:
 	ACameraVolumesPaperCharacter();
 	virtual void PostInitializeComponents() override;
-	virtual UCameraVolumesCameraComponent* GetCameraComponent() const override;
+	virtual class UCameraVolumesCameraComponent* GetCameraComponent() const override;
 };
