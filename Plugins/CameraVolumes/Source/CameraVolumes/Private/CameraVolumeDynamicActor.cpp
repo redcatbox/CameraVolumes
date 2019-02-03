@@ -10,9 +10,14 @@ ACameraVolumeDynamicActor::ACameraVolumeDynamicActor()
 	// Default root
 	DefaultSceneRoot->Mobility = EComponentMobility::Movable;
 	bActive = false;
-
 	OldVolumeLocation = FVector::ZeroVector;
 	NewVolumeLocation = FVector::ZeroVector;
+}
+
+void ACameraVolumeDynamicActor::UpdateVolume()
+{
+	Super::UpdateVolume();
+	NewVolumeLocation = GetActorLocation();
 }
 
 void ACameraVolumeDynamicActor::Tick(float DeltaTime)

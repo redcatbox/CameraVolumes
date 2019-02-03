@@ -6,7 +6,8 @@
 UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 {
 	// Camera defaults
-	DefaultCameraLocation = FVector(1000.f, 0.f, 0.f);
+	DefaultCameraLocation = FVector(0.f, 1000.f, 0.f); //Side-scroller
+	//DefaultCameraLocation = FVector(0.f, 0.f, 1000.f); //Top-down
 	DefaultCameraFocalPoint = FVector::ZeroVector;
 	DefaultCameraRoll = 0.f;
 	DefaultCameraFieldOfView = 90.f;
@@ -41,7 +42,10 @@ void UCameraVolumesCameraComponent::PostEditChangeProperty(FPropertyChangedEvent
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 	FName PropertyName = (PropertyChangedEvent.Property != NULL) ? PropertyChangedEvent.Property->GetFName() : NAME_None;
-	if (PropertyName == TEXT("DefaultCameraLocation") || TEXT("DefaultCameraFocalPoint") || TEXT("DefaultCameraRoll") || TEXT("DefaultCameraFieldOfView"))
+	if (PropertyName == TEXT("DefaultCameraLocation")
+		|| TEXT("DefaultCameraFocalPoint")
+		|| TEXT("DefaultCameraRoll")
+		|| TEXT("DefaultCameraFieldOfView"))
 		UpdateCameraComponent();
 }
 #endif

@@ -19,7 +19,7 @@ public:
 
 	/** Check is sides are in pair Front/Back, Right/Left, Top/Bottom */
 	UFUNCTION(BlueprintCallable, Meta = (Category = "CameraVolumes"))
-		static bool CompareSidesPairs(ESide SideA, ESide SideB, bool b6SidesVolume);
+		static bool CompareSidesPairs(ESide SideA, ESide SideB, bool b6DOFVolume);
 
 	/** Calculate camera rotation from position, focal point and roll */
 	UFUNCTION(BlueprintCallable, Meta = (Category = "CameraVolumes"))

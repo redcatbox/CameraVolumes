@@ -71,7 +71,7 @@ protected:
 
 public:
 	/** (For 2D games) Use zero volume extent by depth for camera blocking */
-	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Camera", Meta = (EditCondition = "bOverrideCameraLocation"))
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Camera", Meta = (EditCondition = "bUseZeroDepthExtentEditCond"))
 		bool bUseZeroDepthExtent;
 
 	/** Enable all volume sides */
@@ -99,7 +99,7 @@ public:
 		FVector CameraLocation;
 
 	/** Should camera location be relative to volume? */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", Meta = (EditCondition = "bOverrideCameraLocation"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
 		bool bCameraLocationRelativeToVolume;
 
 	/** Should override camera focal point? */
@@ -136,12 +136,6 @@ public:
 
 	// Sides info
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))
-		FSideInfo FrontSide;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))
-		FSideInfo BackSide;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))
 		FSideInfo RightSide;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))
@@ -152,6 +146,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))
 		FSideInfo BottomSide;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))
+		FSideInfo FrontSide;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))
+		FSideInfo BackSide;
 	//--------------------------------------------------
 
 	UPROPERTY()

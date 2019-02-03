@@ -18,6 +18,7 @@ class CAMERAVOLUMES_API ACameraVolumeDynamicActor : public ACameraVolumeActor
 public:
 	ACameraVolumeDynamicActor();
 	virtual void Tick(float DeltaTime) override;
+	virtual void UpdateVolume() override;
 
 	UFUNCTION()
 		virtual void SetActive(bool bNewActive);

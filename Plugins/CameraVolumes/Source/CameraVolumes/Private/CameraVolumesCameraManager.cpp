@@ -77,7 +77,7 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 						}
 						else
 							bCheckCameraVolumes = false;
-						// There is no camera volumes overlapping character at this time,
+						// There are no camera volumes overlapping character at this time,
 						// so we don't need this check until player pawn overlap some camera volume again.
 					}
 
@@ -157,8 +157,7 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 		if (CameraVolume->bOverrideCameraFieldOfView)
 			NewCameraFOV = CameraVolume->CameraFieldOfView;
 
-		// Get screen (or at least camera) aspect ratio for further calculations
-		//float PlayerCamFOVTangens = FMath::Tan((PI / (180.f)) * (NewCameraFOV * 0.5f));
+		// Get screen (or at least player camera) aspect ratio for further calculations
 		float PlayerCamFOVTangens = FMath::Tan(FMath::DegreesToRadians(NewCameraFOV * 0.5f));
 		float ScreenAspectRatio;
 		if (GEngine)
@@ -181,81 +180,59 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 		}
 		else
 		{
-			// Camera offset is always relative to CameraVolume->GetActorLocation().X
+			// Camera offset is always relative to CameraVolume->GetActorLocation().Y
 			float CameraOffset;
 
 			if (CameraVolume->bOverrideCameraLocation)
-			{
 				NewCameraLocation = PlayerPawnLocation + CameraVolume->CameraLocation;
 
-				if (CameraVolume->bCameraLocationRelativeToVolume)
-				{
-					//Side-scroller
-					CameraOffset = CameraVolume->CameraLocation.X;
-					//Top-down
-					//CameraOffset = CameraVolume->CameraLocation.Z;
-				}
-				else
-				{
-					//Side-scroller
-					CameraOffset = NewCameraLocation.X - CameraVolume->GetActorLocation().X;
-					//Top-down
-					//CameraOffset = PlayerPawnLocation.Z - CameraVolume->GetActorLocation().Z;
-				}
-			}
+			if (CameraVolume->bCameraLocationRelativeToVolume)
+				CameraOffset = CameraVolume->CameraLocation.Y; //Side-scroller
+				//CameraOffset = CameraVolume->CameraLocation.Z; //Top-down
 			else
-			{
-				//Side-scroller
-				CameraOffset = NewCameraLocation.X - CameraVolume->GetActorLocation().X;
-				//Top-down
-				//CameraOffset = NewCameraLocation.Z - CameraVolume->GetActorLocation().Z;
-			}
-
+				CameraOffset = NewCameraLocation.Y - CameraVolume->GetActorLocation().Y; //Side-scroller
+				//CameraOffset = NewCameraLocation.Z - CameraVolume->GetActorLocation().Z; //Top-down
 
 			FVector NewCamVolExtentCorrected = CameraVolume->CamVolExtentCorrected;
 			FVector NewCamVolWorldMinCorrected = CameraVolume->CamVolWorldMinCorrected;
 			FVector NewCamVolWorldMaxCorrected = CameraVolume->CamVolWorldMaxCorrected;
+			// Calculate delta volume extent with +Y volume extent
 			if (!CameraVolume->bUseZeroDepthExtent)
 			{
-				// Calculate delta volume extent with +X volume extent
 				FVector DeltaExtent = FVector::ZeroVector;
 				//Side-scroller
-				DeltaExtent.Y = FMath::Abs(CameraVolume->CamVolWorldMaxCorrected.X * PlayerCamFOVTangens);
-				DeltaExtent = FVector(0.f, DeltaExtent.Y, DeltaExtent.Y / ScreenAspectRatio);
+				DeltaExtent.X = FMath::Abs((NewCamVolWorldMaxCorrected.Y - CameraVolume->GetActorLocation().Y) * PlayerCamFOVTangens);
+				DeltaExtent = FVector(DeltaExtent.X, 0.f, DeltaExtent.X / ScreenAspectRatio);
 				//Top-down
-				//DeltaExtent.Y = FMath::Abs(CameraVolume->CamVolWorldMaxCorrected.Z * PlayerCamFOVTangens);
+				//DeltaExtent.Y = FMath::Abs((NewCamVolWorldMaxCorrected.Z - CameraVolume->GetActorLocation().Z) * PlayerCamFOVTangens);
 				//DeltaExtent = FVector(DeltaExtent.Y / ScreenAspectRatio, DeltaExtent.Y, 0.f);
 
-				NewCamVolExtentCorrected = CameraVolume->CamVolExtentCorrected + DeltaExtent;
-				NewCamVolWorldMinCorrected = CameraVolume->CamVolWorldMinCorrected - DeltaExtent;
-				NewCamVolWorldMaxCorrected = CameraVolume->CamVolWorldMaxCorrected + DeltaExtent;
+				NewCamVolExtentCorrected += DeltaExtent;
+				NewCamVolWorldMinCorrected -= DeltaExtent;
+				NewCamVolWorldMaxCorrected += DeltaExtent;
 			}
 
 			if (CameraVolume->CamVolAspectRatio >= ScreenAspectRatio) // Horizontal movement
 			{
-				//Side-scroller
-				CameraOffset = FMath::Clamp(CameraOffset, CameraOffset, NewCamVolExtentCorrected.Z * ScreenAspectRatio / PlayerCamFOVTangens);
-				//Top-down
-				//CameraOffset = FMath::Clamp(CameraOffset, CameraOffset, NewCamVolExtentCorrected.X * ScreenAspectRatio / PlayerCamFOVTangens);
+				CameraOffset = FMath::Clamp(CameraOffset, CameraOffset, NewCamVolExtentCorrected.Z * ScreenAspectRatio / PlayerCamFOVTangens); //Side-scroller
+				//CameraOffset = FMath::Clamp(CameraOffset, CameraOffset, NewCamVolExtentCorrected.Y * ScreenAspectRatio / PlayerCamFOVTangens); //Top-down
 			}
 			else // Vertical movement
-				CameraOffset = FMath::Clamp(CameraOffset, CameraOffset, NewCamVolExtentCorrected.Y / PlayerCamFOVTangens);
+				CameraOffset = FMath::Clamp(CameraOffset, CameraOffset, NewCamVolExtentCorrected.X / PlayerCamFOVTangens);
 
 			// Calculate screen world extent at depth (CameraOffset)
 			FVector ScreenExtent = FVector::ZeroVector;
-			ScreenExtent.Y = FMath::Abs(CameraOffset * PlayerCamFOVTangens);
-			//Side-scroller
-			ScreenExtent = FVector(0.f, ScreenExtent.Y, ScreenExtent.Y / ScreenAspectRatio);
-			//Top-down
-			ScreenExtent = FVector(ScreenExtent.Y / ScreenAspectRatio, ScreenExtent.Y, 0.f);
+			ScreenExtent.X = FMath::Abs(CameraOffset * PlayerCamFOVTangens);
+			ScreenExtent = FVector(ScreenExtent.X, 0.f, ScreenExtent.X / ScreenAspectRatio); //Side-scroller
+			//ScreenExtent = FVector(ScreenExtent.X / ScreenAspectRatio, ScreenExtent.X, 0.f); //Top-down
 			FVector ScreenWorldMin = (NewCamVolWorldMinCorrected + ScreenExtent);
 			FVector ScreenWorldMax = (NewCamVolWorldMaxCorrected - ScreenExtent);
 
 			// New camera location
 			//Side-scroller
 			NewCameraLocation = FVector(
-				CameraOffset + CameraVolume->GetActorLocation().X,
-				FMath::Clamp(NewCameraLocation.Y, ScreenWorldMin.Y, ScreenWorldMax.Y),
+				FMath::Clamp(NewCameraLocation.X, ScreenWorldMin.X, ScreenWorldMax.X),
+				CameraOffset + CameraVolume->GetActorLocation().Y,
 				FMath::Clamp(NewCameraLocation.Z, ScreenWorldMin.Z, ScreenWorldMax.Z));
 			//Top-down
 			//NewCameraLocation = FVector(
@@ -274,7 +251,8 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 		{
 			SmoothTransitionAlpha += DeltaTime;
 			NewCameraLocation = FMath::Lerp(OldCameraLocation, NewCameraLocation, SmoothTransitionAlpha);
-			NewCameraRotation = FMath::Lerp(OldCameraRotation, NewCameraRotation, SmoothTransitionAlpha);
+			NewCameraRotation = FQuat::Slerp(OldCameraRotation, NewCameraRotation, SmoothTransitionAlpha);
+			NewCameraRotation.Normalize();
 			NewCameraFOV = FMath::Lerp(OldCameraFOV, NewCameraFOV, SmoothTransitionAlpha);
 		}
 		else

@@ -51,7 +51,7 @@ ACameraVolumeActor::ACameraVolumeActor()
 	bOverrideCameraRotation = false;
 	CameraFocalPoint = FVector::ZeroVector;
 	CameraRoll = 0.f;
-	bFocalPointIsPlayer = true;
+	bFocalPointIsPlayer = false;
 
 	bOverrideCameraFieldOfView = false;
 	CameraFieldOfView = 90.f;
@@ -111,9 +111,11 @@ void ACameraVolumeActor::UpdateVolume()
 		bUseZeroDepthExtentEditCond = false;
 		bUseZeroDepthExtent = false;
 	}
+	else
+		bUseZeroDepthExtentEditCond = true;
 
-	if (bUseZeroDepthExtent)
-		bCameraLocationRelativeToVolume = true;
+	//if (bUseZeroDepthExtent)
+	//	bCameraLocationRelativeToVolume = true;
 
 	switch (CameraMobility)
 	{
@@ -123,12 +125,13 @@ void ACameraVolumeActor::UpdateVolume()
 		break;
 	case ECameraMobility::ECM_Static:
 		bIsCameraStatic = true;
+		bOverrideCameraLocation = true;
 		break;
 	}
 
 	if (!bOverrideCameraLocation)
-		CameraLocation = FVector(1000.f, 0.f, 0.f); //Side-scroller
-		//	CameraLocation = FVector(0.f, 0.f, 1000.f); //Top-down
+		CameraLocation = FVector(0.f, 1000.f, 0.f); //Side-scroller
+		//CameraLocation = FVector(0.f, 0.f, 1000.f); //Top-down
 
 	if (!bOverrideCameraRotation)
 		CameraFocalPoint = FVector::ZeroVector;
@@ -151,7 +154,7 @@ void ACameraVolumeActor::UpdateVolume()
 	Text_Indicators[0]->SetTextRenderColor(FColor::White);
 	Text_Indicators[0]->SetWorldSize(2.f * Text_Size);
 	//Side-scroller
-	Text_Indicators[0]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X, 0.f, 2.f * Text_Size), FRotator(0.f, 0.f, 0.f));
+	Text_Indicators[0]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y, 2.f * Text_Size), FRotator(0.f, 90.f, 0.f));
 	//Top-down
 	//	Text_Indicators[0]->SetRelativeLocationAndRotation(FVector(-2.f * Text_Size, 0.f, VolumeExtent.Z), FRotator(90.f, 0.f, 0.f));
 
@@ -169,8 +172,8 @@ void ACameraVolumeActor::UpdateVolume()
 			{
 				Text_Indicators[i]->SetVisibility(true);
 				Text_Indicators[i + 1]->SetVisibility(true);
-				Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X - 1.5f * Text_Size, 0.f, VolumeExtent.Z), FRotator(90.f, 0.f, 0.f));
-				Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X - 0.5f * Text_Size, 0.f, VolumeExtent.Z), FRotator(90.f, 0.f, 0.f));
+				Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y - 1.5f * Text_Size, VolumeExtent.Z), FRotator(90.f, 90.f, 0.f));
+				Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y - 0.5f * Text_Size, VolumeExtent.Z), FRotator(90.f, 90.f, 0.f));
 			}
 			else
 			{
@@ -185,8 +188,8 @@ void ACameraVolumeActor::UpdateVolume()
 			{
 				Text_Indicators[i]->SetVisibility(true);
 				Text_Indicators[i + 1]->SetVisibility(true);
-				Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(-VolumeExtent.X + 0.5f * Text_Size, 0.f, VolumeExtent.Z), FRotator(90.f, 0.f, 0.f));
-				Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(-VolumeExtent.X + 1.5f * Text_Size, 0.f, VolumeExtent.Z), FRotator(90.f, 0.f, 0.f));
+				Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(0.f, -VolumeExtent.Y + 0.5f * Text_Size, VolumeExtent.Z), FRotator(90.f, 90.f, 0.f));
+				Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(0.f, -VolumeExtent.Y + 1.5f * Text_Size, VolumeExtent.Z), FRotator(90.f, 90.f, 0.f));
 			}
 			else
 			{
@@ -198,33 +201,33 @@ void ACameraVolumeActor::UpdateVolume()
 		{
 			SideInfo = RightSide;
 			//Side-scroller
-			Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X, -VolumeExtent.Y + 2.f * Text_Size, 0.5f * Text_Size), FRotator(0.f, 0.f, 0.f));
-			Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X, -VolumeExtent.Y + 2.f * Text_Size, -0.5f * Text_Size), FRotator(0.f, 0.f, 0.f));
+			Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X - 2.f * Text_Size, VolumeExtent.Y, 0.5f * Text_Size), FRotator(0.f, 90.f, 0.f));
+			Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X - 2.f * Text_Size, VolumeExtent.Y, -0.5f * Text_Size), FRotator(0.f, 90.f, 0.f));
 			//Top-down
-			//	Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(-0.5f * Text_Size, -VolumeExtent.Y + 2.f * Text_Size, VolumeExtent.Z), FRotator(90.f, 0.f, 0.f));
-			//	Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(0.5f * Text_Size, -VolumeExtent.Y + 2.f * Text_Size, VolumeExtent.Z), FRotator(90.f, 0.f, 0.f));
+			//Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X - 2.f * Text_Size, -0.5f * Text_Size, VolumeExtent.Z), FRotator(90.f, 90.f, 0.f));
+			//Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X - 2.f * Text_Size, 0.5f * Text_Size, VolumeExtent.Z), FRotator(90.f, 90.f, 0.f));
 		}
 		else if (i == 7)
 		{
 			SideInfo = LeftSide;
 			//Side-scroller
-			Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X, VolumeExtent.Y - 2.f * Text_Size, 0.5f * Text_Size), FRotator(0.f, 0.f, 0.f));
-			Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X, VolumeExtent.Y - 2.f * Text_Size, -0.5f * Text_Size), FRotator(0.f, 0.f, 0.f));
+			Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(-VolumeExtent.X + 2.f * Text_Size, VolumeExtent.Y, 0.5f * Text_Size), FRotator(0.f, 90.f, 0.f));
+			Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(-VolumeExtent.X + 2.f * Text_Size, VolumeExtent.Y, -0.5f * Text_Size), FRotator(0.f, 90.f, 0.f));
 			//Top-down
-			//	Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(-0.5f * Text_Size, VolumeExtent.Y - 2.f * Text_Size, VolumeExtent.Z), FRotator(90.f, 0.f, 0.f));
-			//	Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(0.5f * Text_Size, VolumeExtent.Y - 2.f * Text_Size, VolumeExtent.Z), FRotator(90.f, 0.f, 0.f));
+			//Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(-VolumeExtent.X + 2.f * Text_Size, -0.5f * Text_Size, VolumeExtent.Z), FRotator(90.f, 90.f, 0.f));
+			//Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(-VolumeExtent.X + 2.f * Text_Size, 0.5f * Text_Size, VolumeExtent.Z), FRotator(90.f, 90.f, 0.f));
 		}
 		else if (i == 9)
 		{
 			SideInfo = TopSide;
-			Text_Indicators[i]->SetRelativeLocation(FVector(VolumeExtent.X, 0.f, VolumeExtent.Z - 0.5f * Text_Size));
-			Text_Indicators[i + 1]->SetRelativeLocation(FVector(VolumeExtent.X, 0.f, VolumeExtent.Z - 1.5f * Text_Size));
+			Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y, VolumeExtent.Z - 0.5f * Text_Size), FRotator(0.f, 90.f, 0.f));
+			Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y, VolumeExtent.Z - 1.5f * Text_Size), FRotator(0.f, 90.f, 0.f));
 		}
 		else if (i == 11)
 		{
 			SideInfo = BottomSide;
-			Text_Indicators[i]->SetRelativeLocation(FVector(VolumeExtent.X, 0.f, -VolumeExtent.Z + 1.5f * Text_Size));
-			Text_Indicators[i + 1]->SetRelativeLocation(FVector(VolumeExtent.X, 0.f, -VolumeExtent.Z + 0.5f * Text_Size));
+			Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y, -VolumeExtent.Z + 1.5f * Text_Size), FRotator(0.f, 90.f, 0.f));
+			Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y, -VolumeExtent.Z + 0.5f * Text_Size), FRotator(0.f, 90.f, 0.f));
 		}
 
 		if (SideInfo.SideType == ESideType::EST_Closed)
@@ -267,17 +270,11 @@ void ACameraVolumeActor::CalculateVolumeExtents()
 	CamVolWorldMinCorrected = CamVolWorldMin;
 	CamVolWorldMaxCorrected = CamVolWorldMax;
 
-	if (FrontSide.SideType == ESideType::EST_Open)
+	if (RightSide.SideType == ESideType::EST_Open)
 		CamVolWorldMaxCorrected.X = CamVolWorldMaxCorrected.X + OpenEdgeOffset;
 
-	if (BackSide.SideType == ESideType::EST_Open)
-		CamVolWorldMinCorrected.X = CamVolWorldMinCorrected.X - OpenEdgeOffset;
-
-	if (RightSide.SideType == ESideType::EST_Open)
-		CamVolWorldMinCorrected.Y = CamVolWorldMinCorrected.Y - OpenEdgeOffset;
-
 	if (LeftSide.SideType == ESideType::EST_Open)
-		CamVolWorldMaxCorrected.Y = CamVolWorldMaxCorrected.Y + OpenEdgeOffset;
+		CamVolWorldMinCorrected.X = CamVolWorldMinCorrected.X - OpenEdgeOffset;
 
 	if (TopSide.SideType == ESideType::EST_Open)
 		CamVolWorldMaxCorrected.Z = CamVolWorldMaxCorrected.Z + OpenEdgeOffset;
@@ -285,19 +282,28 @@ void ACameraVolumeActor::CalculateVolumeExtents()
 	if (BottomSide.SideType == ESideType::EST_Open)
 		CamVolWorldMinCorrected.Z = CamVolWorldMinCorrected.Z - OpenEdgeOffset;
 
+	if (bUse6DOFVolume)
+	{
+		if (FrontSide.SideType == ESideType::EST_Open)
+			CamVolWorldMaxCorrected.Y = CamVolWorldMaxCorrected.Y + OpenEdgeOffset;
+
+		if (BackSide.SideType == ESideType::EST_Open)
+			CamVolWorldMinCorrected.Y = CamVolWorldMinCorrected.Y - OpenEdgeOffset;
+	}
+
 	if (bUseZeroDepthExtent)
 	{
 		//Side-scroller
-		CamVolWorldMinCorrected.X = 0.f;
-		CamVolWorldMaxCorrected.X = 0.f;
+		CamVolWorldMinCorrected.Y = 0.f;
+		CamVolWorldMaxCorrected.Y = 0.f;
 		//Top-down
 		//CamVolWorldMinCorrected.Z = 0.f;
 		//CamVolWorldMaxCorrected.Z = 0.f;
 	}
 
 	CamVolExtentCorrected = (CamVolWorldMaxCorrected - CamVolWorldMinCorrected) * 0.5f;
-	CamVolAspectRatio = CamVolExtentCorrected.Y / CamVolExtentCorrected.Z; //Side-scroller
-	//CamVolAspectRatio = CamVolExtentCorrected.Y / CamVolExtentCorrected.X; //Top-down
+	CamVolAspectRatio = CamVolExtentCorrected.X / CamVolExtentCorrected.Z; //Side-scroller
+	//CamVolAspectRatio = CamVolExtentCorrected.X / CamVolExtentCorrected.Y; //Top-down
 }
 
 FSideInfo ACameraVolumeActor::GetSideInfo(ESide Side)
@@ -336,25 +342,25 @@ ESide ACameraVolumeActor::GetNearestVolumeSide(FVector& PlayerPawnLocation)
 
 	if (bUse6DOFVolume)
 	{
-		Sides.Add(ESide::ES_Front, FMath::Abs(PlayerPawnLocation.X - CamVolWorldMax.X));
-		Sides.Add(ESide::ES_Back, FMath::Abs(PlayerPawnLocation.X - CamVolWorldMin.X));
-		Sides.Add(ESide::ES_Right, FMath::Abs(PlayerPawnLocation.Y - CamVolWorldMin.Y));
-		Sides.Add(ESide::ES_Left, FMath::Abs(PlayerPawnLocation.Y - CamVolWorldMax.Y));
+		Sides.Add(ESide::ES_Front, FMath::Abs(PlayerPawnLocation.Y - CamVolWorldMax.Y));
+		Sides.Add(ESide::ES_Back, FMath::Abs(PlayerPawnLocation.Y - CamVolWorldMin.Y));
+		Sides.Add(ESide::ES_Right, FMath::Abs(PlayerPawnLocation.X - CamVolWorldMax.X));
+		Sides.Add(ESide::ES_Left, FMath::Abs(PlayerPawnLocation.X - CamVolWorldMin.X));
 		Sides.Add(ESide::ES_Top, FMath::Abs(PlayerPawnLocation.Z - CamVolWorldMax.Z));
 		Sides.Add(ESide::ES_Bottom, FMath::Abs(PlayerPawnLocation.Z - CamVolWorldMin.Z));
 	}
 	else
 	{
 		//Side-scroller
-		Sides.Add(ESide::ES_Right, FMath::Abs(PlayerPawnLocation.Y - CamVolWorldMin.Y));
-		Sides.Add(ESide::ES_Left, FMath::Abs(PlayerPawnLocation.Y - CamVolWorldMax.Y));
+		Sides.Add(ESide::ES_Right, FMath::Abs(PlayerPawnLocation.X - CamVolWorldMax.X));
+		Sides.Add(ESide::ES_Left, FMath::Abs(PlayerPawnLocation.X - CamVolWorldMin.X));
 		Sides.Add(ESide::ES_Top, FMath::Abs(PlayerPawnLocation.Z - CamVolWorldMax.Z));
 		Sides.Add(ESide::ES_Bottom, FMath::Abs(PlayerPawnLocation.Z - CamVolWorldMin.Z));
 		//Top-down
-		//	Sides.Add(ESide::ES_Front, FMath::Abs(PlayerPawnLocation.X - CamVolWorldMax.X));
-		//	Sides.Add(ESide::ES_Back, FMath::Abs(PlayerPawnLocation.X - CamVolWorldMin.X));
-		//	Sides.Add(ESide::ES_Right, FMath::Abs(PlayerPawnLocation.Y - CamVolWorldMin.Y));
-		//	Sides.Add(ESide::ES_Left, FMath::Abs(PlayerPawnLocation.Y - CamVolWorldMax.Y));
+		//Sides.Add(ESide::ES_Front, FMath::Abs(PlayerPawnLocation.Y - CamVolWorldMax.Y));
+		//Sides.Add(ESide::ES_Back, FMath::Abs(PlayerPawnLocation.Y - CamVolWorldMin.Y));
+		//Sides.Add(ESide::ES_Right, FMath::Abs(PlayerPawnLocation.X - CamVolWorldMax.X));
+		//Sides.Add(ESide::ES_Left, FMath::Abs(PlayerPawnLocation.X - CamVolWorldMin.X));
 	}
 
 	Sides.ValueSort([](float Min, float Max) { return Min < Max; });

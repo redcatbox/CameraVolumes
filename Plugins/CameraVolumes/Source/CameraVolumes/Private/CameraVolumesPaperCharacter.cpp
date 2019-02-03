@@ -19,13 +19,11 @@ ACameraVolumesPaperCharacter::ACameraVolumesPaperCharacter()
 	CameraComponent = CreateDefaultSubobject<UCameraVolumesCameraComponent>(TEXT("Camera"));
 	CameraComponent->bUsePawnControlRotation = false; // We don't want the controller rotating the camera
 
-	// Don't rotate when the controller rotates.
+	// Configure character movement
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationRoll = false;
-
-	// Configure character movement
-	GetCharacterMovement()->bOrientRotationToMovement = false; // Prevent automatic rotation behavior on the character
+	GetCharacterMovement()->bOrientRotationToMovement = false;
 }
 
 void ACameraVolumesPaperCharacter::PostInitializeComponents()
