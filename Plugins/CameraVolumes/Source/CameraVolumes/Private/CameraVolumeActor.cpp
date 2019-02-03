@@ -154,7 +154,7 @@ void ACameraVolumeActor::UpdateVolume()
 	Text_Indicators[0]->SetTextRenderColor(FColor::White);
 	Text_Indicators[0]->SetWorldSize(2.f * Text_Size);
 	//Side-scroller
-	Text_Indicators[0]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y, 2.f * Text_Size), FRotator(0.f, 90.f, 0.f));
+	Text_Indicators[0]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y, Text_Size), FRotator(0.f, 90.f, 0.f));
 	//Top-down
 	//	Text_Indicators[0]->SetRelativeLocationAndRotation(FVector(-2.f * Text_Size, 0.f, VolumeExtent.Z), FRotator(90.f, 0.f, 0.f));
 

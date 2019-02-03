@@ -24,6 +24,10 @@ ACamVolPaperCharacter::ACamVolPaperCharacter()
 
 	GetSprite()->SetFlipbook(IdleAnimation);
 
+	// Orthographic camera
+	//GetCameraComponent()->ProjectionMode = ECameraProjectionMode::Orthographic;
+	//GetCameraComponent()->OrthoWidth = 2048.f;
+
 	// Configure character movement
 	GetCharacterMovement()->GravityScale = 2.f;
 	GetCharacterMovement()->AirControl = 0.8f;
@@ -31,8 +35,8 @@ ACamVolPaperCharacter::ACamVolPaperCharacter()
 	GetCharacterMovement()->GroundFriction = 3.f;
 	GetCharacterMovement()->MaxWalkSpeed = 600.f;
 	GetCharacterMovement()->MaxFlySpeed = 600.f;
-	GetCharacterMovement()->SetPlaneConstraintEnabled(true);
-	GetCharacterMovement()->SetPlaneConstraintNormal(FVector(0.f, 1.f, 0.f));
+	GetCharacterMovement()->bConstrainToPlane = true;
+	GetCharacterMovement()->SetPlaneConstraintNormal(FVector(0.f, -1.f, 0.f));
 
 	// Behave like a traditional 2D platformer character, with a flat bottom instead of a curved capsule bottom
 	// Note: This can cause a little floating when going up inclines; you can choose the tradeoff between better
