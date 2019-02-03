@@ -67,14 +67,14 @@ bool UCameraVolumesFunctionLibrary::CompareSidesPairs(ESide SideA, ESide SideB, 
 			//	|| (SideA == ESide::ES_Back && SideB == ESide::ES_Front)
 			//	|| (SideA == ESide::ES_Right && SideB == ESide::ES_Left)
 			//	|| (SideA == ESide::ES_Left && SideB == ESide::ES_Right))
-				return true;
+					return true;
 
 	return false;
 }
 
 FQuat UCameraVolumesFunctionLibrary::CalculateCameraRotation(FVector& CameraLocation, FVector& CameraFocalPoint, float CameraRoll)
 {
-	FQuat CameraRotation = FRotationMatrix::MakeFromX(CameraFocalPoint - CameraLocation).ToQuat();
+	FQuat CameraRotation = (FRotationMatrix::MakeFromX(CameraFocalPoint - CameraLocation)).ToQuat();
 	CameraRotation = FQuat(CameraRotation.GetAxisX(), FMath::DegreesToRadians(CameraRoll)) * CameraRotation;
 	return CameraRotation;
 }

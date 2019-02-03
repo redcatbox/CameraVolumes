@@ -33,7 +33,4 @@ protected:
 
 	UPROPERTY()
 		FVector OldVolumeLocation;
-
-	UPROPERTY()
-		FVector NewVolumeLocation;
 };
