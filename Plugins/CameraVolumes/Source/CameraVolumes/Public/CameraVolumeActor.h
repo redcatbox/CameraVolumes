@@ -129,9 +129,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", Meta = (EditCondition = "bOverrideCameraFieldOfView", UIMin = "5.0", UIMax = "170", ClampMin = "0.001", ClampMax = "360.0", Units = deg))
 		float CameraFieldOfView;
 
-	/** Time of smooth camera transition */
+	/** Speed of smooth camera transition */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", Meta = (ClampMin = "0.1", ClampMax = "10.0", UIMin = "0.1", UIMax = "10.0"))
-		float CameraSmoothTransitionTime;
+		float CameraSmoothTransitionSpeed;
 	//--------------------------------------------------
 
 	// Sides info

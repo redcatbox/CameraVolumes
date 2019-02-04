@@ -56,7 +56,7 @@ ACameraVolumeActor::ACameraVolumeActor()
 	bOverrideCameraFieldOfView = false;
 	CameraFieldOfView = 90.f;
 
-	CameraSmoothTransitionTime = 1.f;
+	CameraSmoothTransitionSpeed = 1.f;
 
 	/**
 	*	Sides indicators
