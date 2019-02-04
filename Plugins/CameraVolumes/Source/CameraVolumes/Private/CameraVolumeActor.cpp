@@ -56,7 +56,7 @@ ACameraVolumeActor::ACameraVolumeActor()
 	bOverrideCameraFieldOfView = false;
 	CameraFieldOfView = 90.f;
 
-	CameraSmoothTransitionTime = 1.f;
+	CameraSmoothTransitionSpeed = 1.f;
 
 	/**
 	*	Sides indicators
@@ -370,6 +370,31 @@ ESide ACameraVolumeActor::GetNearestVolumeSide(FVector& PlayerPawnLocation)
 		NearestSide = Pair.Key;
 		break;
 	}
+
+	//switch (NearestSide)
+	//{
+	//case ESide::ES_Unknown:
+	//	UE_LOG(LogTemp, Log, TEXT("Unknown"));
+	//	break;
+	//case ESide::ES_Front:
+	//	UE_LOG(LogTemp, Log, TEXT("Front"));
+	//	break;
+	//case ESide::ES_Back:
+	//	UE_LOG(LogTemp, Log, TEXT("Back"));
+	//	break;
+	//case ESide::ES_Right:
+	//	UE_LOG(LogTemp, Log, TEXT("Right"));
+	//	break;
+	//case ESide::ES_Left:
+	//	UE_LOG(LogTemp, Log, TEXT("Left"));
+	//	break;
+	//case ESide::ES_Top:
+	//	UE_LOG(LogTemp, Log, TEXT("Top"));
+	//	break;
+	//case ESide::ES_Bottom:
+	//	UE_LOG(LogTemp, Log, TEXT("Bottom"));
+	//	break;
+	//}
 
 	return NearestSide;
 }

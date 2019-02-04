@@ -77,10 +77,10 @@ protected:
 		bool bNeedsSmoothTransition;
 
 	UPROPERTY()
-		float SmoothTransitionAlpha;
+		float SmoothTransitionSpeed;
 
 	UPROPERTY()
-		float SmoothTransitionTime;
+		float SmoothTransitionAlpha;
 
 	UPROPERTY()
 		bool bNeedsCutTransition;

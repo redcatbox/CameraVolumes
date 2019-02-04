@@ -14,7 +14,8 @@ public class CamVol : ModuleRules
 			"CoreUObject", 
 			"Engine", 
 			"InputCore", 
-			"CameraVolumes"
+			"CameraVolumes",
+            "Paper2D"
 			}
 		);
 	}

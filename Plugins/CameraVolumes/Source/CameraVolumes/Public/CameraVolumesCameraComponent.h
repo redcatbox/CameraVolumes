@@ -16,11 +16,11 @@ public:
 	UCameraVolumesCameraComponent();
 
 	/** Default camera RELATIVE location */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DefaultCameraParameters", Meta = (MakeEditWidget = true))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DefaultCameraParameters")
 		FVector DefaultCameraLocation;
 
 	/** Default camera RELATIVE focal point */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DefaultCameraParameters", Meta = (MakeEditWidget = true))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DefaultCameraParameters")
 		FVector DefaultCameraFocalPoint;
 
 	/** Default camera roll */

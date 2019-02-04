@@ -17,7 +17,6 @@ ACameraVolumesCameraManager::ACameraVolumesCameraManager()
 	OldCameraFOV = 90.f;
 	NewCameraFOV = 90.f;
 	bNeedsSmoothTransition = false;
-	SmoothTransitionAlpha = 0.f;
 	bNeedsCutTransition = false;
 }
 
@@ -102,7 +101,7 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 								PassedSidePrevious = CamVolPrevious->GetNearestVolumeSide(PlayerPawnLocation);
 
 								if (UCameraVolumesFunctionLibrary::CompareSidesPairs(PassedSideCurrent, PassedSidePrevious, CamVolPrevious->bUse6DOFVolume))
-									// we've passed to nearby volume
+									// We've passed to nearby volume
 									// Use settings of side we have passed to
 									SetTransitionBySideInfo(CamVolCurrent, PassedSideCurrent);
 								else
@@ -117,7 +116,7 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 								}
 							}
 							else
-								// we've passed from void to volume
+								// We've passed from void to volume
 								SetTransitionBySideInfo(CamVolCurrent, PassedSideCurrent);
 						}
 
@@ -138,11 +137,11 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 					else
 						CalcNewCameraParams(nullptr, DeltaTime);
 				}
-			}
-			else
-				CalcNewCameraParams(nullptr, DeltaTime);
+				else
+					CalcNewCameraParams(nullptr, DeltaTime);
 
-			CameraComponent->UpdateCamera(NewCameraLocation, NewCameraRotation, NewCameraFOV);
+				CameraComponent->UpdateCamera(NewCameraLocation, NewCameraRotation, NewCameraFOV);
+			}
 		}
 	}
 
@@ -247,12 +246,11 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 
 	if (bNeedsSmoothTransition)
 	{
-		if (SmoothTransitionAlpha <= SmoothTransitionTime)
+		SmoothTransitionAlpha += DeltaTime * SmoothTransitionSpeed;
+		if (SmoothTransitionAlpha <= 1.f)
 		{
-			SmoothTransitionAlpha += DeltaTime;
 			NewCameraLocation = FMath::Lerp(OldCameraLocation, NewCameraLocation, SmoothTransitionAlpha);
 			NewCameraRotation = FQuat::Slerp(OldCameraRotation, NewCameraRotation, SmoothTransitionAlpha);
-			NewCameraRotation.Normalize();
 			NewCameraFOV = FMath::Lerp(OldCameraFOV, NewCameraFOV, SmoothTransitionAlpha);
 		}
 		else
@@ -284,8 +282,18 @@ void ACameraVolumesCameraManager::SetTransitionBySideInfo(ACameraVolumeActor* Ca
 	{
 		bNeedsSmoothTransition = true;
 		SmoothTransitionAlpha = 0.f;
-		SmoothTransitionTime = CameraVolume->CameraSmoothTransitionTime;
+		SmoothTransitionSpeed = CameraVolume->CameraSmoothTransitionSpeed;
 	}
 	else if (SideInfo.SideTransitionType == ESideTransitionType::ESTT_Cut)
+	{
 		bNeedsCutTransition = true;
+		bNeedsSmoothTransition = false;
+		SmoothTransitionAlpha = 0.f;
+	}
+	else
+	{
+		bNeedsSmoothTransition = false;
+		SmoothTransitionAlpha = 0.f;
+		bNeedsCutTransition = false;
+	}
 }
