@@ -19,15 +19,7 @@
 #include "CameraVolumesTypes.h"
 #include "CameraVolumeActor.generated.h"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 UCLASS(Config = CameraVolumes, AutoExpandCategories = (Volume, Camera))
-=======
-UCLASS(AutoExpandCategories = (Volume, Camera))
->>>>>>> b8d6390... refactoring to match paper2d integration
-=======
-UCLASS(Config = CameraVolumes, AutoExpandCategories = (Volume, Camera))
->>>>>>> a8e85d6... fff
 class CAMERAVOLUMES_API ACameraVolumeActor : public AActor
 {
 	GENERATED_BODY()
@@ -61,8 +53,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Volume", Meta = (MakeEditWidget = true))
 		FVector VolumeExtent;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 //	/** Preffered camera orientation to perform calculations */
 //	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Camera")
 //		ECameraOrientation CameraOrientation;
@@ -81,60 +71,12 @@ protected:
 
 public:
 	/** (For 2D games) Use zero volume extent by depth for camera blocking */
-<<<<<<< HEAD
-<<<<<<< HEAD
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Camera", Meta = (EditCondition = "bUseZeroDepthExtentEditCond"))
 		bool bUseZeroDepthExtent;
 
-	/** Enable all volume sides */
+	/** Process all 6 volume sides */
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Camera")
 		bool bUse6DOFVolume;
-=======
-	/** Preffered camera orientation to perform calculations */
-	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Camera")
-		ECameraOrientation CameraOrientation;
-
-<<<<<<< HEAD
-	/** Perform calculations in 2D */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
-		bool b2DCalculations;
->>>>>>> b8d6390... refactoring to match paper2d integration
-=======
-protected:
-	UPROPERTY()
-		bool bIsCameraSideScroller;
-=======
-//	/** Preffered camera orientation to perform calculations */
-//	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Camera")
-//		ECameraOrientation CameraOrientation;
-
-//protected:
-//	UPROPERTY()
-//		bool bIsCameraSideScroller;
->>>>>>> ec14146... added character interface
-
-//public:
-//	/** Returns is volume uses horizontal camera settings */
-//	FORCEINLINE bool GetIsCameraSideScroller() const { return bIsCameraSideScroller; }
-
-protected:
-	UPROPERTY()
-		bool bUseZeroDepthExtentEditCond;
-
-public:
-	/** Use zero volume extent by depth for camera blocking */
-=======
->>>>>>> 9adb816... finished with 2d support
-	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Camera", Meta = (EditCondition = "bOverrideCameraLocation"))
-=======
-	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Camera", Meta = (EditCondition = "bUseZeroDepthExtentEditCond"))
->>>>>>> 072045c... changed coord system
-		bool bUseZeroDepthExtent;
-
-	/** Enable all volume sides */
-	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Camera")
-		bool bUse6DOFVolume;
->>>>>>> a8e85d6... fff
 
 	/** Camera mobility */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
@@ -193,27 +135,7 @@ public:
 	//--------------------------------------------------
 
 	// Sides info
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties, EditCondition = "bCameraVolume3DEditCond"))
-=======
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties, EditCondition = "bTopDownEditCond"))
->>>>>>> a8e85d6... fff
-=======
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))
-<<<<<<< HEAD
->>>>>>> ec14146... added character interface
-		FSideInfo FrontSide;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))
-		FSideInfo BackSide;
-
->>>>>>> b8d6390... refactoring to match paper2d integration
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))
-=======
->>>>>>> 072045c... changed coord system
 		FSideInfo RightSide;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))

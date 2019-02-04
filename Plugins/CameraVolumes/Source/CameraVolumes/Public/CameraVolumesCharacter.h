@@ -11,27 +11,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "CameraVolumeActor.h"
-<<<<<<< HEAD
-<<<<<<< HEAD
 #include "CameraVolumesCharacterInterface.h"
 #include "CameraVolumesCharacter.generated.h"
 
 UCLASS()
 class CAMERAVOLUMES_API ACameraVolumesCharacter : public ACharacter, public ICameraVolumesCharacterInterface
-=======
-#include "CameraVolumesCameraComponent.h"
-#include "CameraVolumesCharacter.generated.h"
-
-UCLASS()
-class CAMERAVOLUMES_API ACameraVolumesCharacter : public ACharacter
->>>>>>> b8d6390... refactoring to match paper2d integration
-=======
-#include "CameraVolumesCharacterInterface.h"
-#include "CameraVolumesCharacter.generated.h"
-
-UCLASS()
-class CAMERAVOLUMES_API ACameraVolumesCharacter : public ACharacter, public ICameraVolumesCharacterInterface
->>>>>>> ec14146... added character interface
 {
 	GENERATED_BODY()
 
@@ -44,19 +28,5 @@ class CAMERAVOLUMES_API ACameraVolumesCharacter : public ACharacter, public ICam
 
 public:
 	ACameraVolumesCharacter();
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 	virtual class UCameraVolumesCameraComponent* GetCameraComponent() const override;
-=======
-
-	/** Returns CameraComponent subobject */
-	FORCEINLINE class UCameraVolumesCameraComponent* GetCameraComponent() const { return CameraComponent; }
->>>>>>> b8d6390... refactoring to match paper2d integration
-=======
-	virtual UCameraVolumesCameraComponent* GetCameraComponent() const override;
->>>>>>> ec14146... added character interface
-=======
-	virtual class UCameraVolumesCameraComponent* GetCameraComponent() const override;
->>>>>>> 9adb816... finished with 2d support
 };

@@ -58,9 +58,5 @@ void ACamVolCharacter::MoveRight(float Value)
 void ACamVolCharacter::MoveForward(float Value)
 {
 	// add movement in that direction
-<<<<<<< HEAD
-	AddMovementInput(FVector(0.f, 1.f, 0.f), Value);
-=======
 	AddMovementInput(FVector(0.f, -1.f, 0.f), Value);
->>>>>>> 072045c... changed coord system
 }
