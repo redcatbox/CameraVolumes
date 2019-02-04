@@ -21,7 +21,13 @@ public:
 	UFUNCTION(BlueprintCallable, Meta = (Category = "CameraVolumes"))
 		static bool CompareSidesPairs(ESide SideA, ESide SideB, bool b6DOFVolume);
 
-	/** Calculate camera rotation from position, focal point and roll */
+	/** Calculate camera rotation from camera position, focal point and roll */
 	UFUNCTION(BlueprintCallable, Meta = (Category = "CameraVolumes"))
 		static FQuat CalculateCameraRotation(FVector& CameraLocation, FVector& CameraFocalPoint, float CameraRoll);
+
+	/** Calculate camera rotation from camera position, focal point, roll, player and camera volume positions */
+	UFUNCTION(BlueprintCallable, Meta = (Category = "CameraVolumes"))
+		static FQuat CalculateCameraRotationToCharacter(FVector& CameraLocation, FVector& CameraFocalPoint, float CameraRoll, FVector PlayerPawnLocation, FVector CameraVolumeLocation);
+
+	
 };
