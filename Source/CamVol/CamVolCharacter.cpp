@@ -13,6 +13,7 @@ ACamVolCharacter::ACamVolCharacter()
 	// Mesh
 	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -96.f));
 	GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
+
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletalMeshObj(TEXT("/Game/Mannequin/Character/Mesh/SK_Mannequin"));
 	if (SkeletalMeshObj.Object)
 		GetMesh()->SetSkeletalMesh(SkeletalMeshObj.Object, true);
@@ -30,12 +31,12 @@ ACamVolCharacter::ACamVolCharacter()
 	GetCharacterMovement()->MaxFlySpeed = 600.f;
 
 	// Camera lag
-	bEnableCameraLocationLag = true;
-	CameraLocationLagSpeed = 5.f;
-	bEnableCameraRotationLag = true;
-	CameraRotationLagSpeed = 5.f;
-	bEnableCameraFOVInterpolation = true;
-	CameraFOVInterpolationSpeed = 5.f;
+	GetCameraComponent()->bEnableCameraLocationLag = true;
+	GetCameraComponent()->CameraLocationLagSpeed = 5.f;
+	GetCameraComponent()->bEnableCameraRotationLag = true;
+	GetCameraComponent()->CameraRotationLagSpeed = 5.f;
+	GetCameraComponent()->bEnableCameraFOVInterpolation = true;
+	GetCameraComponent()->CameraFOVInterpolationSpeed = 5.f;
 }
 
 // Input
@@ -51,11 +52,11 @@ void ACamVolCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 void ACamVolCharacter::MoveRight(float Value)
 {
 	// add movement in that direction
-	AddMovementInput(FVector(0.f, -1.f, 0.f), Value);
+	AddMovementInput(FVector(1.f, 0.f, 0.f), Value);
 }
 
 void ACamVolCharacter::MoveForward(float Value)
 {
 	// add movement in that direction
-	AddMovementInput(FVector(1.f, 0.f, 0.f), Value);
+	AddMovementInput(FVector(0.f, 1.f, 0.f), Value);
 }

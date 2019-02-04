@@ -16,69 +16,10 @@
 #include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/TextRenderComponent.h"
+#include "CameraVolumesTypes.h"
 #include "CameraVolumeActor.generated.h"
 
-UENUM(BlueprintType)
-enum class ESide : uint8
-{
-	ES_Unknown	UMETA(DisplayName = "Unknown"),
-	ES_Front	UMETA(DisplayName = "Front"),
-	ES_Back		UMETA(DisplayName = "Back"),
-	ES_Right	UMETA(DisplayName = "Right"),
-	ES_Left		UMETA(DisplayName = "Left"),
-	ES_Top		UMETA(DisplayName = "Top"),
-	ES_Bottom	UMETA(DisplayName = "Bottom")
-};
-
-//Side can be Open or Closed
-UENUM(BlueprintType)
-enum class ESideType : uint8
-{
-	EST_Open	UMETA(DisplayName = "Open"),
-	EST_Closed	UMETA(DisplayName = "Closed")
-};
-
-//Side Transition can be Smooth or Cut
-UENUM(BlueprintType)
-enum class ESideTransitionType : uint8
-{
-	ESTT_Normal	UMETA(DisplayName = "Normal"),
-	ESTT_Smooth	UMETA(DisplayName = "Smooth"),
-	ESTT_Cut	UMETA(DisplayName = "Cut")
-};
-
-USTRUCT(BlueprintType)
-struct FSideInfo
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		ESideType SideType;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		ESideTransitionType SideTransitionType;
-
-	FSideInfo()
-	{
-		SideType = ESideType::EST_Open;
-		SideTransitionType = ESideTransitionType::ESTT_Normal;
-	}
-
-	FSideInfo(ESideType SideType, ESideTransitionType SideTransitionType)
-	{
-		this->SideType = SideType;
-		this->SideTransitionType = SideTransitionType;
-	}
-};
-
-UENUM(BlueprintType)
-enum class ECameraMobility : uint8
-{
-	ECM_Movable	UMETA(DisplayName = "Movable"),
-	ECM_Static	UMETA(DisplayName = "Static")
-};
-
-UCLASS(AutoExpandCategories = (Volume, Camera))
+UCLASS(Config = CameraVolumes, AutoExpandCategories = (Volume, Camera))
 class CAMERAVOLUMES_API ACameraVolumeActor : public AActor
 {
 	GENERATED_BODY()
@@ -90,16 +31,16 @@ public:
 protected:
 	//Components
 	UPROPERTY()
-		USceneComponent* DefaultSceneRoot;
+		class USceneComponent* DefaultSceneRoot;
 
 	UPROPERTY()
-		UBillboardComponent* BillboardComponent;
+		class UBillboardComponent* BillboardComponent;
 
 	UPROPERTY()
-		UBoxComponent* BoxComponent;
+		class UBoxComponent* BoxComponent;
 
 	UPROPERTY()
-		UCameraComponent* CameraComponent;
+		class UCameraComponent* CameraComponent;
 	//--------------------------------------------------
 
 public:
@@ -112,29 +53,34 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Volume", Meta = (MakeEditWidget = true))
 		FVector VolumeExtent;
 
+//	/** Preffered camera orientation to perform calculations */
+//	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Camera")
+//		ECameraOrientation CameraOrientation;
+
+//protected:
+//	UPROPERTY()
+//		bool bIsCameraSideScroller;
+
+//public:
+//	/** Returns is volume uses horizontal camera settings */
+//	FORCEINLINE bool GetIsCameraSideScroller() const { return bIsCameraSideScroller; }
+
+protected:
+	UPROPERTY()
+		bool bUseZeroDepthExtentEditCond;
+
+public:
+	/** (For 2D games) Use zero volume extent by depth for camera blocking */
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Camera", Meta = (EditCondition = "bUseZeroDepthExtentEditCond"))
+		bool bUseZeroDepthExtent;
+
+	/** Enable all volume sides */
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Camera")
+		bool bUse6DOFVolume;
+
 	/** Camera mobility */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
 		ECameraMobility CameraMobility;
-
-	/** Should override camera location? */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
-		bool bOverrideCameraLocation;
-
-	/** New camera location */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", Meta = (EditCondition = "bOverrideCameraLocation"))
-		FVector CameraLocation;
-
-	/** Should camera location be relative to volume? */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", Meta = (EditCondition = "bOverrideCameraLocation"))
-		bool bCameraLocationRelativeToVolume;
-
-	/** Should override camera focal point? */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
-		bool bOverrideCameraFocalPoint;
-
-	/** New camera focal point */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", Meta = (EditCondition = "bOverrideCameraFocalPoint", MakeEditWidget = true))
-		FVector CameraFocalPoint;
 
 protected:
 	UPROPERTY()
@@ -143,6 +89,30 @@ protected:
 public:
 	/** Returns is volume uses static camera settings */
 	FORCEINLINE bool GetIsCameraStatic() const { return bIsCameraStatic; }
+
+	/** Should override camera location? */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
+		bool bOverrideCameraLocation;
+
+	/** New camera location */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", Meta = (EditCondition = "bOverrideCameraLocation", MakeEditWidget = true))
+		FVector CameraLocation;
+
+	/** Should camera location be relative to volume? */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
+		bool bCameraLocationRelativeToVolume;
+
+	/** Should override camera focal point? */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
+		bool bOverrideCameraRotation;
+
+	/** New camera focal point */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", Meta = (EditCondition = "bOverrideCameraRotation", MakeEditWidget = true))
+		FVector CameraFocalPoint;
+
+	/** New camera roll */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", Meta = (EditCondition = "bOverrideCameraRotation"))
+		float CameraRoll;
 
 	/** Should camera look at player character? */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", Meta = (EditCondition = "bIsCameraStatic"))
@@ -166,12 +136,6 @@ public:
 
 	// Sides info
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))
-		FSideInfo FrontSide;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))
-		FSideInfo BackSide;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))
 		FSideInfo RightSide;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))
@@ -182,6 +146,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))
 		FSideInfo BottomSide;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))
+		FSideInfo FrontSide;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SidesInfo", Meta = (ShowOnlyInnerProperties))
+		FSideInfo BackSide;
 	//--------------------------------------------------
 
 	UPROPERTY()
@@ -203,12 +173,12 @@ public:
 		FVector CamVolExtentCorrected;
 
 	/** Use this to update volume after made changes in editor, if they are not applied automatically */
-	UFUNCTION(CallInEditor, Category = "CameraVolumes")
+	UFUNCTION(CallInEditor, Category = "Volume")
 		virtual void UpdateVolume();
 
-	/** Update volume extents. Can be called for dynamic camera volume */
+	/** Calculate volume extents */
 	UFUNCTION(BlueprintCallable, Category = "CameraVolumes")
-		virtual void UpdateVolumeExtents();
+		virtual void CalculateVolumeExtents();
 
 	/** Get side info */
 	UFUNCTION(BlueprintCallable, Category = "CameraVolumes")
@@ -231,10 +201,6 @@ protected:
 	const FText Text_Cut = FText::FromString("CUT");
 	//--------------------------------------------------
 
-	const FVector DefaultCameraLocation = FVector(1000.f, 0.f, 0.f); // Side-scroller
-//const FVector DefaultCameraLocation = FVector(0.f, 0.f, 1000.f); // Top-down
-	const FVector DefaultCameraFocalPoint = FVector::ZeroVector;
-	const float DefaultCameraFOV = 90.f;
 	const float OpenEdgeOffset = 10000.f;
 
 public:

@@ -4,7 +4,7 @@
 #include "CameraVolumesCharacter.h"
 #include "CamVolCharacter.generated.h"
 
-UCLASS(config = Game)
+UCLASS(Config = Game)
 class ACamVolCharacter : public ACameraVolumesCharacter
 {
 	GENERATED_BODY()

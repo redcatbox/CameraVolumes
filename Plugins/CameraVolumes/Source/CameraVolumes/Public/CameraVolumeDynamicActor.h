@@ -18,11 +18,19 @@ class CAMERAVOLUMES_API ACameraVolumeDynamicActor : public ACameraVolumeActor
 public:
 	ACameraVolumeDynamicActor();
 	virtual void Tick(float DeltaTime) override;
+	virtual void UpdateVolume() override;
 
 	UFUNCTION()
 		virtual void SetActive(bool bNewActive);
 
+	/** Update volume extents for dynamic camera volume */
+	UFUNCTION(BlueprintCallable, Category = "CameraVolumes")
+		virtual void UpdateVolumeExtents();
+
 protected:
 	UPROPERTY()
 		bool bActive;
+
+	UPROPERTY()
+		FVector OldVolumeLocation;
 };
