@@ -195,7 +195,7 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 			FVector NewCamVolExtentCorrected = CameraVolume->CamVolExtentCorrected;
 			FVector NewCamVolWorldMinCorrected = CameraVolume->CamVolWorldMinCorrected;
 			FVector NewCamVolWorldMaxCorrected = CameraVolume->CamVolWorldMaxCorrected;
-			// Calculate delta volume extent with +Y volume extent
+			// Calculate delta volume extent with +Y volume extent (+Z in top-down)
 			if (!CameraVolume->bUseZeroDepthExtent)
 			{
 				FVector DeltaExtent = FVector::ZeroVector;
@@ -203,8 +203,8 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 				DeltaExtent.X = FMath::Abs((NewCamVolWorldMaxCorrected.Y - CameraVolume->GetActorLocation().Y) * PlayerCamFOVTangens);
 				DeltaExtent = FVector(DeltaExtent.X, 0.f, DeltaExtent.X / ScreenAspectRatio);
 				//Top-down
-				//DeltaExtent.Y = FMath::Abs((NewCamVolWorldMaxCorrected.Z - CameraVolume->GetActorLocation().Z) * PlayerCamFOVTangens);
-				//DeltaExtent = FVector(DeltaExtent.Y / ScreenAspectRatio, DeltaExtent.Y, 0.f);
+				//DeltaExtent.X = FMath::Abs((NewCamVolWorldMaxCorrected.Z - CameraVolume->GetActorLocation().Z) * PlayerCamFOVTangens);
+				//DeltaExtent = FVector(DeltaExtent.X, DeltaExtent.X / ScreenAspectRatio, 0.f);
 
 				NewCamVolExtentCorrected += DeltaExtent;
 				NewCamVolWorldMinCorrected -= DeltaExtent;
@@ -223,9 +223,9 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 			FVector ScreenExtent = FVector::ZeroVector;
 			ScreenExtent.X = FMath::Abs(CameraOffset * PlayerCamFOVTangens);
 			ScreenExtent = FVector(ScreenExtent.X, 0.f, ScreenExtent.X / ScreenAspectRatio); //Side-scroller
-			//ScreenExtent = FVector(ScreenExtent.X / ScreenAspectRatio, ScreenExtent.X, 0.f); //Top-down
-			FVector ScreenWorldMin = (NewCamVolWorldMinCorrected + ScreenExtent);
-			FVector ScreenWorldMax = (NewCamVolWorldMaxCorrected - ScreenExtent);
+			//ScreenExtent = FVector(ScreenExtent.X, ScreenExtent.X / ScreenAspectRatio, 0.f); //Top-down
+			FVector ScreenWorldMin = NewCamVolWorldMinCorrected + ScreenExtent;
+			FVector ScreenWorldMax = NewCamVolWorldMaxCorrected - ScreenExtent;
 
 			// New camera location
 			//Side-scroller

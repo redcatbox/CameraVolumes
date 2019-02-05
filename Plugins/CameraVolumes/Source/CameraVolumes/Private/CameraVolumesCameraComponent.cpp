@@ -9,7 +9,8 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 	DefaultCameraLocation = FVector(0.f, 1000.f, 0.f); //Side-scroller
 	//DefaultCameraLocation = FVector(0.f, 0.f, 1000.f); //Top-down
 	DefaultCameraFocalPoint = FVector::ZeroVector;
-	DefaultCameraRoll = 0.f;
+	DefaultCameraRoll = 0.f; //Side-scroller
+	//DefaultCameraRoll = 90.f; //Top-down
 	DefaultCameraFieldOfView = 90.f;
 	UpdateCameraComponent();
 

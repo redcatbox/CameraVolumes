@@ -30,9 +30,9 @@ ACameraVolumeActor* UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(TArray
 					&& PlayerPawnLocation.Z < CameraVolume->CamVolWorldMax.Z;
 				//Top-down
 				//Condition = CameraVolume->CamVolWorldMin.X < PlayerPawnLocation.X
-					//&& PlayerPawnLocation.X < CameraVolume->CamVolWorldMax.X
-					//&& CameraVolume->CamVolWorldMin.Y < PlayerPawnLocation.Y
-					//&& PlayerPawnLocation.Y < CameraVolume->CamVolWorldMax.Y;
+				//	&& PlayerPawnLocation.X < CameraVolume->CamVolWorldMax.X
+				//	&& CameraVolume->CamVolWorldMin.Y < PlayerPawnLocation.Y
+				//	&& PlayerPawnLocation.Y < CameraVolume->CamVolWorldMax.Y;
 			}
 
 			if (Condition && (CameraVolume->Priority > MaxPriorityIndex))

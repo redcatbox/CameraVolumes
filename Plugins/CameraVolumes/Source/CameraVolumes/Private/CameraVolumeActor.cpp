@@ -50,7 +50,8 @@ ACameraVolumeActor::ACameraVolumeActor()
 
 	bOverrideCameraRotation = false;
 	CameraFocalPoint = FVector::ZeroVector;
-	CameraRoll = 0.f;
+	CameraRoll = 0.f; //Side-scroller
+	//CameraRoll = 90.f; //Top-down
 	bFocalPointIsPlayer = false;
 
 	bOverrideCameraFieldOfView = false;
@@ -153,10 +154,8 @@ void ACameraVolumeActor::UpdateVolume()
 	Text_Indicators[0]->SetText(FText::FromString(FString::FromInt(Priority)));
 	Text_Indicators[0]->SetTextRenderColor(FColor::White);
 	Text_Indicators[0]->SetWorldSize(2.f * Text_Size);
-	//Side-scroller
-	Text_Indicators[0]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y + 5.f, Text_Size), FRotator(0.f, 90.f, 0.f));
-	//Top-down
-	//	Text_Indicators[0]->SetRelativeLocationAndRotation(FVector(-2.f * Text_Size, 0.f, VolumeExtent.Z + 5.f), FRotator(90.f, 0.f, 0.f));
+	Text_Indicators[0]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y + 5.f, Text_Size), FRotator(0.f, 90.f, 0.f)); //Side-scroller
+	//Text_Indicators[0]->SetRelativeLocationAndRotation(FVector(0.f, Text_Size, VolumeExtent.Z + 5.f), FRotator(90.f, 90.f, 0.f)); //Top-down
 
 	//Sides
 	for (uint8 i = 1; i <= 12; i = i + 2)
@@ -168,33 +167,43 @@ void ACameraVolumeActor::UpdateVolume()
 		if (i == 1)
 		{
 			SideInfo = FrontSide;
+			Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y - 1.5f * Text_Size, VolumeExtent.Z + 5.f), FRotator(90.f, 90.f, 0.f));
+			Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y - 0.5f * Text_Size, VolumeExtent.Z + 5.f), FRotator(90.f, 90.f, 0.f));
+
 			if (bUse6DOFVolume)
 			{
 				Text_Indicators[i]->SetVisibility(true);
 				Text_Indicators[i + 1]->SetVisibility(true);
-				Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y - 1.5f * Text_Size, VolumeExtent.Z + 5.f), FRotator(90.f, 90.f, 0.f));
-				Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y - 0.5f * Text_Size, VolumeExtent.Z + 5.f), FRotator(90.f, 90.f, 0.f));
 			}
 			else
 			{
+				//Side-scroller
 				Text_Indicators[i]->SetVisibility(false);
 				Text_Indicators[i + 1]->SetVisibility(false);
+				//Top-down
+				//Text_Indicators[i]->SetVisibility(true);
+				//Text_Indicators[i + 1]->SetVisibility(true);
 			}
 		}
 		else if (i == 3)
 		{
 			SideInfo = BackSide;
+			Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(0.f, -VolumeExtent.Y + 0.5f * Text_Size, VolumeExtent.Z + 5.f), FRotator(90.f, 90.f, 0.f));
+			Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(0.f, -VolumeExtent.Y + 1.5f * Text_Size, VolumeExtent.Z + 5.f), FRotator(90.f, 90.f, 0.f));
+
 			if (bUse6DOFVolume)
 			{
 				Text_Indicators[i]->SetVisibility(true);
 				Text_Indicators[i + 1]->SetVisibility(true);
-				Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(0.f, -VolumeExtent.Y + 0.5f * Text_Size, VolumeExtent.Z + 5.f), FRotator(90.f, 90.f, 0.f));
-				Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(0.f, -VolumeExtent.Y + 1.5f * Text_Size, VolumeExtent.Z + 5.f), FRotator(90.f, 90.f, 0.f));
 			}
 			else
 			{
+				//Side-scroller
 				Text_Indicators[i]->SetVisibility(false);
 				Text_Indicators[i + 1]->SetVisibility(false);
+				//Top-down
+				//Text_Indicators[i]->SetVisibility(true);
+				//Text_Indicators[i + 1]->SetVisibility(true);
 			}
 		}
 		else if (i == 5)
@@ -222,12 +231,42 @@ void ACameraVolumeActor::UpdateVolume()
 			SideInfo = TopSide;
 			Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y + 5.f, VolumeExtent.Z - 0.5f * Text_Size), FRotator(0.f, 90.f, 0.f));
 			Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y + 5.f, VolumeExtent.Z - 1.5f * Text_Size), FRotator(0.f, 90.f, 0.f));
+
+			if (bUse6DOFVolume)
+			{
+				Text_Indicators[i]->SetVisibility(true);
+				Text_Indicators[i + 1]->SetVisibility(true);
+			}
+			else
+			{
+				//Side-scroller
+				Text_Indicators[i]->SetVisibility(true);
+				Text_Indicators[i + 1]->SetVisibility(true);
+				//Top-down
+				//Text_Indicators[i]->SetVisibility(false);
+				//Text_Indicators[i + 1]->SetVisibility(false);
+			}
 		}
 		else if (i == 11)
 		{
 			SideInfo = BottomSide;
 			Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y + 5.f, -VolumeExtent.Z + 1.5f * Text_Size), FRotator(0.f, 90.f, 0.f));
 			Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y + 5.f, -VolumeExtent.Z + 0.5f * Text_Size), FRotator(0.f, 90.f, 0.f));
+
+			if (bUse6DOFVolume)
+			{
+				Text_Indicators[i]->SetVisibility(true);
+				Text_Indicators[i + 1]->SetVisibility(true);
+			}
+			else
+			{
+				//Side-scroller
+				Text_Indicators[i]->SetVisibility(true);
+				Text_Indicators[i + 1]->SetVisibility(true);
+				//Top-down
+				//Text_Indicators[i]->SetVisibility(false);
+				//Text_Indicators[i + 1]->SetVisibility(false);
+			}
 		}
 
 		if (SideInfo.SideType == ESideType::EST_Closed)
@@ -276,19 +315,35 @@ void ACameraVolumeActor::CalculateVolumeExtents()
 	if (LeftSide.SideType == ESideType::EST_Open)
 		CamVolWorldMinCorrected.X = CamVolWorldMinCorrected.X - OpenEdgeOffset;
 
+	//Side-scroller
 	if (TopSide.SideType == ESideType::EST_Open)
 		CamVolWorldMaxCorrected.Z = CamVolWorldMaxCorrected.Z + OpenEdgeOffset;
 
 	if (BottomSide.SideType == ESideType::EST_Open)
 		CamVolWorldMinCorrected.Z = CamVolWorldMinCorrected.Z - OpenEdgeOffset;
 
+	//Top-down
+	//if (FrontSide.SideType == ESideType::EST_Open)
+	//	CamVolWorldMaxCorrected.Y = CamVolWorldMaxCorrected.Y + OpenEdgeOffset;
+
+	//if (BackSide.SideType == ESideType::EST_Open)
+	//	CamVolWorldMinCorrected.Y = CamVolWorldMinCorrected.Y - OpenEdgeOffset;
+
 	if (bUse6DOFVolume)
 	{
+		//Side-scroller
 		if (FrontSide.SideType == ESideType::EST_Open)
 			CamVolWorldMaxCorrected.Y = CamVolWorldMaxCorrected.Y + OpenEdgeOffset;
 
 		if (BackSide.SideType == ESideType::EST_Open)
 			CamVolWorldMinCorrected.Y = CamVolWorldMinCorrected.Y - OpenEdgeOffset;
+
+		//Top-down
+		//if (TopSide.SideType == ESideType::EST_Open)
+		//	CamVolWorldMaxCorrected.Z = CamVolWorldMaxCorrected.Z + OpenEdgeOffset;
+
+		//if (BottomSide.SideType == ESideType::EST_Open)
+		//	CamVolWorldMinCorrected.Z = CamVolWorldMinCorrected.Z - OpenEdgeOffset;
 	}
 
 	if (bUseZeroDepthExtent)
