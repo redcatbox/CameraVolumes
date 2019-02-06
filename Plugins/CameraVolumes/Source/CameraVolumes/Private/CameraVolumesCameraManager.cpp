@@ -8,8 +8,8 @@ ACameraVolumesCameraManager::ACameraVolumesCameraManager()
 {
 	bUpdateCamera = true;
 	bCheckCameraVolumes = true;
-	CamVolPrevious = nullptr;
-	CamVolCurrent = nullptr;
+	CameraVolumePrevious = nullptr;
+	CameraVolumeCurrent = nullptr;
 	OldCameraLocation = FVector::ZeroVector;
 	NewCameraLocation = FVector::ZeroVector;
 	OldCameraRotation = FQuat();
@@ -44,20 +44,21 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 				PlayerPawnLocation = PlayerPawn->GetActorLocation();
 
 				// Prepare params
-				CamVolPrevious = CamVolCurrent;
-				CamVolCurrent = nullptr;
+				CameraVolumePrevious = CameraVolumeCurrent;
+				CameraVolumeCurrent = nullptr;
+
 				OldCameraLocation = NewCameraLocation;
-				NewCameraLocation = PlayerPawnLocation + CameraComponent->DefaultCameraLocation;
 				OldCameraRotation = NewCameraRotation;
-				NewCameraRotation = CameraComponent->DefaultCameraRotation;
 				OldCameraFOV = NewCameraFOV;
+				NewCameraLocation = PlayerPawnLocation + CameraComponent->DefaultCameraLocation;
+				NewCameraRotation = CameraComponent->DefaultCameraRotation;
 				NewCameraFOV = CameraComponent->DefaultCameraFieldOfView;
 
 				if (bCheckCameraVolumes)
 				{
 					// Try to get overlapping camera volumes stored in camera component
 					if (CameraComponent->OverlappingCameraVolumes.Num() > 0)
-						CamVolCurrent = UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(CameraComponent->OverlappingCameraVolumes, PlayerPawnLocation);
+						CameraVolumeCurrent = UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(CameraComponent->OverlappingCameraVolumes, PlayerPawnLocation);
 					// Try to get camera volumes from actors overlapping pawn
 					else
 					{
@@ -72,7 +73,7 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 								if (CameraVolume)
 									OverlappingCameraVolumes.Add(CameraVolume);
 							}
-							CamVolCurrent = UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(OverlappingCameraVolumes, PlayerPawnLocation);
+							CameraVolumeCurrent = UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(OverlappingCameraVolumes, PlayerPawnLocation);
 						}
 						else
 							bCheckCameraVolumes = false;
@@ -80,58 +81,58 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 						// so we don't need this check until player pawn overlap some camera volume again.
 					}
 
-					if (CamVolCurrent)
+					if (CameraVolumeCurrent)
 					{
-						if (CamVolCurrent != CamVolPrevious) // Do we changed to another volume?
+						if (CameraVolumeCurrent != CameraVolumePrevious) // Do we changed to another volume?
 						{
 							// Check for dynamic camera volumes
-							ACameraVolumeDynamicActor* CamVolCurrentDynamic = Cast<ACameraVolumeDynamicActor>(CamVolCurrent);
-							if (CamVolCurrentDynamic)
-								CamVolCurrentDynamic->SetActive(true);
-							ACameraVolumeDynamicActor* CamVolPreviousDynamic = Cast<ACameraVolumeDynamicActor>(CamVolPrevious);
-							if (CamVolPreviousDynamic)
-								CamVolPreviousDynamic->SetActive(false);
+							ACameraVolumeDynamicActor* CameraVolumeCurrentDynamic = Cast<ACameraVolumeDynamicActor>(CameraVolumeCurrent);
+							if (CameraVolumeCurrentDynamic)
+								CameraVolumeCurrentDynamic->SetActive(true);
+							ACameraVolumeDynamicActor* CameraVolumePreviousDynamic = Cast<ACameraVolumeDynamicActor>(CameraVolumePrevious);
+							if (CameraVolumePreviousDynamic)
+								CameraVolumePreviousDynamic->SetActive(false);
 
 							ESide PassedSideCurrent;
-							PassedSideCurrent = CamVolCurrent->GetNearestVolumeSide(PlayerPawnLocation);
+							PassedSideCurrent = CameraVolumeCurrent->GetNearestVolumeSide(PlayerPawnLocation);
 
-							if (CamVolPrevious)
+							if (CameraVolumePrevious)
 							{
 								ESide PassedSidePrevious;
-								PassedSidePrevious = CamVolPrevious->GetNearestVolumeSide(PlayerPawnLocation);
+								PassedSidePrevious = CameraVolumePrevious->GetNearestVolumeSide(PlayerPawnLocation);
 
-								if (UCameraVolumesFunctionLibrary::CompareSidesPairs(PassedSideCurrent, PassedSidePrevious, CamVolPrevious->bUse6DOFVolume))
+								if (UCameraVolumesFunctionLibrary::CompareSidesPairs(PassedSideCurrent, PassedSidePrevious, CameraVolumePrevious->bUse6DOFVolume))
 									// We've passed to nearby volume
 									// Use settings of side we have passed to
-									SetTransitionBySideInfo(CamVolCurrent, PassedSideCurrent);
+									SetTransitionBySideInfo(CameraVolumeCurrent, PassedSideCurrent);
 								else
 								{
 									// we've passed to volume with another priority
-									if (CamVolCurrent->Priority > CamVolPrevious->Priority)
+									if (CameraVolumeCurrent->Priority > CameraVolumePrevious->Priority)
 										// Use settings of side we have passed to
-										SetTransitionBySideInfo(CamVolCurrent, PassedSideCurrent);
+										SetTransitionBySideInfo(CameraVolumeCurrent, PassedSideCurrent);
 									else
 										// Use settings of side we have passed from
-										SetTransitionBySideInfo(CamVolPrevious, PassedSidePrevious);
+										SetTransitionBySideInfo(CameraVolumePrevious, PassedSidePrevious);
 								}
 							}
 							else
 								// We've passed from void to volume
-								SetTransitionBySideInfo(CamVolCurrent, PassedSideCurrent);
+								SetTransitionBySideInfo(CameraVolumeCurrent, PassedSideCurrent);
 						}
 
-						CalcNewCameraParams(CamVolCurrent, DeltaTime);
+						CalcNewCameraParams(CameraVolumeCurrent, DeltaTime);
 					}
-					else if (CamVolPrevious) // Do we passed from volume to void?
+					else if (CameraVolumePrevious) // Do we passed from volume to void?
 					{
 						// Check for dynamic camera volumes
-						ACameraVolumeDynamicActor* CamVolPreviousDynamic = Cast<ACameraVolumeDynamicActor>(CamVolPrevious);
-						if (CamVolPreviousDynamic)
-							CamVolPreviousDynamic->SetActive(false);
+						ACameraVolumeDynamicActor* CameraVolumePreviousDynamic = Cast<ACameraVolumeDynamicActor>(CameraVolumePrevious);
+						if (CameraVolumePreviousDynamic)
+							CameraVolumePreviousDynamic->SetActive(false);
 
 						// Use settings of side we've passed from
-						ESide PassedSidePrevious = CamVolPrevious->GetNearestVolumeSide(PlayerPawnLocation);
-						SetTransitionBySideInfo(CamVolPrevious, PassedSidePrevious);
+						ESide PassedSidePrevious = CameraVolumePrevious->GetNearestVolumeSide(PlayerPawnLocation);
+						SetTransitionBySideInfo(CameraVolumePrevious, PassedSidePrevious);
 						CalcNewCameraParams(nullptr, DeltaTime);
 					}
 					else
@@ -242,6 +243,13 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 			// New camera rotation
 			NewCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(CameraVolume->CameraLocation, CameraVolume->CameraFocalPoint, CameraVolume->CameraRoll);
 		}
+	}
+
+	if (CameraComponent->bUseAdditionalCameraParams)
+	{
+		NewCameraLocation += CameraComponent->AdditionalCameraLocation;
+		NewCameraRotation *= CameraComponent->AdditionalCameraRotation.Quaternion();
+		NewCameraFOV += CameraComponent->AdditionalCameraFOV;
 	}
 
 	if (bNeedsSmoothTransition)

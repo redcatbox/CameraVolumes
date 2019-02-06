@@ -88,7 +88,8 @@ protected:
 
 public:
 	/** Returns is volume uses static camera settings */
-	FORCEINLINE bool GetIsCameraStatic() const { return bIsCameraStatic; }
+	UFUNCTION(BlueprintCallable)
+		bool GetIsCameraStatic() const { return bIsCameraStatic; }
 
 	/** Should override camera location? */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
@@ -117,7 +118,7 @@ public:
 	/** Should camera look at player character? */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", Meta = (EditCondition = "bIsCameraStatic"))
 		bool bFocalPointIsPlayer;
-	
+
 	UPROPERTY()
 		FQuat CameraRotation;
 

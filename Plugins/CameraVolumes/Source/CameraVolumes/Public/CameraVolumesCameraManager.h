@@ -12,7 +12,7 @@
 #include "CameraVolumesFunctionLibrary.h"
 #include "CameraVolumesCameraManager.generated.h"
 
-UCLASS(Config = CameraVolumes)
+UCLASS()
 class CAMERAVOLUMES_API ACameraVolumesCameraManager : public APlayerCameraManager
 {
 	GENERATED_BODY()
@@ -38,8 +38,6 @@ public:
 		virtual void SetCheckCameraVolumes(bool bNewCheck);
 	
 protected:
-	//UPROPERTY(Config)
-	//	bool bTestConfig;
 	UPROPERTY()
 		class UCameraVolumesCameraComponent* CameraComponent;
 
@@ -49,11 +47,11 @@ protected:
 	UPROPERTY()
 		TArray<AActor*> OverlappingActors;
 
-	UPROPERTY()
-		class ACameraVolumeActor* CamVolCurrent;
+	UPROPERTY(BlueprintReadOnly)
+		class ACameraVolumeActor* CameraVolumeCurrent;
 
 	UPROPERTY()
-		class ACameraVolumeActor* CamVolPrevious;
+		class ACameraVolumeActor* CameraVolumePrevious;
 
 	UPROPERTY()
 		FVector OldCameraLocation;

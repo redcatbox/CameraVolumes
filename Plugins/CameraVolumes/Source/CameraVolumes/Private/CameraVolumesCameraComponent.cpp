@@ -21,6 +21,11 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 	CameraRotationLagSpeed = 10.0f;
 	bEnableCameraFOVInterpolation = false;
 	CameraFOVInterpolationSpeed = 10.f;
+
+	bUseAdditionalCameraParams = false;
+	AdditionalCameraLocation = FVector::ZeroVector;
+	AdditionalCameraRotation = FRotator::ZeroRotator;
+	AdditionalCameraFOV = 0.f;
 }
 
 void UCameraVolumesCameraComponent::UpdateCameraComponent()

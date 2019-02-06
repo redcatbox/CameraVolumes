@@ -58,6 +58,22 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DefaultCameraParameters", Meta = (EditCondition = "bEnableCameraFOVInterpolation", ClampMin = "0.1", ClampMax = "100.0", UIMin = "0.1", UIMax = "100.0"))
 		float CameraFOVInterpolationSpeed;
 
+	/** Should camera use additional parameters? */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AdditionalCameraParameters")
+		bool bUseAdditionalCameraParams;
+
+	/** Additional location */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AdditionalCameraParameters")
+		FVector AdditionalCameraLocation;
+
+	/** Additional rotation */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AdditionalCameraParameters")
+		FRotator AdditionalCameraRotation;
+
+	/** Additional FOV */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AdditionalCameraParameters")
+		float AdditionalCameraFOV;
+
 	/** Overlapping camera volumes */
 	UPROPERTY()
 		TArray<ACameraVolumeActor*> OverlappingCameraVolumes;
