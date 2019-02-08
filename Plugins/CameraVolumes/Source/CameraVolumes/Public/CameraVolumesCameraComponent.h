@@ -30,11 +30,11 @@ public:
 	UPROPERTY()
 		FQuat DefaultCameraRotation;
 
-	/** Default camera FOV */
+	/** Default camera FOV. For perspective cameras. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CameraSettings, Meta = (UIMin = "5.0", UIMax = "170", ClampMin = "0.001", ClampMax = "360.0", Units = deg))
 		float DefaultCameraFieldOfView;
 
-	/** Default camera OrthoWidth */
+	/** Default camera OrthoWidth. For orthographic cameras. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CameraSettings)
 		float DefaultCameraOrthoWidth;
 
@@ -54,19 +54,19 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CameraSettings, Meta = (EditCondition = "bEnableCameraRotationLag", ClampMin = "0.0", ClampMax = "1000.0", UIMin = "0.0", UIMax = "1000.0"))
 		float CameraRotationLagSpeed;
 
-	/** Should camera use FOV interpolation? */
+	/** Should camera use FOV interpolation? For perspective cameras. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CameraSettings)
 		bool bEnableCameraFOVInterp;
 
-	/** Camera FOV interpolation speed */
+	/** Camera FOV interpolation speed.  For perspective cameras. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CameraSettings, Meta = (EditCondition = "bEnableCameraFOVInterp", ClampMin = "0.0", ClampMax = "1000.0", UIMin = "0.0", UIMax = "1000.0"))
 		float CameraFOVInterpSpeed;
 
-	/** Should camera use OrthoWidth interpolation? */
+	/** Should camera use OrthoWidth interpolation? For orthographic cameras. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CameraSettings)
 		bool bEnableCameraOrthoWidthInterp;
 
-	/** Camera OrthoWidth interpolation speed */
+	/** Camera OrthoWidth interpolation speed. For orthographic cameras. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CameraSettings, Meta = (EditCondition = "bEnableCameraOrthoWidthInterp", ClampMin = "0.0", ClampMax = "1000.0", UIMin = "0.0", UIMax = "1000.0"))
 		float CameraOrthoWidthInterpSpeed;
 
@@ -82,11 +82,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CameraSettings)
 		FRotator AdditionalCameraRotation;
 
-	/** Additional FOV */
+	/** Additional FOV. For perspective cameras. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CameraSettings)
 		float AdditionalCameraFOV;
 
-	/** Additional OrthoWidth */
+	/** Additional OrthoWidth. For orthographic cameras. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CameraSettings)
 		float AdditionalCameraOrthoWidth;
 

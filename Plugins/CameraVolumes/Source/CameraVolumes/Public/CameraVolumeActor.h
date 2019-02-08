@@ -122,19 +122,19 @@ public:
 	UPROPERTY()
 		FQuat CameraRotation;
 
-	/** Should override camera FOV? */
+	/** Should override camera FOV? For perspective cameras. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera)
 		bool bOverrideCameraFieldOfView;
 
-	/** New camera FOV */
+	/** New camera FOV. For perspective cameras. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera, Meta = (EditCondition = "bOverrideCameraFieldOfView", UIMin = "5.0", UIMax = "170", ClampMin = "0.001", ClampMax = "360.0", Units = deg))
 		float CameraFieldOfView;
 
-	/** Should override camera OrthoWidth? */
+	/** Should override camera OrthoWidth? For orthographic cameras. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera)
 		bool bOverrideCameraOrthoWidth;
 
-	/** New camera OrthoWidth */
+	/** New camera OrthoWidth. For orthographic cameras. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera, Meta = (EditCondition = "bOverrideCameraOrthoWidth"))
 		float CameraOrthoWidth;
 
