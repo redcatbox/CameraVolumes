@@ -14,8 +14,9 @@ ACameraVolumesCameraManager::ACameraVolumesCameraManager()
 	NewCameraLocation = FVector::ZeroVector;
 	OldCameraRotation = FQuat();
 	NewCameraRotation = FQuat();
-	OldCameraFOV = 90.f;
-	NewCameraFOV = 90.f;
+	OldCameraFOV_OW = 90.f;
+	NewCameraFOV_OW = 90.f;
+	bIsCameraOrthographic = false;
 	bNeedsSmoothTransition = false;
 	bNeedsCutTransition = false;
 }
@@ -40,19 +41,22 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 			ICameraVolumesCharacterInterface* PlayerCharacter = Cast<ICameraVolumesCharacterInterface>(PlayerPawn);
 			if (PlayerCharacter)
 			{
-				CameraComponent = PlayerCharacter->GetCameraComponent();
-				PlayerPawnLocation = PlayerPawn->GetActorLocation();
-
 				// Prepare params
 				CameraVolumePrevious = CameraVolumeCurrent;
 				CameraVolumeCurrent = nullptr;
-
+				CameraComponent = PlayerCharacter->GetCameraComponent();
+				bIsCameraOrthographic = CameraComponent->bGetIsCameraOrthographic();
+				PlayerPawnLocation = PlayerPawn->GetActorLocation();
 				OldCameraLocation = NewCameraLocation;
 				OldCameraRotation = NewCameraRotation;
-				OldCameraFOV = NewCameraFOV;
 				NewCameraLocation = PlayerPawnLocation + CameraComponent->DefaultCameraLocation;
 				NewCameraRotation = CameraComponent->DefaultCameraRotation;
-				NewCameraFOV = CameraComponent->DefaultCameraFieldOfView;
+				OldCameraFOV_OW = NewCameraFOV_OW;
+
+				if (bIsCameraOrthographic)
+					NewCameraFOV_OW = CameraComponent->DefaultCameraOrthoWidth;
+				else
+					NewCameraFOV_OW = CameraComponent->DefaultCameraFieldOfView;
 
 				if (bCheckCameraVolumes)
 				{
@@ -141,7 +145,7 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 				else
 					CalcNewCameraParams(nullptr, DeltaTime);
 
-				CameraComponent->UpdateCamera(NewCameraLocation, NewCameraRotation, NewCameraFOV);
+				CameraComponent->UpdateCamera(NewCameraLocation, NewCameraRotation, NewCameraFOV_OW);
 			}
 		}
 	}
@@ -153,12 +157,19 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 {
 	if (CameraVolume)
 	{
-		// FOV
-		if (CameraVolume->bOverrideCameraFieldOfView)
-			NewCameraFOV = CameraVolume->CameraFieldOfView;
+		if (bIsCameraOrthographic)
+		{
+			if (CameraVolume->bOverrideCameraOrthoWidth)
+				NewCameraFOV_OW = CameraVolume->CameraOrthoWidth;
+		}
+		else
+		{
+			if (CameraVolume->bOverrideCameraFieldOfView)
+				NewCameraFOV_OW = CameraVolume->CameraFieldOfView;
+		}
 
 		// Get screen (or at least player camera) aspect ratio for further calculations
-		float PlayerCamFOVTangens = FMath::Tan(FMath::DegreesToRadians(NewCameraFOV * 0.5f));
+		float PlayerCamFOVTangens = FMath::Tan(FMath::DegreesToRadians(NewCameraFOV_OW * 0.5f));
 		float ScreenAspectRatio;
 		if (GEngine)
 		{
@@ -197,7 +208,7 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 			FVector NewCamVolWorldMinCorrected = CameraVolume->CamVolWorldMinCorrected;
 			FVector NewCamVolWorldMaxCorrected = CameraVolume->CamVolWorldMaxCorrected;
 			// Calculate delta volume extent with +Y volume extent (+Z in top-down)
-			if (!CameraVolume->bUseZeroDepthExtent)
+			if (!CameraVolume->bUseZeroDepthExtent || !bIsCameraOrthographic)
 			{
 				FVector DeltaExtent = FVector::ZeroVector;
 				//Side-scroller
@@ -212,17 +223,30 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 				NewCamVolWorldMaxCorrected += DeltaExtent;
 			}
 
-			if (CameraVolume->CamVolAspectRatio >= ScreenAspectRatio) // Horizontal movement
-			{
-				CameraOffset = FMath::Clamp(CameraOffset, CameraOffset, NewCamVolExtentCorrected.Z * ScreenAspectRatio / PlayerCamFOVTangens); //Side-scroller
-				//CameraOffset = FMath::Clamp(CameraOffset, CameraOffset, NewCamVolExtentCorrected.Y * ScreenAspectRatio / PlayerCamFOVTangens); //Top-down
-			}
-			else // Vertical movement
-				CameraOffset = FMath::Clamp(CameraOffset, CameraOffset, NewCamVolExtentCorrected.X / PlayerCamFOVTangens);
-
-			// Calculate screen world extent at depth (CameraOffset)
+			// Calculate new camera offset and screen world extent at depth (CameraOffset)
 			FVector ScreenExtent = FVector::ZeroVector;
-			ScreenExtent.X = FMath::Abs(CameraOffset * PlayerCamFOVTangens);
+
+			if (bIsCameraOrthographic)
+			{
+				if (CameraVolume->CamVolAspectRatio >= ScreenAspectRatio) // Horizontal movement
+					NewCameraFOV_OW = FMath::Clamp(NewCameraFOV_OW, NewCameraFOV_OW, 2.f * NewCamVolExtentCorrected.Z * ScreenAspectRatio); //Side-scroller
+					//CameraOffset = FMath::Clamp(CameraOffset, CameraOffset, 2.f * NewCamVolExtentCorrected.Y * ScreenAspectRatio); //Top-down
+				else // Vertical movement
+					NewCameraFOV_OW = FMath::Clamp(NewCameraFOV_OW, NewCameraFOV_OW, 2.f * NewCamVolExtentCorrected.X);
+
+				ScreenExtent.X = NewCameraFOV_OW * 0.5f;
+			}
+			else
+			{
+				if (CameraVolume->CamVolAspectRatio >= ScreenAspectRatio) // Horizontal movement
+					CameraOffset = FMath::Clamp(CameraOffset, CameraOffset, NewCamVolExtentCorrected.Z * ScreenAspectRatio / PlayerCamFOVTangens); //Side-scroller
+					//CameraOffset = FMath::Clamp(CameraOffset, CameraOffset, NewCamVolExtentCorrected.Y * ScreenAspectRatio / PlayerCamFOVTangens); //Top-down
+				else // Vertical movement
+					CameraOffset = FMath::Clamp(CameraOffset, CameraOffset, NewCamVolExtentCorrected.X / PlayerCamFOVTangens);
+
+				ScreenExtent.X = FMath::Abs(CameraOffset * PlayerCamFOVTangens);
+			}
+
 			ScreenExtent = FVector(ScreenExtent.X, 0.f, ScreenExtent.X / ScreenAspectRatio); //Side-scroller
 			//ScreenExtent = FVector(ScreenExtent.X, ScreenExtent.X / ScreenAspectRatio, 0.f); //Top-down
 			FVector ScreenWorldMin = NewCamVolWorldMinCorrected + ScreenExtent;
@@ -249,7 +273,11 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 	{
 		NewCameraLocation += CameraComponent->AdditionalCameraLocation;
 		NewCameraRotation *= CameraComponent->AdditionalCameraRotation.Quaternion();
-		NewCameraFOV += CameraComponent->AdditionalCameraFOV;
+
+		if (bIsCameraOrthographic)
+			NewCameraFOV_OW += CameraComponent->AdditionalCameraOrthoWidth;
+		else
+			NewCameraFOV_OW += CameraComponent->AdditionalCameraFOV;
 	}
 
 	if (bNeedsSmoothTransition)
@@ -259,7 +287,7 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 		{
 			NewCameraLocation = FMath::Lerp(OldCameraLocation, NewCameraLocation, SmoothTransitionAlpha);
 			NewCameraRotation = FQuat::Slerp(OldCameraRotation, NewCameraRotation, SmoothTransitionAlpha);
-			NewCameraFOV = FMath::Lerp(OldCameraFOV, NewCameraFOV, SmoothTransitionAlpha);
+			NewCameraFOV_OW = FMath::Lerp(OldCameraFOV_OW, NewCameraFOV_OW, SmoothTransitionAlpha);
 		}
 		else
 		{
@@ -278,8 +306,17 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 			NewCameraLocation = FMath::VInterpTo(OldCameraLocation, NewCameraLocation, DeltaTime, CameraComponent->CameraLocationLagSpeed);
 		if (CameraComponent->bEnableCameraRotationLag)
 			NewCameraRotation = FMath::QInterpTo(OldCameraRotation, NewCameraRotation, DeltaTime, CameraComponent->CameraRotationLagSpeed);
-		if (CameraComponent->bEnableCameraFOVInterpolation)
-			NewCameraFOV = FMath::FInterpTo(OldCameraFOV, NewCameraFOV, DeltaTime, CameraComponent->CameraFOVInterpolationSpeed);
+
+		if (bIsCameraOrthographic)
+		{
+			if (CameraComponent->bEnableCameraOrthoWidthInterp)
+				NewCameraFOV_OW = FMath::FInterpTo(OldCameraFOV_OW, NewCameraFOV_OW, DeltaTime, CameraComponent->CameraOrthoWidthInterpSpeed);
+		}
+		else
+		{
+			if (CameraComponent->bEnableCameraFOVInterp)
+				NewCameraFOV_OW = FMath::FInterpTo(OldCameraFOV_OW, NewCameraFOV_OW, DeltaTime, CameraComponent->CameraFOVInterpSpeed);
+		}
 	}
 }
 

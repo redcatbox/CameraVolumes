@@ -35,8 +35,8 @@ ACamVolCharacter::ACamVolCharacter()
 	GetCameraComponent()->CameraLocationLagSpeed = 5.f;
 	GetCameraComponent()->bEnableCameraRotationLag = true;
 	GetCameraComponent()->CameraRotationLagSpeed = 5.f;
-	GetCameraComponent()->bEnableCameraFOVInterpolation = true;
-	GetCameraComponent()->CameraFOVInterpolationSpeed = 5.f;
+	GetCameraComponent()->bEnableCameraFOVInterp = true;
+	GetCameraComponent()->CameraFOVInterpSpeed = 5.f;
 }
 
 // Input

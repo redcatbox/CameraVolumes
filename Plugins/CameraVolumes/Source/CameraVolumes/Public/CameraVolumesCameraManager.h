@@ -30,11 +30,11 @@ public:
 		virtual void CalcNewCameraParams(ACameraVolumeActor* CameraVolume, float DeltaTime);
 
 	/** Should perform camera calculations? Use this to enable/disable camera updates if it's necessary. */
-	UFUNCTION(BlueprintCallable, Meta = (Category = "CameraVolumes"))
+	UFUNCTION(BlueprintCallable, Meta = (Category = CameraVolumes))
 		virtual void SetUpdateCamera(bool bNewUpdateCamera);
 
 	/** Should check for camera volumes. Used by Player Character according to overlapping camera volumes. */
-	UFUNCTION(BlueprintCallable, Meta = (Category = "CameraVolumes"))
+	UFUNCTION(BlueprintCallable, Meta = (Category = CameraVolumes))
 		virtual void SetCheckCameraVolumes(bool bNewCheck);
 	
 protected:
@@ -66,10 +66,14 @@ protected:
 		FQuat NewCameraRotation;
 
 	UPROPERTY()
-		float OldCameraFOV;
+		float OldCameraFOV_OW;
+
+	/** Used as FOV or OrthoWidth depending on bIsCameraOrthographic */
+	UPROPERTY()
+		float NewCameraFOV_OW;
 
 	UPROPERTY()
-		float NewCameraFOV;
+		bool bIsCameraOrthographic;
 
 	UPROPERTY()
 		bool bNeedsSmoothTransition;

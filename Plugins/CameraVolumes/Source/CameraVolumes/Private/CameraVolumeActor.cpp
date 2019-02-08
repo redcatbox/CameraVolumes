@@ -39,6 +39,8 @@ ACameraVolumeActor::ACameraVolumeActor()
 
 	//CameraOrientation = ECameraOrientation::ECO_SideScroller;
 
+	CameraProjectionMode = ECameraProjectionMode::Perspective;
+
 	bUseZeroDepthExtentEditCond = true;
 	bUseZeroDepthExtent = false;
 	bUse6DOFVolume = false;
@@ -56,6 +58,9 @@ ACameraVolumeActor::ACameraVolumeActor()
 
 	bOverrideCameraFieldOfView = false;
 	CameraFieldOfView = 90.f;
+
+	bOverrideCameraOrthoWidth = false;
+	CameraOrthoWidth = 512.f;
 
 	CameraSmoothTransitionSpeed = 1.f;
 
@@ -147,6 +152,17 @@ void ACameraVolumeActor::UpdateVolume()
 		CameraFieldOfView = 90.f;
 		CameraComponent->FieldOfView = CameraFieldOfView;
 	}
+
+	if (bOverrideCameraOrthoWidth)
+		CameraComponent->OrthoWidth = CameraOrthoWidth;
+	else
+	{
+		CameraOrthoWidth = 512.f;
+		CameraComponent->OrthoWidth = CameraOrthoWidth;
+	}
+
+	CameraComponent->ProjectionMode = CameraProjectionMode;
+	CameraComponent->RefreshVisualRepresentation();
 	//--------------------------------------------------
 
 	//Indicators
@@ -461,7 +477,9 @@ void ACameraVolumeActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyC
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 	FName PropertyName = (PropertyChangedEvent.Property != NULL) ? PropertyChangedEvent.Property->GetFName() : NAME_None;
 	if (PropertyName == TEXT("Priority") || TEXT("VolumeExtent")
-		|| TEXT("CameraMobility") /*|| TEXT("CameraOrientation")*/ || TEXT("bUse6DOFVolume") || TEXT("bUseZeroDepthExtent")
+		/*|| TEXT("CameraOrientation")*/
+		|| TEXT("CameraProjectionMode") || TEXT("bUseZeroDepthExtent") || TEXT("bUse6DOFVolume")
+		|| TEXT("CameraMobility")
 		|| TEXT("bOverrideCameraLocation") || TEXT("CameraLocation")
 		|| TEXT("bOverrideCameraRotation") || TEXT("CameraFocalPoint") || TEXT("CameraRoll")
 		|| TEXT("bOverrideCameraFieldOfView") || TEXT("CameraFieldOfView")

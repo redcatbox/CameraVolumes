@@ -24,7 +24,7 @@ public:
 		virtual void SetActive(bool bNewActive);
 
 	/** Update volume extents for dynamic camera volume */
-	UFUNCTION(BlueprintCallable, Category = "CameraVolumes")
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual void UpdateVolumeExtents();
 
 protected:

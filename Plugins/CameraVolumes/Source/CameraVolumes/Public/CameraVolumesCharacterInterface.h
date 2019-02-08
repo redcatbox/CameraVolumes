@@ -3,8 +3,6 @@
 // Base interface for characters using camera volumes
 #pragma once
 
-//#include "UObject/ObjectMacros.h"
-//#include "UObject/Interface.h"
 #include "CameraVolumesCameraComponent.h"
 #include "CameraVolumesCharacterInterface.generated.h"
 
@@ -27,6 +25,6 @@ protected:
 
 public:
 	/** Returns CameraComponent subobject */
-	UFUNCTION(BlueprintCallable, Category = "CameraVolumes")
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual class UCameraVolumesCameraComponent* GetCameraComponent() const = 0;
 };

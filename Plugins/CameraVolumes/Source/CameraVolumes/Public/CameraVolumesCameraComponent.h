@@ -16,71 +16,91 @@ public:
 	UCameraVolumesCameraComponent();
 
 	/** Default camera RELATIVE location */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DefaultCameraParameters")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CameraSettings)
 		FVector DefaultCameraLocation;
 
 	/** Default camera RELATIVE focal point */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DefaultCameraParameters")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CameraSettings)
 		FVector DefaultCameraFocalPoint;
 
 	/** Default camera roll */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DefaultCameraParameters")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CameraSettings)
 		float DefaultCameraRoll;
 
 	UPROPERTY()
 		FQuat DefaultCameraRotation;
 
 	/** Default camera FOV */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DefaultCameraParameters", Meta = (UIMin = "5.0", UIMax = "170", ClampMin = "0.001", ClampMax = "360.0", Units = deg))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CameraSettings, Meta = (UIMin = "5.0", UIMax = "170", ClampMin = "0.001", ClampMax = "360.0", Units = deg))
 		float DefaultCameraFieldOfView;
 
+	/** Default camera OrthoWidth */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CameraSettings)
+		float DefaultCameraOrthoWidth;
+
 	/** Should camera use location lag? */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DefaultCameraParameters")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CameraSettings)
 		bool bEnableCameraLocationLag;
 
 	/** Camera location lag speed */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DefaultCameraParameters", Meta = (EditCondition = "bEnableCameraLocationLag", ClampMin = "0.1", ClampMax = "100.0", UIMin = "0.1", UIMax = "100.0"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CameraSettings, Meta = (EditCondition = "bEnableCameraLocationLag", ClampMin = "0.0", ClampMax = "1000.0", UIMin = "0.0", UIMax = "1000.0"))
 		float CameraLocationLagSpeed;
 
 	/** Should camera use rotation lag? */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DefaultCameraParameters")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CameraSettings)
 		bool bEnableCameraRotationLag;
 
 	/** Camera rotation lag speed */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DefaultCameraParameters", Meta = (EditCondition = "bEnableCameraRotationLag", ClampMin = "0.1", ClampMax = "100.0", UIMin = "0.1", UIMax = "100.0"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CameraSettings, Meta = (EditCondition = "bEnableCameraRotationLag", ClampMin = "0.0", ClampMax = "1000.0", UIMin = "0.0", UIMax = "1000.0"))
 		float CameraRotationLagSpeed;
 
 	/** Should camera use FOV interpolation? */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DefaultCameraParameters")
-		bool bEnableCameraFOVInterpolation;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CameraSettings)
+		bool bEnableCameraFOVInterp;
 
-	/** Camera FOV Interpolation speed */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DefaultCameraParameters", Meta = (EditCondition = "bEnableCameraFOVInterpolation", ClampMin = "0.1", ClampMax = "100.0", UIMin = "0.1", UIMax = "100.0"))
-		float CameraFOVInterpolationSpeed;
+	/** Camera FOV interpolation speed */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CameraSettings, Meta = (EditCondition = "bEnableCameraFOVInterp", ClampMin = "0.0", ClampMax = "1000.0", UIMin = "0.0", UIMax = "1000.0"))
+		float CameraFOVInterpSpeed;
+
+	/** Should camera use OrthoWidth interpolation? */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CameraSettings)
+		bool bEnableCameraOrthoWidthInterp;
+
+	/** Camera OrthoWidth interpolation speed */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CameraSettings, Meta = (EditCondition = "bEnableCameraOrthoWidthInterp", ClampMin = "0.0", ClampMax = "1000.0", UIMin = "0.0", UIMax = "1000.0"))
+		float CameraOrthoWidthInterpSpeed;
 
 	/** Should camera use additional parameters? */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AdditionalCameraParameters")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CameraSettings)
 		bool bUseAdditionalCameraParams;
 
 	/** Additional location */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AdditionalCameraParameters")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CameraSettings)
 		FVector AdditionalCameraLocation;
 
 	/** Additional rotation */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AdditionalCameraParameters")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CameraSettings)
 		FRotator AdditionalCameraRotation;
 
 	/** Additional FOV */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AdditionalCameraParameters")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CameraSettings)
 		float AdditionalCameraFOV;
+
+	/** Additional OrthoWidth */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CameraSettings)
+		float AdditionalCameraOrthoWidth;
 
 	/** Overlapping camera volumes */
 	UPROPERTY()
 		TArray<ACameraVolumeActor*> OverlappingCameraVolumes;
 
-	/** Updates camera by camera manager*/
+	/** Updates camera by camera manager */
 	UFUNCTION()
 		virtual void UpdateCamera(FVector& CameraLocation, FQuat& CameraRotation, float CameraFOV);
+
+	/** Get is camera uses orthographic projection mode */
+	UFUNCTION(BlueprintCallable)
+		virtual bool bGetIsCameraOrthographic() { return bIsCameraOrthographic; }
 
 	//Override PostEditChangeProperty
 #if WITH_EDITOR
@@ -90,4 +110,7 @@ public:
 protected:
 	UFUNCTION()
 		virtual void UpdateCameraComponent();
+
+	UPROPERTY()
+		bool bIsCameraOrthographic;
 };
