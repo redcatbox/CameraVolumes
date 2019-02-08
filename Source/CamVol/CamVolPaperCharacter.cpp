@@ -24,10 +24,6 @@ ACamVolPaperCharacter::ACamVolPaperCharacter()
 
 	GetSprite()->SetFlipbook(IdleAnimation);
 
-	// Orthographic camera
-	//GetCameraComponent()->ProjectionMode = ECameraProjectionMode::Orthographic;
-	//GetCameraComponent()->OrthoWidth = 2048.f;
-
 	// Configure character movement
 	GetCharacterMovement()->GravityScale = 2.f;
 	GetCharacterMovement()->AirControl = 0.8f;
@@ -47,13 +43,17 @@ ACamVolPaperCharacter::ACamVolPaperCharacter()
 	GetSprite()->SetIsReplicated(true);
 	bReplicates = true;
 
+	// Orthographic camera
+	GetCameraComponent()->ProjectionMode = ECameraProjectionMode::Orthographic;
+	GetCameraComponent()->OrthoWidth = 2048.f;
+
 	// Camera lag
 	GetCameraComponent()->bEnableCameraLocationLag = true;
 	GetCameraComponent()->CameraLocationLagSpeed = 5.f;
 	GetCameraComponent()->bEnableCameraRotationLag = true;
 	GetCameraComponent()->CameraRotationLagSpeed = 5.f;
-	GetCameraComponent()->bEnableCameraFOVInterpolation = true;
-	GetCameraComponent()->CameraFOVInterpolationSpeed = 5.f;
+	GetCameraComponent()->bEnableCameraOrthoWidthInterp = true;
+	GetCameraComponent()->CameraOrthoWidthInterpSpeed = 5.f;
 }
 
 // Animation

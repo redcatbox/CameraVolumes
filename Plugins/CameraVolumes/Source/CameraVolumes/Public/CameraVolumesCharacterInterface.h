@@ -27,6 +27,6 @@ protected:
 
 public:
 	/** Returns CameraComponent subobject */
-	UFUNCTION(BlueprintCallable, Category = "CameraVolumes")
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual class UCameraVolumesCameraComponent* GetCameraComponent() const = 0;
 };

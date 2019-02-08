@@ -12,6 +12,8 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 	DefaultCameraRoll = 0.f; //Side-scroller
 	//DefaultCameraRoll = 90.f; //Top-down
 	DefaultCameraFieldOfView = 90.f;
+	DefaultCameraOrthoWidth = 512.f;
+	bIsCameraOrthographic = false;
 	UpdateCameraComponent();
 
 	// Camera lag
@@ -19,27 +21,45 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 	CameraLocationLagSpeed = 10.0f;
 	bEnableCameraRotationLag = false;
 	CameraRotationLagSpeed = 10.0f;
-	bEnableCameraFOVInterpolation = false;
-	CameraFOVInterpolationSpeed = 10.f;
+	bEnableCameraFOVInterp = false;
+	CameraFOVInterpSpeed = 10.f;
+	bEnableCameraOrthoWidthInterp = false;
+	CameraOrthoWidthInterpSpeed = 10.f;
 
 	bUseAdditionalCameraParams = false;
 	AdditionalCameraLocation = FVector::ZeroVector;
 	AdditionalCameraRotation = FRotator::ZeroRotator;
 	AdditionalCameraFOV = 0.f;
+	AdditionalCameraOrthoWidth = 0.f;
 }
 
 void UCameraVolumesCameraComponent::UpdateCameraComponent()
 {
+	switch (ProjectionMode)
+	{
+	case ECameraProjectionMode::Orthographic:
+		bIsCameraOrthographic = true;
+		this->SetOrthoWidth(DefaultCameraOrthoWidth);
+		break;
+	case ECameraProjectionMode::Perspective:
+		bIsCameraOrthographic = false;
+		this->SetFieldOfView(DefaultCameraFieldOfView);
+		break;
+	}
+
 	DefaultCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(DefaultCameraLocation, DefaultCameraFocalPoint, DefaultCameraRoll);
 	this->SetRelativeLocationAndRotation(DefaultCameraLocation, DefaultCameraRotation);
-	this->SetFieldOfView(DefaultCameraFieldOfView);
 }
 
 void UCameraVolumesCameraComponent::UpdateCamera(FVector& CameraLocation, FQuat& CameraRotation, float CameraFOV)
 {
 	this->SetWorldLocation(CameraLocation);
 	this->SetWorldRotation(CameraRotation);
-	this->SetFieldOfView(CameraFOV);
+
+	if (bIsCameraOrthographic)
+		this->SetOrthoWidth(CameraFOV);
+	else
+		this->SetFieldOfView(CameraFOV);
 }
 
 //Update with changed property
@@ -48,10 +68,12 @@ void UCameraVolumesCameraComponent::PostEditChangeProperty(FPropertyChangedEvent
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 	FName PropertyName = (PropertyChangedEvent.Property != NULL) ? PropertyChangedEvent.Property->GetFName() : NAME_None;
-	if (PropertyName == TEXT("DefaultCameraLocation")
+	if (PropertyName == TEXT("ProjectionMode")
+		|| TEXT("DefaultCameraLocation")
 		|| TEXT("DefaultCameraFocalPoint")
 		|| TEXT("DefaultCameraRoll")
-		|| TEXT("DefaultCameraFieldOfView"))
+		|| TEXT("DefaultCameraFieldOfView")
+		|| TEXT("DefaultCameraOrthoWidth"))
 		UpdateCameraComponent();
 }
 #endif
