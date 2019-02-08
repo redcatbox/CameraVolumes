@@ -157,7 +157,6 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 {
 	if (CameraVolume)
 	{
-		// FOV
 		if (bIsCameraOrthographic)
 		{
 			if (CameraVolume->bOverrideCameraOrthoWidth)
@@ -230,10 +229,10 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 			if (bIsCameraOrthographic)
 			{
 				if (CameraVolume->CamVolAspectRatio >= ScreenAspectRatio) // Horizontal movement
-					NewCameraFOV_OW = 2.f * FMath::Clamp(NewCameraFOV_OW, NewCameraFOV_OW, NewCamVolExtentCorrected.Z * ScreenAspectRatio); //Side-scroller
-					//CameraOffset = FMath::Clamp(CameraOffset, CameraOffset, NewCamVolExtentCorrected.Y * ScreenAspectRatio); //Top-down
+					NewCameraFOV_OW = FMath::Clamp(NewCameraFOV_OW, NewCameraFOV_OW, 2.f * NewCamVolExtentCorrected.Z * ScreenAspectRatio); //Side-scroller
+					//CameraOffset = FMath::Clamp(CameraOffset, CameraOffset, 2.f * NewCamVolExtentCorrected.Y * ScreenAspectRatio); //Top-down
 				else // Vertical movement
-					NewCameraFOV_OW = 2.f * FMath::Clamp(NewCameraFOV_OW, NewCameraFOV_OW, NewCamVolExtentCorrected.X);
+					NewCameraFOV_OW = FMath::Clamp(NewCameraFOV_OW, NewCameraFOV_OW, 2.f * NewCamVolExtentCorrected.X);
 
 				ScreenExtent.X = NewCameraFOV_OW * 0.5f;
 			}

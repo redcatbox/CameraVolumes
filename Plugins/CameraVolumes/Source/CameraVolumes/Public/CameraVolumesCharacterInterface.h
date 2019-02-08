@@ -3,8 +3,6 @@
 // Base interface for characters using camera volumes
 #pragma once
 
-//#include "UObject/ObjectMacros.h"
-//#include "UObject/Interface.h"
 #include "CameraVolumesCameraComponent.h"
 #include "CameraVolumesCharacterInterface.generated.h"
 
