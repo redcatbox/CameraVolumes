@@ -70,10 +70,6 @@ protected:
 		bool bUseZeroDepthExtentEditCond;
 
 public:
-	/** (For camera frustrum preview only!) Camera projection mode */
-	UPROPERTY(Config, EditAnywhere, BlueprintReadWrite, Category = Camera)
-		TEnumAsByte<ECameraProjectionMode::Type> CameraProjectionMode;
-
 	/** (For 2D games) Use zero volume extent by depth for camera blocking */
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = Camera, Meta = (EditCondition = "bUseZeroDepthExtentEditCond"))
 		bool bUseZeroDepthExtent;

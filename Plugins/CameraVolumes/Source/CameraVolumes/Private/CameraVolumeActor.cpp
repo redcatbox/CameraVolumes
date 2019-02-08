@@ -39,8 +39,6 @@ ACameraVolumeActor::ACameraVolumeActor()
 
 	//CameraOrientation = ECameraOrientation::ECO_SideScroller;
 
-	CameraProjectionMode = ECameraProjectionMode::Perspective;
-
 	bUseZeroDepthExtentEditCond = true;
 	bUseZeroDepthExtent = false;
 	bUse6DOFVolume = false;
@@ -160,9 +158,6 @@ void ACameraVolumeActor::UpdateVolume()
 		CameraOrthoWidth = 512.f;
 		CameraComponent->OrthoWidth = CameraOrthoWidth;
 	}
-
-	CameraComponent->ProjectionMode = CameraProjectionMode;
-	CameraComponent->RefreshVisualRepresentation();
 	//--------------------------------------------------
 
 	//Indicators
@@ -478,7 +473,7 @@ void ACameraVolumeActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyC
 	FName PropertyName = (PropertyChangedEvent.Property != NULL) ? PropertyChangedEvent.Property->GetFName() : NAME_None;
 	if (PropertyName == TEXT("Priority") || TEXT("VolumeExtent")
 		/*|| TEXT("CameraOrientation")*/
-		|| TEXT("CameraProjectionMode") || TEXT("bUseZeroDepthExtent") || TEXT("bUse6DOFVolume")
+		|| TEXT("bUseZeroDepthExtent") || TEXT("bUse6DOFVolume")
 		|| TEXT("CameraMobility")
 		|| TEXT("bOverrideCameraLocation") || TEXT("CameraLocation")
 		|| TEXT("bOverrideCameraRotation") || TEXT("CameraFocalPoint") || TEXT("CameraRoll")
