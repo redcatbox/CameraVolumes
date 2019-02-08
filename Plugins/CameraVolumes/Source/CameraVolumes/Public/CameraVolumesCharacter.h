@@ -10,7 +10,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "CameraVolumeActor.h"
 #include "CameraVolumesCharacterInterface.h"
 #include "CameraVolumesCharacter.generated.h"
 

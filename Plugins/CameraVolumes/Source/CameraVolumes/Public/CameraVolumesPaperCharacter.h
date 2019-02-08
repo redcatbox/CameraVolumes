@@ -10,7 +10,6 @@
 
 #include "CoreMinimal.h"
 #include "PaperCharacter.h"
-#include "CameraVolumeActor.h"
 #include "CameraVolumesCharacterInterface.h"
 #include "CameraVolumesPaperCharacter.generated.h"
 
