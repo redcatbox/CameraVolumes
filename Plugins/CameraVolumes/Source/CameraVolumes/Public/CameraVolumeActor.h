@@ -210,6 +210,7 @@ protected:
 		TArray<UTextRenderComponent*> Text_Indicators;
 
 public:
+	/** Text size of sides indicators. */
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = Camera)
 		float TextSize;
 
