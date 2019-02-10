@@ -84,7 +84,7 @@ protected:
 
 public:
 	/** Returns is volume uses static camera settings */
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		bool GetIsCameraStatic() const { return bIsCameraStatic; }
 
 	/** Should override camera location? */

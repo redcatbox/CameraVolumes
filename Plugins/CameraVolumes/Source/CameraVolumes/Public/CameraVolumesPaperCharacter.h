@@ -19,7 +19,7 @@ class CAMERAVOLUMES_API ACameraVolumesPaperCharacter : public APaperCharacter, p
 	GENERATED_BODY()
 
 	/** Camera component */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CameraVolumes, Meta = (AllowPrivateAccess = "true"))
 		class UCameraVolumesCameraComponent* CameraComponent;
 
 	virtual void OnCapsuleComponentBeginOverlapDelegate(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
