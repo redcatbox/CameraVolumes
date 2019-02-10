@@ -47,7 +47,7 @@ protected:
 	UPROPERTY()
 		TArray<AActor*> OverlappingActors;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
 		class ACameraVolumeActor* CameraVolumeCurrent;
 
 	UPROPERTY()

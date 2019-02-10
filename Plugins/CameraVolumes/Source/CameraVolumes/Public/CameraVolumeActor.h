@@ -34,13 +34,15 @@ protected:
 		class USceneComponent* DefaultSceneRoot;
 
 	UPROPERTY()
+		class UBoxComponent* BoxComponent;
+
+#if WITH_EDITORONLY_DATA
+	UPROPERTY()
 		class UBillboardComponent* BillboardComponent;
 
 	UPROPERTY()
-		class UBoxComponent* BoxComponent;
-
-	UPROPERTY()
 		class UCameraComponent* CameraComponent;
+#endif
 	//--------------------------------------------------
 
 public:
@@ -52,18 +54,6 @@ public:
 	/** Volume extent */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Volume, Meta = (MakeEditWidget = true))
 		FVector VolumeExtent;
-
-//	/** Preffered camera orientation to perform calculations */
-//	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = Camera)
-//		ECameraOrientation CameraOrientation;
-
-//protected:
-//	UPROPERTY()
-//		bool bIsCameraSideScroller;
-
-//public:
-//	/** Returns is volume uses horizontal camera settings */
-//	FORCEINLINE bool GetIsCameraSideScroller() const { return bIsCameraSideScroller; }
 
 protected:
 	UPROPERTY()
@@ -78,6 +68,12 @@ public:
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = Camera)
 		bool bUse6DOFVolume;
 
+#if WITH_EDITORONLY_DATA
+	/** Camera projection mode (For camera frustrum preview only!) */
+	UPROPERTY(Config, EditAnywhere, BlueprintReadWrite, Category = Camera)
+		TEnumAsByte<ECameraProjectionMode::Type> CameraProjectionMode;
+#endif
+
 	/** Camera mobility */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera)
 		ECameraMobility CameraMobility;
@@ -88,7 +84,7 @@ protected:
 
 public:
 	/** Returns is volume uses static camera settings */
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		bool GetIsCameraStatic() const { return bIsCameraStatic; }
 
 	/** Should override camera location? */
@@ -198,19 +194,39 @@ public:
 		virtual ESide GetNearestVolumeSide(FVector& PlayerPawnLocation);
 
 protected:
+	const float OpenEdgeOffset = 10000.f;
+
+#if WITH_EDITOR
+	UFUNCTION()
+		virtual void CreateSidesIndicators();
+
+	UFUNCTION()
+		virtual void UpdateSidesIndicators();
+#endif
+
+#if WITH_EDITORONLY_DATA
 	//Sides indicators
 	UPROPERTY()
 		TArray<UTextRenderComponent*> Text_Indicators;
 
-	const float Text_Size = 50.f;
+public:
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = Camera)
+		float TextSize;
+
+protected:
+	const FText Text_Front = FText::FromString("FRONT");
+	const FText Text_Back = FText::FromString("BACK");
+	const FText Text_Right = FText::FromString("RIGHT");
+	const FText Text_Left = FText::FromString("LEFT");
+	const FText Text_Top = FText::FromString("TOP");
+	const FText Text_Bottom = FText::FromString("BOTTOM");
 	const FText Text_Open = FText::FromString("OPEN");
 	const FText Text_Closed = FText::FromString("CLOSED");
 	const FText Text_Normal = FText::FromString("NORMAL");
 	const FText Text_Smooth = FText::FromString("SMOOTH");
 	const FText Text_Cut = FText::FromString("CUT");
 	//--------------------------------------------------
-
-	const float OpenEdgeOffset = 10000.f;
+#endif
 
 public:
 #if WITH_EDITOR

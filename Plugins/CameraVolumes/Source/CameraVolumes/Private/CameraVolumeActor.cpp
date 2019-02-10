@@ -14,6 +14,7 @@ ACameraVolumeActor::ACameraVolumeActor()
 	DefaultSceneRoot->bVisible = false;
 	RootComponent = DefaultSceneRoot;
 
+#if WITH_EDITORONLY_DATA
 	// Billboard
 	BillboardComponent = CreateDefaultSubobject<UBillboardComponent>(TEXT("BillboardComponent"));
 	BillboardComponent->SetupAttachment(RootComponent);
@@ -22,6 +23,11 @@ ACameraVolumeActor::ACameraVolumeActor()
 	if (TextureObj.Object)
 		BillboardComponent->Sprite = TextureObj.Object;
 
+	// CameraComponent
+	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
+	CameraComponent->SetupAttachment(RootComponent);
+#endif
+
 	// BoxComponent
 	BoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComponent"));
 	BoxComponent->SetupAttachment(RootComponent);
@@ -29,19 +35,17 @@ ACameraVolumeActor::ACameraVolumeActor()
 	BoxComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	BoxComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 
-	// CameraComponent
-	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
-	CameraComponent->SetupAttachment(RootComponent);
-
 	// Default values
 	Priority = 0;
 	VolumeExtent = FVector(500.f, 500.f, 500.f);
 
-	//CameraOrientation = ECameraOrientation::ECO_SideScroller;
-
 	bUseZeroDepthExtentEditCond = true;
 	bUseZeroDepthExtent = false;
 	bUse6DOFVolume = false;
+
+#if WITH_EDITORONLY_DATA
+	CameraProjectionMode = ECameraProjectionMode::Perspective;
+#endif
 
 	CameraMobility = ECameraMobility::ECM_Movable;
 
@@ -62,26 +66,13 @@ ACameraVolumeActor::ACameraVolumeActor()
 
 	CameraSmoothTransitionSpeed = 1.f;
 
-	/**
-	*	Sides indicators
-	*	Priority [0]
-	*	SideInfo [1-12]
-	*/
-	Text_Indicators.SetNum(13);
-	FName ComponentName;
-	static ConstructorHelpers::FObjectFinder<UMaterialInterface> TextMaterialObj(TEXT("/CameraVolumes/Materials/UnlitText.UnlitText"));
-	for (uint8 i = 0; i < 13; i++)
-	{
-		ComponentName = *(FString(TEXT("TextRenderComponent")) + FString::FromInt(i));
-		Text_Indicators[i] = CreateDefaultSubobject<UTextRenderComponent>(ComponentName);
-		Text_Indicators[i]->SetupAttachment(RootComponent);
-		Text_Indicators[i]->bHiddenInGame = true;
-		Text_Indicators[i]->bAlwaysRenderAsText = true;
-		if (TextMaterialObj.Object)
-			Text_Indicators[i]->SetTextMaterial(TextMaterialObj.Object);
-		Text_Indicators[i]->HorizontalAlignment = EHorizTextAligment::EHTA_Center;
-		Text_Indicators[i]->VerticalAlignment = EVerticalTextAligment::EVRTA_TextCenter;
-	}
+#if WITH_EDITORONLY_DATA
+	TextSize = 50.f;
+#endif
+
+#if WITH_EDITOR
+	CreateSidesIndicators();
+#endif
 
 	UpdateVolume();
 }
@@ -96,19 +87,11 @@ void ACameraVolumeActor::UpdateVolume()
 	CalculateVolumeExtents();
 
 	//Components
+#if WITH_EDITORONLY_DATA
 	BillboardComponent->SetRelativeLocation(FVector::ZeroVector);
 	BillboardComponent->SetRelativeScale3D(FVector(5.f, 1.f, 1.f));
+#endif
 	BoxComponent->SetBoxExtent(VolumeExtent);
-
-	//switch (CameraOrientation)
-	//{
-	//case ECameraOrientation::ECO_SideScroller:
-	//	bIsCameraSideScroller = true;
-	//	break;
-	//case ECameraOrientation::ECO_TopDown:
-	//	bIsCameraSideScroller = false;
-	//	break;
-	//}
 
 	if (bUse6DOFVolume)
 	{
@@ -117,9 +100,6 @@ void ACameraVolumeActor::UpdateVolume()
 	}
 	else
 		bUseZeroDepthExtentEditCond = true;
-
-	//if (bUseZeroDepthExtent)
-	//	bCameraLocationRelativeToVolume = true;
 
 	switch (CameraMobility)
 	{
@@ -141,173 +121,24 @@ void ACameraVolumeActor::UpdateVolume()
 		CameraFocalPoint = FVector::ZeroVector;
 
 	CameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(CameraLocation, CameraFocalPoint, CameraRoll);
-	CameraComponent->SetRelativeLocationAndRotation(CameraLocation, CameraRotation);
 
-	if (bOverrideCameraFieldOfView)
-		CameraComponent->FieldOfView = CameraFieldOfView;
-	else
-	{
+	if (!bOverrideCameraFieldOfView)
 		CameraFieldOfView = 90.f;
-		CameraComponent->FieldOfView = CameraFieldOfView;
-	}
 
-	if (bOverrideCameraOrthoWidth)
-		CameraComponent->OrthoWidth = CameraOrthoWidth;
-	else
-	{
+	if (!bOverrideCameraOrthoWidth)
 		CameraOrthoWidth = 512.f;
-		CameraComponent->OrthoWidth = CameraOrthoWidth;
-	}
-	//--------------------------------------------------
 
-	//Indicators
-	//Priority
-	Text_Indicators[0]->SetText(FText::FromString(FString::FromInt(Priority)));
-	Text_Indicators[0]->SetTextRenderColor(FColor::White);
-	Text_Indicators[0]->SetWorldSize(2.f * Text_Size);
-	Text_Indicators[0]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y + 5.f, Text_Size), FRotator(0.f, 90.f, 0.f)); //Side-scroller
-	//Text_Indicators[0]->SetRelativeLocationAndRotation(FVector(0.f, Text_Size, VolumeExtent.Z + 5.f), FRotator(90.f, 90.f, 0.f)); //Top-down
+#if WITH_EDITORONLY_DATA
+	CameraComponent->SetRelativeLocationAndRotation(CameraLocation, CameraRotation);
+	CameraComponent->FieldOfView = CameraFieldOfView;
+	CameraComponent->OrthoWidth = CameraOrthoWidth;
+	CameraComponent->ProjectionMode = CameraProjectionMode;
+	CameraComponent->RefreshVisualRepresentation();
+#endif
 
-	//Sides
-	for (uint8 i = 1; i <= 12; i = i + 2)
-	{
-		Text_Indicators[i]->SetWorldSize(Text_Size);
-		Text_Indicators[i + 1]->SetWorldSize(Text_Size);
-
-		FSideInfo SideInfo;
-		if (i == 1)
-		{
-			SideInfo = FrontSide;
-			Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y - 1.5f * Text_Size, VolumeExtent.Z + 5.f), FRotator(90.f, 90.f, 0.f));
-			Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y - 0.5f * Text_Size, VolumeExtent.Z + 5.f), FRotator(90.f, 90.f, 0.f));
-
-			if (bUse6DOFVolume)
-			{
-				Text_Indicators[i]->SetVisibility(true);
-				Text_Indicators[i + 1]->SetVisibility(true);
-			}
-			else
-			{
-				//Side-scroller
-				Text_Indicators[i]->SetVisibility(false);
-				Text_Indicators[i + 1]->SetVisibility(false);
-				//Top-down
-				//Text_Indicators[i]->SetVisibility(true);
-				//Text_Indicators[i + 1]->SetVisibility(true);
-			}
-		}
-		else if (i == 3)
-		{
-			SideInfo = BackSide;
-			Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(0.f, -VolumeExtent.Y + 0.5f * Text_Size, VolumeExtent.Z + 5.f), FRotator(90.f, 90.f, 0.f));
-			Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(0.f, -VolumeExtent.Y + 1.5f * Text_Size, VolumeExtent.Z + 5.f), FRotator(90.f, 90.f, 0.f));
-
-			if (bUse6DOFVolume)
-			{
-				Text_Indicators[i]->SetVisibility(true);
-				Text_Indicators[i + 1]->SetVisibility(true);
-			}
-			else
-			{
-				//Side-scroller
-				Text_Indicators[i]->SetVisibility(false);
-				Text_Indicators[i + 1]->SetVisibility(false);
-				//Top-down
-				//Text_Indicators[i]->SetVisibility(true);
-				//Text_Indicators[i + 1]->SetVisibility(true);
-			}
-		}
-		else if (i == 5)
-		{
-			SideInfo = RightSide;
-			//Side-scroller
-			Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X - 2.f * Text_Size, VolumeExtent.Y + 5.f, 0.5f * Text_Size), FRotator(0.f, 90.f, 0.f));
-			Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X - 2.f * Text_Size, VolumeExtent.Y + 5.f, -0.5f * Text_Size), FRotator(0.f, 90.f, 0.f));
-			//Top-down
-			//Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X - 2.f * Text_Size, -0.5f * Text_Size, VolumeExtent.Z + 5.f), FRotator(90.f, 90.f, 0.f));
-			//Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X - 2.f * Text_Size, 0.5f * Text_Size, VolumeExtent.Z + 5.f), FRotator(90.f, 90.f, 0.f));
-		}
-		else if (i == 7)
-		{
-			SideInfo = LeftSide;
-			//Side-scroller
-			Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(-VolumeExtent.X + 2.f * Text_Size, VolumeExtent.Y + 5.f, 0.5f * Text_Size), FRotator(0.f, 90.f, 0.f));
-			Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(-VolumeExtent.X + 2.f * Text_Size, VolumeExtent.Y + 5.f, -0.5f * Text_Size), FRotator(0.f, 90.f, 0.f));
-			//Top-down
-			//Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(-VolumeExtent.X + 2.f * Text_Size, -0.5f * Text_Size, VolumeExtent.Z + 5.f), FRotator(90.f, 90.f, 0.f));
-			//Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(-VolumeExtent.X + 2.f * Text_Size, 0.5f * Text_Size, VolumeExtent.Z + 5.f), FRotator(90.f, 90.f, 0.f));
-		}
-		else if (i == 9)
-		{
-			SideInfo = TopSide;
-			Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y + 5.f, VolumeExtent.Z - 0.5f * Text_Size), FRotator(0.f, 90.f, 0.f));
-			Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y + 5.f, VolumeExtent.Z - 1.5f * Text_Size), FRotator(0.f, 90.f, 0.f));
-
-			if (bUse6DOFVolume)
-			{
-				Text_Indicators[i]->SetVisibility(true);
-				Text_Indicators[i + 1]->SetVisibility(true);
-			}
-			else
-			{
-				//Side-scroller
-				Text_Indicators[i]->SetVisibility(true);
-				Text_Indicators[i + 1]->SetVisibility(true);
-				//Top-down
-				//Text_Indicators[i]->SetVisibility(false);
-				//Text_Indicators[i + 1]->SetVisibility(false);
-			}
-		}
-		else if (i == 11)
-		{
-			SideInfo = BottomSide;
-			Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y + 5.f, -VolumeExtent.Z + 1.5f * Text_Size), FRotator(0.f, 90.f, 0.f));
-			Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y + 5.f, -VolumeExtent.Z + 0.5f * Text_Size), FRotator(0.f, 90.f, 0.f));
-
-			if (bUse6DOFVolume)
-			{
-				Text_Indicators[i]->SetVisibility(true);
-				Text_Indicators[i + 1]->SetVisibility(true);
-			}
-			else
-			{
-				//Side-scroller
-				Text_Indicators[i]->SetVisibility(true);
-				Text_Indicators[i + 1]->SetVisibility(true);
-				//Top-down
-				//Text_Indicators[i]->SetVisibility(false);
-				//Text_Indicators[i + 1]->SetVisibility(false);
-			}
-		}
-
-		if (SideInfo.SideType == ESideType::EST_Closed)
-		{
-			Text_Indicators[i]->SetText(Text_Closed);
-			Text_Indicators[i]->SetTextRenderColor(FColor::Red);
-		}
-		else
-		{
-			Text_Indicators[i]->SetText(Text_Open);
-			Text_Indicators[i]->SetTextRenderColor(FColor::Green);
-		}
-
-		switch (SideInfo.SideTransitionType)
-		{
-		case ESideTransitionType::ESTT_Normal:
-			Text_Indicators[i + 1]->SetText(Text_Normal);
-			Text_Indicators[i + 1]->SetTextRenderColor(FColor::White);
-			break;
-		case ESideTransitionType::ESTT_Smooth:
-			Text_Indicators[i + 1]->SetText(Text_Smooth);
-			Text_Indicators[i + 1]->SetTextRenderColor(FColor::Green);
-			break;
-		case ESideTransitionType::ESTT_Cut:
-			Text_Indicators[i + 1]->SetText(Text_Cut);
-			Text_Indicators[i + 1]->SetTextRenderColor(FColor::Red);
-			break;
-		}
-	}
-	//--------------------------------------------------
+#if WITH_EDITOR
+	UpdateSidesIndicators();
+#endif
 
 	this->Modify();
 }
@@ -465,6 +296,209 @@ ESide ACameraVolumeActor::GetNearestVolumeSide(FVector& PlayerPawnLocation)
 	return NearestSide;
 }
 
+#if WITH_EDITOR
+void ACameraVolumeActor::CreateSidesIndicators()
+{
+	/**
+	*	Sides indicators
+	*	Priority [0]
+	*	SideInfo [1-18]
+	*/
+	Text_Indicators.SetNum(19);
+	FName ComponentName;
+	static ConstructorHelpers::FObjectFinder<UMaterialInterface> TextMaterialObj(TEXT("/CameraVolumes/Materials/UnlitText.UnlitText"));
+	for (uint8 i = 0; i < 19; i++)
+	{
+		ComponentName = *(FString(TEXT("TextRenderComponent")) + FString::FromInt(i));
+		Text_Indicators[i] = CreateDefaultSubobject<UTextRenderComponent>(ComponentName);
+		Text_Indicators[i]->SetupAttachment(RootComponent);
+		Text_Indicators[i]->bHiddenInGame = true;
+		Text_Indicators[i]->bAlwaysRenderAsText = true;
+		Text_Indicators[i]->HorizontalAlignment = EHorizTextAligment::EHTA_Center;
+		Text_Indicators[i]->VerticalAlignment = EVerticalTextAligment::EVRTA_TextCenter;
+		Text_Indicators[i]->SetTextRenderColor(FColor::White);
+		if (TextMaterialObj.Object)
+			Text_Indicators[i]->SetTextMaterial(TextMaterialObj.Object);
+	}
+}
+
+void ACameraVolumeActor::UpdateSidesIndicators()
+{
+	//Priority
+	Text_Indicators[0]->SetText(FText::FromString(FString::FromInt(Priority)));
+	Text_Indicators[0]->SetWorldSize(2.f * TextSize);
+	Text_Indicators[0]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y + 5.f, TextSize), FRotator(0.f, 90.f, 0.f)); //Side-scroller
+	//Text_Indicators[0]->SetRelativeLocationAndRotation(FVector(0.f, TextSize, VolumeExtent.Z + 5.f), FRotator(90.f, 90.f, 0.f)); //Top-down
+
+	//Sides
+	for (uint8 i = 1; i <= 18; i = i + 3)
+	{
+		Text_Indicators[i]->SetWorldSize(TextSize);
+		Text_Indicators[i + 1]->SetWorldSize(TextSize);
+		Text_Indicators[i + 2]->SetWorldSize(TextSize);
+
+		FSideInfo SideInfo;
+		if (i == 1)
+		{
+			SideInfo = FrontSide;
+			Text_Indicators[i]->SetText(Text_Front);
+			Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y - 2.5f * TextSize, VolumeExtent.Z + 5.f), FRotator(90.f, 90.f, 0.f));
+			Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y - 1.5f * TextSize, VolumeExtent.Z + 5.f), FRotator(90.f, 90.f, 0.f));
+			Text_Indicators[i + 2]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y - 0.5f * TextSize, VolumeExtent.Z + 5.f), FRotator(90.f, 90.f, 0.f));
+
+			if (bUse6DOFVolume)
+			{
+				Text_Indicators[i]->SetVisibility(true);
+				Text_Indicators[i + 1]->SetVisibility(true);
+				Text_Indicators[i + 2]->SetVisibility(true);
+			}
+			else
+			{
+				//Side-scroller
+				Text_Indicators[i]->SetVisibility(false);
+				Text_Indicators[i + 1]->SetVisibility(false);
+				Text_Indicators[i + 2]->SetVisibility(false);
+				//Top-down
+				//Text_Indicators[i]->SetVisibility(true);
+				//Text_Indicators[i + 1]->SetVisibility(true);
+				//Text_Indicators[i + 2]->SetVisibility(true);
+			}
+		}
+		else if (i == 4)
+		{
+			SideInfo = BackSide;
+			Text_Indicators[i]->SetText(Text_Back);
+			Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(0.f, -VolumeExtent.Y + 0.5f * TextSize, VolumeExtent.Z + 5.f), FRotator(90.f, 90.f, 0.f));
+			Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(0.f, -VolumeExtent.Y + 1.5f * TextSize, VolumeExtent.Z + 5.f), FRotator(90.f, 90.f, 0.f));
+			Text_Indicators[i + 2]->SetRelativeLocationAndRotation(FVector(0.f, -VolumeExtent.Y + 2.5f * TextSize, VolumeExtent.Z + 5.f), FRotator(90.f, 90.f, 0.f));
+
+			if (bUse6DOFVolume)
+			{
+				Text_Indicators[i]->SetVisibility(true);
+				Text_Indicators[i + 1]->SetVisibility(true);
+				Text_Indicators[i + 2]->SetVisibility(true);
+			}
+			else
+			{
+				//Side-scroller
+				Text_Indicators[i]->SetVisibility(false);
+				Text_Indicators[i + 1]->SetVisibility(false);
+				Text_Indicators[i + 2]->SetVisibility(false);
+				//Top-down
+				//Text_Indicators[i]->SetVisibility(true);
+				//Text_Indicators[i + 1]->SetVisibility(true);
+				//Text_Indicators[i + 2]->SetVisibility(true);
+			}
+		}
+		else if (i == 7)
+		{
+			SideInfo = RightSide;
+			Text_Indicators[i]->SetText(Text_Right);
+			//Side-scroller
+			Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X - 2.f * TextSize, VolumeExtent.Y + 5.f, TextSize), FRotator(0.f, 90.f, 0.f));
+			Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X - 2.f * TextSize, VolumeExtent.Y + 5.f, 0.f), FRotator(0.f, 90.f, 0.f));
+			Text_Indicators[i + 2]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X - 2.f * TextSize, VolumeExtent.Y + 5.f, -TextSize), FRotator(0.f, 90.f, 0.f));
+			//Top-down
+			//Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X - 2.f * TextSize, -TextSize, VolumeExtent.Z + 5.f), FRotator(90.f, 90.f, 0.f));
+			//Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X - 2.f * TextSize, 0.0f, VolumeExtent.Z + 5.f), FRotator(90.f, 90.f, 0.f));
+			//Text_Indicators[i + 2]->SetRelativeLocationAndRotation(FVector(VolumeExtent.X - 2.f * TextSize, TextSize, VolumeExtent.Z + 5.f), FRotator(90.f, 90.f, 0.f));
+		}
+		else if (i == 10)
+		{
+			SideInfo = LeftSide;
+			Text_Indicators[i]->SetText(Text_Left);
+			//Side-scroller
+			Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(-VolumeExtent.X + 2.f * TextSize, VolumeExtent.Y + 5.f, TextSize), FRotator(0.f, 90.f, 0.f));
+			Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(-VolumeExtent.X + 2.f * TextSize, VolumeExtent.Y + 5.f, 0.f), FRotator(0.f, 90.f, 0.f));
+			Text_Indicators[i + 2]->SetRelativeLocationAndRotation(FVector(-VolumeExtent.X + 2.f * TextSize, VolumeExtent.Y + 5.f, -TextSize), FRotator(0.f, 90.f, 0.f));
+			//Top-down
+			//Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(-VolumeExtent.X + 2.f * TextSize, -TextSize, VolumeExtent.Z + 5.f), FRotator(90.f, 90.f, 0.f));
+			//Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(-VolumeExtent.X + 2.f * TextSize, 0.f, VolumeExtent.Z + 5.f), FRotator(90.f, 90.f, 0.f));
+			//Text_Indicators[i + 2]->SetRelativeLocationAndRotation(FVector(-VolumeExtent.X + 2.f * TextSize, TextSize, VolumeExtent.Z + 5.f), FRotator(90.f, 90.f, 0.f));
+		}
+		else if (i == 13)
+		{
+			SideInfo = TopSide;
+			Text_Indicators[i]->SetText(Text_Top);
+			Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y + 5.f, VolumeExtent.Z - 0.5f * TextSize), FRotator(0.f, 90.f, 0.f));
+			Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y + 5.f, VolumeExtent.Z - 1.5f * TextSize), FRotator(0.f, 90.f, 0.f));
+			Text_Indicators[i + 2]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y + 5.f, VolumeExtent.Z - 2.5f * TextSize), FRotator(0.f, 90.f, 0.f));
+
+			if (bUse6DOFVolume)
+			{
+				Text_Indicators[i]->SetVisibility(true);
+				Text_Indicators[i + 1]->SetVisibility(true);
+				Text_Indicators[i + 2]->SetVisibility(true);
+			}
+			else
+			{
+				//Side-scroller
+				Text_Indicators[i]->SetVisibility(true);
+				Text_Indicators[i + 1]->SetVisibility(true);
+				Text_Indicators[i + 2]->SetVisibility(true);
+				//Top-down
+				//Text_Indicators[i]->SetVisibility(false);
+				//Text_Indicators[i + 1]->SetVisibility(false);
+				//Text_Indicators[i + 2]->SetVisibility(false);
+			}
+		}
+		else if (i == 16)
+		{
+			SideInfo = BottomSide;
+			Text_Indicators[i]->SetText(Text_Bottom);
+			Text_Indicators[i]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y + 5.f, -VolumeExtent.Z + 2.5f * TextSize), FRotator(0.f, 90.f, 0.f));
+			Text_Indicators[i + 1]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y + 5.f, -VolumeExtent.Z + 1.5f * TextSize), FRotator(0.f, 90.f, 0.f));
+			Text_Indicators[i + 2]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y + 5.f, -VolumeExtent.Z + 0.5f * TextSize), FRotator(0.f, 90.f, 0.f));
+
+			if (bUse6DOFVolume)
+			{
+				Text_Indicators[i]->SetVisibility(true);
+				Text_Indicators[i + 1]->SetVisibility(true);
+				Text_Indicators[i + 2]->SetVisibility(true);
+			}
+			else
+			{
+				//Side-scroller
+				Text_Indicators[i]->SetVisibility(true);
+				Text_Indicators[i + 1]->SetVisibility(true);
+				Text_Indicators[i + 2]->SetVisibility(true);
+				//Top-down
+				//Text_Indicators[i]->SetVisibility(false);
+				//Text_Indicators[i + 1]->SetVisibility(false);
+				//Text_Indicators[i + 2]->SetVisibility(false);
+			}
+		}
+
+		if (SideInfo.SideType == ESideType::EST_Closed)
+		{
+			Text_Indicators[i + 1]->SetText(Text_Closed);
+			Text_Indicators[i + 1]->SetTextRenderColor(FColor::Red);
+		}
+		else
+		{
+			Text_Indicators[i + 1]->SetText(Text_Open);
+			Text_Indicators[i + 1]->SetTextRenderColor(FColor::Green);
+		}
+
+		switch (SideInfo.SideTransitionType)
+		{
+		case ESideTransitionType::ESTT_Normal:
+			Text_Indicators[i + 2]->SetText(Text_Normal);
+			Text_Indicators[i + 2]->SetTextRenderColor(FColor::Yellow);
+			break;
+		case ESideTransitionType::ESTT_Smooth:
+			Text_Indicators[i + 2]->SetText(Text_Smooth);
+			Text_Indicators[i + 2]->SetTextRenderColor(FColor::Green);
+			break;
+		case ESideTransitionType::ESTT_Cut:
+			Text_Indicators[i + 2]->SetText(Text_Cut);
+			Text_Indicators[i + 2]->SetTextRenderColor(FColor::Red);
+			break;
+		}
+	}
+}
+#endif
+
 //Update with changed property
 #if WITH_EDITOR
 void ACameraVolumeActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
@@ -472,13 +506,14 @@ void ACameraVolumeActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyC
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 	FName PropertyName = (PropertyChangedEvent.Property != NULL) ? PropertyChangedEvent.Property->GetFName() : NAME_None;
 	if (PropertyName == TEXT("Priority") || TEXT("VolumeExtent")
-		/*|| TEXT("CameraOrientation")*/
 		|| TEXT("bUseZeroDepthExtent") || TEXT("bUse6DOFVolume")
+		|| TEXT("CameraProjectionMode")
 		|| TEXT("CameraMobility")
 		|| TEXT("bOverrideCameraLocation") || TEXT("CameraLocation")
 		|| TEXT("bOverrideCameraRotation") || TEXT("CameraFocalPoint") || TEXT("CameraRoll")
 		|| TEXT("bOverrideCameraFieldOfView") || TEXT("CameraFieldOfView")
-		|| TEXT("FrontSide") || TEXT("BackSide") || TEXT("RightSide") || TEXT("LeftSide") || TEXT("TopSide") || TEXT("BottomSide"))
+		|| TEXT("FrontSide") || TEXT("BackSide") || TEXT("RightSide") || TEXT("LeftSide") || TEXT("TopSide") || TEXT("BottomSide")
+		|| TEXT("TextSize"))
 		UpdateVolume();
 }
 

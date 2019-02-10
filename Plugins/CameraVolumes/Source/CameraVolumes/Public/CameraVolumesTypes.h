@@ -51,10 +51,10 @@ struct FSideInfo
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CameraVolumes)
 		ESideType SideType;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CameraVolumes)
 		ESideTransitionType SideTransitionType;
 
 	FSideInfo()

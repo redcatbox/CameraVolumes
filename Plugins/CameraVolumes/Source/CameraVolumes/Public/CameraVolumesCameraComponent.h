@@ -99,7 +99,7 @@ public:
 		virtual void UpdateCamera(FVector& CameraLocation, FQuat& CameraRotation, float CameraFOV);
 
 	/** Get is camera uses orthographic projection mode */
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual bool bGetIsCameraOrthographic() { return bIsCameraOrthographic; }
 
 	//Override PostEditChangeProperty
