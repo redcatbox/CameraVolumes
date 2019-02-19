@@ -24,10 +24,6 @@
         "Win32",
         "HTML5",
         "Android"
-      ],
-      "BlacklistPlatforms": [
-        "IOS",
-        "Mac"
       ]
     }
 	],
