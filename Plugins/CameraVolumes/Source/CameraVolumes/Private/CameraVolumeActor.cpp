@@ -138,9 +138,8 @@ void ACameraVolumeActor::UpdateVolume()
 
 #if WITH_EDITOR
 	UpdateSidesIndicators();
-#endif
-
 	this->Modify();
+#endif
 }
 
 void ACameraVolumeActor::CalculateVolumeExtents()
@@ -512,6 +511,7 @@ void ACameraVolumeActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyC
 		|| TEXT("bOverrideCameraLocation") || TEXT("CameraLocation")
 		|| TEXT("bOverrideCameraRotation") || TEXT("CameraFocalPoint") || TEXT("CameraRoll")
 		|| TEXT("bOverrideCameraFieldOfView") || TEXT("CameraFieldOfView")
+		|| TEXT("bOverrideCameraOrthoWidth") || TEXT("CameraOrthoWidth")
 		|| TEXT("FrontSide") || TEXT("BackSide") || TEXT("RightSide") || TEXT("LeftSide") || TEXT("TopSide") || TEXT("BottomSide")
 		|| TEXT("TextSize"))
 		UpdateVolume();

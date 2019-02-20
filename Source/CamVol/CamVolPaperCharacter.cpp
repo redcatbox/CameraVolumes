@@ -79,12 +79,25 @@ void ACamVolPaperCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ACamVolPaperCharacter::MoveRight);
+	PlayerInputComponent->BindTouch(IE_Pressed, this, &ACamVolPaperCharacter::TouchStarted);
+	PlayerInputComponent->BindTouch(IE_Released, this, &ACamVolPaperCharacter::TouchStopped);
 }
 
 void ACamVolPaperCharacter::MoveRight(float Value)
 {
 	// Apply the input to the character motion
 	AddMovementInput(FVector(1.f, 0.f, 0.f), Value);
+}
+
+void ACamVolPaperCharacter::TouchStarted(const ETouchIndex::Type FingerIndex, const FVector Location)
+{
+	// jump on any touch
+	Jump();
+}
+
+void ACamVolPaperCharacter::TouchStopped(const ETouchIndex::Type FingerIndex, const FVector Location)
+{
+	StopJumping();
 }
 
 void ACamVolPaperCharacter::UpdateCharacter()

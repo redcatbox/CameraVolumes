@@ -31,9 +31,15 @@ protected:
 	/** Called for side to side input */
 	void MoveRight(float Value);
 
-	void UpdateCharacter();
+	/** Handle touch inputs. */
+	void TouchStarted(const ETouchIndex::Type FingerIndex, const FVector Location);
+
+	/** Handle touch stop event. */
+	void TouchStopped(const ETouchIndex::Type FingerIndex, const FVector Location);
 
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 	// End of APawn interface
+
+	void UpdateCharacter();
 };
