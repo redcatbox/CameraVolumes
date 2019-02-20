@@ -47,6 +47,8 @@ void ACamVolCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAxis("MoveForward", this, &ACamVolCharacter::MoveForward);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+	PlayerInputComponent->BindTouch(IE_Pressed, this, &ACamVolCharacter::TouchStarted);
+	PlayerInputComponent->BindTouch(IE_Released, this, &ACamVolCharacter::TouchStopped);
 }
 
 void ACamVolCharacter::MoveRight(float Value)
@@ -59,4 +61,15 @@ void ACamVolCharacter::MoveForward(float Value)
 {
 	// add movement in that direction
 	AddMovementInput(FVector(0.f, 1.f, 0.f), Value);
+}
+
+void ACamVolCharacter::TouchStarted(const ETouchIndex::Type FingerIndex, const FVector Location)
+{
+	// jump on any touch
+	Jump();
+}
+
+void ACamVolCharacter::TouchStopped(const ETouchIndex::Type FingerIndex, const FVector Location)
+{
+	StopJumping();
 }

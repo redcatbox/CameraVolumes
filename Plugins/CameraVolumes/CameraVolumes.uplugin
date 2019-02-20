@@ -15,15 +15,17 @@
 	"IsBetaVersion": false,
 	"Installed": true,
 	"Modules": [
-		{
-			"Name": "CameraVolumes",
-			"Type": "Runtime",
-			"LoadingPhase": "Default",
-			"WhitelistPlatforms": [
-				"Win64",
-				"Win32"
-			]
-		}
+    {
+      "Name": "CameraVolumes",
+      "Type": "Runtime",
+      "LoadingPhase": "Default",
+      "WhitelistPlatforms": [
+        "Win64",
+        "Win32",
+        "HTML5",
+        "Android"
+      ]
+    }
 	],
 	"Plugins": [
 		{

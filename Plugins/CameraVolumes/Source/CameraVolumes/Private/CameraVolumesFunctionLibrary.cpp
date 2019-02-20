@@ -49,6 +49,7 @@ ACameraVolumeActor* UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(TArray
 bool UCameraVolumesFunctionLibrary::CompareSidesPairs(ESide SideA, ESide SideB, bool b6DOFVolume)
 {
 	if (b6DOFVolume)
+	{
 		if ((SideA == ESide::ES_Front && SideB == ESide::ES_Back)
 			|| (SideA == ESide::ES_Back && SideB == ESide::ES_Front)
 			|| (SideA == ESide::ES_Right && SideB == ESide::ES_Left)
@@ -56,18 +57,21 @@ bool UCameraVolumesFunctionLibrary::CompareSidesPairs(ESide SideA, ESide SideB, 
 			|| (SideA == ESide::ES_Top && SideB == ESide::ES_Bottom)
 			|| (SideA == ESide::ES_Bottom && SideB == ESide::ES_Top))
 			return true;
-		else
-			//Side-scroller
-			if ((SideA == ESide::ES_Right && SideB == ESide::ES_Left)
-				|| (SideA == ESide::ES_Left && SideB == ESide::ES_Right)
-				|| (SideA == ESide::ES_Top && SideB == ESide::ES_Bottom)
-				|| (SideA == ESide::ES_Bottom && SideB == ESide::ES_Top))
-			//Top-down
-			//if ((SideA == ESide::ES_Front && SideB == ESide::ES_Back)
-			//	|| (SideA == ESide::ES_Back && SideB == ESide::ES_Front)
-			//	|| (SideA == ESide::ES_Right && SideB == ESide::ES_Left)
-			//	|| (SideA == ESide::ES_Left && SideB == ESide::ES_Right))
-					return true;
+	}
+	else
+	{
+		//Side-scroller
+		if ((SideA == ESide::ES_Right && SideB == ESide::ES_Left)
+			|| (SideA == ESide::ES_Left && SideB == ESide::ES_Right)
+			|| (SideA == ESide::ES_Top && SideB == ESide::ES_Bottom)
+			|| (SideA == ESide::ES_Bottom && SideB == ESide::ES_Top))
+		//Top-down
+		//if ((SideA == ESide::ES_Front && SideB == ESide::ES_Back)
+		//	|| (SideA == ESide::ES_Back && SideB == ESide::ES_Front)
+		//	|| (SideA == ESide::ES_Right && SideB == ESide::ES_Left)
+		//	|| (SideA == ESide::ES_Left && SideB == ESide::ES_Right))
+			return true;
+	}
 
 	return false;
 }
@@ -81,7 +85,7 @@ FQuat UCameraVolumesFunctionLibrary::CalculateCameraRotation(FVector& CameraLoca
 
 FQuat UCameraVolumesFunctionLibrary::CalculateCameraRotationToCharacter(FVector& CameraLocation, FVector& CameraFocalPoint, float CameraRoll, FVector PlayerPawnLocation, FVector CameraVolumeLocation)
 {
-	FQuat CameraRotation = (FRotationMatrix::MakeFromX(PlayerPawnLocation - CameraVolumeLocation -  CameraLocation + CameraFocalPoint)).ToQuat();
+	FQuat CameraRotation = (FRotationMatrix::MakeFromX(PlayerPawnLocation - CameraVolumeLocation - CameraLocation + CameraFocalPoint)).ToQuat();
 	CameraRotation = FQuat(CameraRotation.GetAxisX(), FMath::DegreesToRadians(CameraRoll)) * CameraRotation;
 	return CameraRotation;
 }

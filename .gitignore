@@ -35,5 +35,6 @@
 *.vs
 *.sln
 Binaries
+Build
 Intermediate
 Saved
