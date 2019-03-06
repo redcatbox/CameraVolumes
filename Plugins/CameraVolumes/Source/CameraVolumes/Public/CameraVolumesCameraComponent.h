@@ -100,7 +100,7 @@ public:
 
 	/** Get is camera uses orthographic projection mode */
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-		virtual bool bGetIsCameraOrthographic() { return bIsCameraOrthographic; }
+		virtual bool GetIsCameraOrthographic() { return bIsCameraOrthographic; }
 
 	//Override PostEditChangeProperty
 #if WITH_EDITOR
