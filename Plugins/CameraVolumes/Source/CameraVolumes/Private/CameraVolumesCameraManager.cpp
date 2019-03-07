@@ -177,7 +177,8 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 		// Get screen (or at least player camera) aspect ratio for further calculations
 		float PlayerCamFOVTangens = FMath::Tan(FMath::DegreesToRadians(NewCameraFOV_OW * 0.5f));
 		float ScreenAspectRatio;
-		if (GEngine)
+
+		if (GEngine->GameViewport->Viewport)
 		{
 			const FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 			ScreenAspectRatio = ViewportSize.X / ViewportSize.Y;
