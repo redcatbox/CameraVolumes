@@ -65,19 +65,19 @@ protected:
 
 public:
 	/** (For 2D games) Use zero volume extent by depth for camera blocking */
-	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = Camera, Meta = (EditCondition = "bUseZeroDepthExtentEditCond"))
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = Volume, Meta = (EditCondition = "bUseZeroDepthExtentEditCond"))
 		bool bUseZeroDepthExtent;
 
 	/** Set new bUseZeroDepthExtent */
-	UFUNCTION(BlueprintCallable, Category = Camera)
+	UFUNCTION(BlueprintCallable, Category = Volume)
 		virtual void SetUseZeroDepthExtent(bool bNewUseZeroDepthExtent);
 
 	/** Process all 6 volume sides */
-	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = Camera)
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = Volume)
 		bool bUse6DOFVolume;
 
 	/** Set new bUse6DOFVolume */
-	UFUNCTION(BlueprintCallable, Category = Camera)
+	UFUNCTION(BlueprintCallable, Category = Volume)
 		virtual void SetUse6DOFVolume(bool bNewUse6DOFVolume);
 
 #if WITH_EDITORONLY_DATA
