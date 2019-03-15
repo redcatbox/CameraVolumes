@@ -102,15 +102,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual bool GetIsCameraOrthographic() { return bIsCameraOrthographic; }
 
+	/** Update camera component parameters */
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
+		virtual void UpdateCameraComponent();
+
 	//Override PostEditChangeProperty
 #if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
 
 protected:
-	UFUNCTION()
-		virtual void UpdateCameraComponent();
-
 	UPROPERTY()
 		bool bIsCameraOrthographic;
 };
