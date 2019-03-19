@@ -37,6 +37,10 @@ public:
 	UFUNCTION(BlueprintCallable, Meta = (Category = CameraVolumes))
 		virtual void SetCheckCameraVolumes(bool bNewCheck);
 	
+	/** Should perform camera blocking calculations? */
+	UFUNCTION(BlueprintCallable, Meta = (Category = CameraVolumes))
+		virtual void SetPerformBlockingCalculations(bool bNewPerformBlockingCalculations);
+
 protected:
 	UPROPERTY()
 		class UCameraVolumesCameraComponent* CameraComponent;
@@ -88,8 +92,11 @@ protected:
 		bool bNeedsCutTransition;
 
 	UPROPERTY()
+		bool bUpdateCamera;
+
+	UPROPERTY()
 		bool bCheckCameraVolumes;
 
 	UPROPERTY()
-		bool bUpdateCamera;
+		bool bPerformBlockingCalculations;
 };

@@ -48,12 +48,16 @@ protected:
 public:
 	//Parameters
 	/** Priority of camera volume in case of few overlapped volumes */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Volume, Meta = (ClampMin = "-100", ClampMax = "100", UIMin = "-100", UIMax = "100"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Volume, Meta = (ClampMin = "-100", ClampMax = "100", UIMin = "-100", UIMax = "100"))
 		int32 Priority;
 
 	/** Volume extent */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Volume, Meta = (MakeEditWidget = true))
 		FVector VolumeExtent;
+
+	/** Set new VolumeExtent */
+	UFUNCTION(BlueprintCallable, Category = Volume)
+		virtual void SetVolumeExtent(FVector NewVolumeExtent);
 
 protected:
 	UPROPERTY()
@@ -61,12 +65,20 @@ protected:
 
 public:
 	/** (For 2D games) Use zero volume extent by depth for camera blocking */
-	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = Camera, Meta = (EditCondition = "bUseZeroDepthExtentEditCond"))
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = Volume, Meta = (EditCondition = "bUseZeroDepthExtentEditCond"))
 		bool bUseZeroDepthExtent;
 
+	/** Set new bUseZeroDepthExtent */
+	UFUNCTION(BlueprintCallable, Category = Volume)
+		virtual void SetUseZeroDepthExtent(bool bNewUseZeroDepthExtent);
+
 	/** Process all 6 volume sides */
-	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = Camera)
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = Volume)
 		bool bUse6DOFVolume;
+
+	/** Set new bUse6DOFVolume */
+	UFUNCTION(BlueprintCallable, Category = Volume)
+		virtual void SetUse6DOFVolume(bool bNewUse6DOFVolume);
 
 #if WITH_EDITORONLY_DATA
 	/** Camera projection mode (For camera frustrum preview only!) */
@@ -77,6 +89,10 @@ public:
 	/** Camera mobility */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera)
 		ECameraMobility CameraMobility;
+
+	/** Set new CameraMobility */
+	UFUNCTION(BlueprintCallable, Category = Camera)
+		virtual void SetCameraMobility(ECameraMobility NewCameraMobility);
 
 protected:
 	UPROPERTY()
@@ -91,51 +107,71 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera)
 		bool bOverrideCameraLocation;
 
+	/** Set new bOverrideCameraLocation */
+	UFUNCTION(BlueprintCallable, Category = Camera)
+		virtual void SetOverrideCameraLocation(bool bNewOverrideCameraLocation);
+
 	/** New camera location */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera, Meta = (EditCondition = "bOverrideCameraLocation", MakeEditWidget = true))
 		FVector CameraLocation;
 
+	/** Set new CameraLocation */
+	UFUNCTION(BlueprintCallable, Category = Camera)
+		virtual void SetCameraLocation(FVector NewCameraLocation);
+
 	/** Should camera location be relative to volume? */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
 		bool bCameraLocationRelativeToVolume;
 
 	/** Should override camera focal point? */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera)
 		bool bOverrideCameraRotation;
 
+	/** Set new bOverrideCameraRotation */
+	UFUNCTION(BlueprintCallable, Category = Camera)
+		virtual void SetOverrideCameraRotation(bool bNewOverrideCameraRotation);
+
 	/** New camera focal point */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera, Meta = (EditCondition = "bOverrideCameraRotation", MakeEditWidget = true))
 		FVector CameraFocalPoint;
+
+	/** Set new CameraFocalPoint */
+	UFUNCTION(BlueprintCallable, Category = Camera)
+		virtual void SetCameraFocalPoint(FVector NewCameraFocalPoint);
 
 	/** New camera roll */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera, Meta = (EditCondition = "bOverrideCameraRotation"))
 		float CameraRoll;
 
+	/** Set new CameraRoll */
+	UFUNCTION(BlueprintCallable, Category = Camera)
+		virtual void SetCameraRoll(float NewCameraRoll);
+
 	/** Should camera look at player character? */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera, Meta = (EditCondition = "bIsCameraStatic"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (EditCondition = "bIsCameraStatic"))
 		bool bFocalPointIsPlayer;
 
 	UPROPERTY()
 		FQuat CameraRotation;
 
 	/** Should override camera FOV? For perspective cameras. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
 		bool bOverrideCameraFieldOfView;
 
 	/** New camera FOV. For perspective cameras. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera, Meta = (EditCondition = "bOverrideCameraFieldOfView", UIMin = "5.0", UIMax = "170", ClampMin = "0.001", ClampMax = "360.0", Units = deg))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (EditCondition = "bOverrideCameraFieldOfView", UIMin = "5.0", UIMax = "170", ClampMin = "0.001", ClampMax = "360.0", Units = deg))
 		float CameraFieldOfView;
 
 	/** Should override camera OrthoWidth? For orthographic cameras. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
 		bool bOverrideCameraOrthoWidth;
 
 	/** New camera OrthoWidth. For orthographic cameras. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera, Meta = (EditCondition = "bOverrideCameraOrthoWidth"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (EditCondition = "bOverrideCameraOrthoWidth"))
 		float CameraOrthoWidth;
 
 	/** Speed of smooth camera transition */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera, Meta = (ClampMin = "0.1", ClampMax = "10.0", UIMin = "0.1", UIMax = "10.0"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (ClampMin = "0.1", ClampMax = "10.0", UIMin = "0.1", UIMax = "10.0"))
 		float CameraSmoothTransitionSpeed;
 	//--------------------------------------------------
 
@@ -143,20 +179,44 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SidesInfo, Meta = (ShowOnlyInnerProperties))
 		FSideInfo RightSide;
 
+	/** Set new RightSide info */
+	UFUNCTION(BlueprintCallable, Category = SidesInfo)
+		virtual void SetRightSide(FSideInfo NewRightSide);
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SidesInfo, Meta = (ShowOnlyInnerProperties))
 		FSideInfo LeftSide;
+
+	/** Set new LeftSide info */
+	UFUNCTION(BlueprintCallable, Category = SidesInfo)
+		virtual void SetLeftSide(FSideInfo NewLeftSide);
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SidesInfo, Meta = (ShowOnlyInnerProperties))
 		FSideInfo TopSide;
 
+	/** Set new TopSide info */
+	UFUNCTION(BlueprintCallable, Category = SidesInfo)
+		virtual void SetTopSide(FSideInfo NewTopSide);
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SidesInfo, Meta = (ShowOnlyInnerProperties))
 		FSideInfo BottomSide;
+
+	/** Set new BottomSide info */
+	UFUNCTION(BlueprintCallable, Category = SidesInfo)
+		virtual void SetBottomSide(FSideInfo NewBottomSide);
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SidesInfo, Meta = (ShowOnlyInnerProperties))
 		FSideInfo FrontSide;
 
+	/** Set new FrontSide info */
+	UFUNCTION(BlueprintCallable, Category = SidesInfo)
+		virtual void SetFrontSide(FSideInfo NewFrontSide);
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SidesInfo, Meta = (ShowOnlyInnerProperties))
 		FSideInfo BackSide;
+
+	/** Set new BackSide info */
+	UFUNCTION(BlueprintCallable, Category = SidesInfo)
+		virtual void SetBackSide(FSideInfo NewBackSide);
 	//--------------------------------------------------
 
 	UPROPERTY()

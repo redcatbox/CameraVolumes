@@ -87,11 +87,12 @@ void ACameraVolumeActor::UpdateVolume()
 	CalculateVolumeExtents();
 
 	//Components
+	BoxComponent->SetBoxExtent(VolumeExtent);
+
 #if WITH_EDITORONLY_DATA
 	BillboardComponent->SetRelativeLocation(FVector::ZeroVector);
 	BillboardComponent->SetRelativeScale3D(FVector(5.f, 1.f, 1.f));
 #endif
-	BoxComponent->SetBoxExtent(VolumeExtent);
 
 	if (bUse6DOFVolume)
 	{
@@ -118,7 +119,10 @@ void ACameraVolumeActor::UpdateVolume()
 		//CameraLocation = FVector(0.f, 0.f, 1000.f); //Top-down
 
 	if (!bOverrideCameraRotation)
+	{
 		CameraFocalPoint = FVector::ZeroVector;
+		CameraRoll = 0.f;
+	}
 
 	CameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(CameraLocation, CameraFocalPoint, CameraRoll);
 
@@ -535,3 +539,94 @@ void ACameraVolumeActor::EditorApplyScale(const FVector& DeltaScale, const FVect
 	UpdateVolume();
 }
 #endif
+
+// Runtime setters
+void ACameraVolumeActor::SetVolumeExtent(FVector NewVolumeExtent)
+{
+	VolumeExtent = NewVolumeExtent;
+	UpdateVolume();
+}
+
+void ACameraVolumeActor::SetUseZeroDepthExtent(bool bNewUseZeroDepthExtent)
+{
+	bUseZeroDepthExtent = bNewUseZeroDepthExtent;
+	UpdateVolume();
+}
+
+void ACameraVolumeActor::SetUse6DOFVolume(bool bNewUse6DOFVolume)
+{
+	bUse6DOFVolume = bNewUse6DOFVolume;
+	UpdateVolume();
+}
+
+void ACameraVolumeActor::SetCameraMobility(ECameraMobility NewCameraMobility)
+{
+	CameraMobility = NewCameraMobility;
+	UpdateVolume();
+}
+
+void ACameraVolumeActor::SetOverrideCameraLocation(bool bNewOverrideCameraLocation)
+{
+	bOverrideCameraLocation = bNewOverrideCameraLocation;
+	UpdateVolume();
+}
+
+void ACameraVolumeActor::SetCameraLocation(FVector NewCameraLocation)
+{
+	CameraLocation = NewCameraLocation;
+	UpdateVolume();
+}
+
+void ACameraVolumeActor::SetOverrideCameraRotation(bool bNewOverrideCameraRotation)
+{
+	bOverrideCameraRotation = bNewOverrideCameraRotation;
+	UpdateVolume();
+}
+
+void ACameraVolumeActor::SetCameraFocalPoint(FVector NewCameraFocalPoint)
+{
+	CameraFocalPoint = NewCameraFocalPoint;
+	UpdateVolume();
+}
+
+void ACameraVolumeActor::SetCameraRoll(float NewCameraRoll)
+{
+	CameraRoll = NewCameraRoll;
+	UpdateVolume();
+}
+
+void ACameraVolumeActor::SetRightSide(FSideInfo NewRightSide)
+{
+	RightSide = NewRightSide;
+	CalculateVolumeExtents();
+}
+
+void ACameraVolumeActor::SetLeftSide(FSideInfo NewLeftSide)
+{
+	LeftSide = NewLeftSide;
+	CalculateVolumeExtents();
+}
+
+void ACameraVolumeActor::SetTopSide(FSideInfo NewTopSide)
+{
+	TopSide = NewTopSide;
+	CalculateVolumeExtents();
+}
+
+void ACameraVolumeActor::SetBottomSide(FSideInfo NewBottomSide)
+{
+	BottomSide = NewBottomSide;
+	CalculateVolumeExtents();
+}
+
+void ACameraVolumeActor::SetFrontSide(FSideInfo NewFrontSide)
+{
+	FrontSide = NewFrontSide;
+	CalculateVolumeExtents();
+}
+
+void ACameraVolumeActor::SetBackSide(FSideInfo NewBackSide)
+{
+	BackSide = NewBackSide;
+	CalculateVolumeExtents();
+}
