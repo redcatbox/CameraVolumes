@@ -119,7 +119,10 @@ void ACameraVolumeActor::UpdateVolume()
 		//CameraLocation = FVector(0.f, 0.f, 1000.f); //Top-down
 
 	if (!bOverrideCameraRotation)
+	{
 		CameraFocalPoint = FVector::ZeroVector;
+		CameraRoll = 0.f;
+	}
 
 	CameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(CameraLocation, CameraFocalPoint, CameraRoll);
 

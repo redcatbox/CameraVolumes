@@ -115,7 +115,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera, Meta = (EditCondition = "bOverrideCameraLocation", MakeEditWidget = true))
 		FVector CameraLocation;
 
-	/** Set new bOverrideCameraLocation */
+	/** Set new CameraLocation */
 	UFUNCTION(BlueprintCallable, Category = Camera)
 		virtual void SetCameraLocation(FVector NewCameraLocation);
 
