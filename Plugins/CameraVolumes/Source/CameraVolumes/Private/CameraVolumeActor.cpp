@@ -42,6 +42,7 @@ ACameraVolumeActor::ACameraVolumeActor()
 	bUseZeroDepthExtentEditCond = true;
 	bUseZeroDepthExtent = false;
 	bUse6DOFVolume = false;
+	bPerformCameraBlocking = true;
 
 #if WITH_EDITORONLY_DATA
 	CameraProjectionMode = ECameraProjectionMode::Perspective;
@@ -237,7 +238,7 @@ FSideInfo ACameraVolumeActor::GetSideInfo(ESide Side)
 
 ESide ACameraVolumeActor::GetNearestVolumeSide(FVector& PlayerPawnLocation)
 {
-	ESide NearestSide = ESide::ES_Unknown;
+	ESide NearestSide;
 	TMap<ESide, float> Sides;
 
 	if (bUse6DOFVolume)
@@ -270,31 +271,6 @@ ESide ACameraVolumeActor::GetNearestVolumeSide(FVector& PlayerPawnLocation)
 		NearestSide = Pair.Key;
 		break;
 	}
-
-	//switch (NearestSide)
-	//{
-	//case ESide::ES_Unknown:
-	//	UE_LOG(LogTemp, Log, TEXT("Unknown"));
-	//	break;
-	//case ESide::ES_Front:
-	//	UE_LOG(LogTemp, Log, TEXT("Front"));
-	//	break;
-	//case ESide::ES_Back:
-	//	UE_LOG(LogTemp, Log, TEXT("Back"));
-	//	break;
-	//case ESide::ES_Right:
-	//	UE_LOG(LogTemp, Log, TEXT("Right"));
-	//	break;
-	//case ESide::ES_Left:
-	//	UE_LOG(LogTemp, Log, TEXT("Left"));
-	//	break;
-	//case ESide::ES_Top:
-	//	UE_LOG(LogTemp, Log, TEXT("Top"));
-	//	break;
-	//case ESide::ES_Bottom:
-	//	UE_LOG(LogTemp, Log, TEXT("Bottom"));
-	//	break;
-	//}
 
 	return NearestSide;
 }

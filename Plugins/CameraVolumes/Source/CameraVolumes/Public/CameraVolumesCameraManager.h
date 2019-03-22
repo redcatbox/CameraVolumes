@@ -29,15 +29,15 @@ public:
 	UFUNCTION()
 		virtual void CalcNewCameraParams(ACameraVolumeActor* CameraVolume, float DeltaTime);
 
-	/** Should perform camera calculations? Use this to enable/disable camera updates if it's necessary. */
+	/** Set perform camera calculations? Use this to enable/disable camera updates if it's necessary. */
 	UFUNCTION(BlueprintCallable, Meta = (Category = CameraVolumes))
 		virtual void SetUpdateCamera(bool bNewUpdateCamera);
 
-	/** Should check for camera volumes. Used by Player Character according to overlapping camera volumes. */
+	/** Set check for camera volumes. Used by Player Character according to overlapping camera volumes. */
 	UFUNCTION(BlueprintCallable, Meta = (Category = CameraVolumes))
 		virtual void SetCheckCameraVolumes(bool bNewCheck);
 	
-	/** Should perform camera blocking calculations? */
+	/** Set perform camera blocking calculations */
 	UFUNCTION(BlueprintCallable, Meta = (Category = CameraVolumes))
 		virtual void SetPerformBlockingCalculations(bool bNewPerformBlockingCalculations);
 
@@ -99,4 +99,10 @@ protected:
 
 	UPROPERTY()
 		bool bPerformBlockingCalculations;
+
+	UPROPERTY()
+		bool bBlockingCalculations;
+
+	UFUNCTION()
+		virtual void SelectPerformBlockingCalculations(bool bCameraVolumePerformCameraBlocking);
 };
