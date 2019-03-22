@@ -207,13 +207,13 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 		}
 		else
 		{
+			if (CameraVolume->bOverrideCameraLocation)
+				NewCameraLocation = PlayerPawnLocation + CameraVolume->CameraLocation;
+
 			if (bBlockingCalculations)
 			{
 				// Camera offset is always relative to CameraVolume->GetActorLocation().Y
 				float CameraOffset;
-
-				if (CameraVolume->bOverrideCameraLocation)
-					NewCameraLocation = PlayerPawnLocation + CameraVolume->CameraLocation;
 
 				if (CameraVolume->bCameraLocationRelativeToVolume)
 					CameraOffset = CameraVolume->CameraLocation.Y; //Side-scroller
