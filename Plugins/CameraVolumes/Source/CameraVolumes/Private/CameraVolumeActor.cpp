@@ -112,7 +112,6 @@ void ACameraVolumeActor::UpdateVolume()
 	case ECameraMobility::ECM_Static:
 		bIsCameraStatic = true;
 		bOverrideCameraLocation = true;
-		bPerformCameraBlocking = false;
 		break;
 	}
 
