@@ -37,6 +37,14 @@ void ACameraVolumesCameraManager::SetPerformBlockingCalculations(bool bNewPerfor
 	bPerformBlockingCalculations = bNewPerformBlockingCalculations;
 }
 
+void ACameraVolumesCameraManager::SelectPerformBlockingCalculations(bool bCameraVolumePerformCameraBlocking)
+{
+	if (bPerformBlockingCalculations)
+		bBlockingCalculations = bCameraVolumePerformCameraBlocking;
+	else
+		bBlockingCalculations = bPerformBlockingCalculations;
+}
+
 void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 {
 	if (bUpdateCamera)
@@ -131,6 +139,7 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 								SetTransitionBySideInfo(CameraVolumeCurrent, PassedSideCurrent);
 						}
 
+						SelectPerformBlockingCalculations(CameraVolumeCurrent->bPerformCameraBlocking);
 						CalcNewCameraParams(CameraVolumeCurrent, DeltaTime);
 					}
 					else if (CameraVolumePrevious) // Do we passed from volume to void?
@@ -198,13 +207,13 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 		}
 		else
 		{
-			if (bPerformBlockingCalculations)
+			if (CameraVolume->bOverrideCameraLocation)
+				NewCameraLocation = PlayerPawnLocation + CameraVolume->CameraLocation;
+
+			if (bBlockingCalculations)
 			{
 				// Camera offset is always relative to CameraVolume->GetActorLocation().Y
 				float CameraOffset;
-
-				if (CameraVolume->bOverrideCameraLocation)
-					NewCameraLocation = PlayerPawnLocation + CameraVolume->CameraLocation;
 
 				if (CameraVolume->bCameraLocationRelativeToVolume)
 					CameraOffset = CameraVolume->CameraLocation.Y; //Side-scroller

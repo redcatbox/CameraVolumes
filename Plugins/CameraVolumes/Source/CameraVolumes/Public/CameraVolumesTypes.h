@@ -13,7 +13,6 @@ enum class ECameraMobility : uint8
 UENUM(BlueprintType)
 enum class ESide : uint8
 {
-	ES_Unknown	UMETA(DisplayName = "Unknown"),
 	ES_Front	UMETA(DisplayName = "Front"),
 	ES_Back		UMETA(DisplayName = "Back"),
 	ES_Right	UMETA(DisplayName = "Right"),

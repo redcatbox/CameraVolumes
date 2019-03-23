@@ -29,15 +29,27 @@ public:
 	UFUNCTION()
 		virtual void CalcNewCameraParams(ACameraVolumeActor* CameraVolume, float DeltaTime);
 
-	/** Should perform camera calculations? Use this to enable/disable camera updates if it's necessary. */
+	/** Should perform camera calculations? */
+	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
+		bool bUpdateCamera;
+
+	/** Set perform camera calculations. Use this to enable/disable camera updates if it's necessary. */
 	UFUNCTION(BlueprintCallable, Meta = (Category = CameraVolumes))
 		virtual void SetUpdateCamera(bool bNewUpdateCamera);
 
-	/** Should check for camera volumes. Used by Player Character according to overlapping camera volumes. */
+	/** Should check for camera volumes? */
+	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
+		bool bCheckCameraVolumes;
+
+	/** Set check for camera volumes. Used by Player Character according to overlapping camera volumes. */
 	UFUNCTION(BlueprintCallable, Meta = (Category = CameraVolumes))
 		virtual void SetCheckCameraVolumes(bool bNewCheck);
 	
 	/** Should perform camera blocking calculations? */
+	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
+		bool bPerformBlockingCalculations;
+
+	/** Set perform camera blocking calculations */
 	UFUNCTION(BlueprintCallable, Meta = (Category = CameraVolumes))
 		virtual void SetPerformBlockingCalculations(bool bNewPerformBlockingCalculations);
 
@@ -92,11 +104,8 @@ protected:
 		bool bNeedsCutTransition;
 
 	UPROPERTY()
-		bool bUpdateCamera;
+		bool bBlockingCalculations;
 
-	UPROPERTY()
-		bool bCheckCameraVolumes;
-
-	UPROPERTY()
-		bool bPerformBlockingCalculations;
+	UFUNCTION()
+		virtual void SelectPerformBlockingCalculations(bool bCameraVolumePerformCameraBlocking);
 };
