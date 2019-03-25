@@ -27,7 +27,5 @@ public:
 
 	/** Calculate camera rotation from camera position, focal point, roll, player and camera volume positions */
 	UFUNCTION(BlueprintCallable, Meta = (Category = CameraVolumes))
-		static FQuat CalculateCameraRotationToCharacter(FVector& CameraLocation, FVector& CameraFocalPoint, float CameraRoll, FVector PlayerPawnLocation, FVector CameraVolumeLocation);
-
-	
+		static FQuat CalculateCameraRotationToCharacter(FVector& CameraLocation, FVector& CameraFocalPoint, float CameraRoll, FVector PlayerPawnLocation, FVector CameraVolumeLocation);	
 };

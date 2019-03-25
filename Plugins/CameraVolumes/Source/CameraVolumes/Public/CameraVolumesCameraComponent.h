@@ -106,8 +106,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual void UpdateCameraComponent();
 
-	//Override PostEditChangeProperty
 #if WITH_EDITOR
+	//Override PostEditChangeProperty
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
 

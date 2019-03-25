@@ -3,6 +3,7 @@
 #pragma once
 #include "CameraVolumesTypes.generated.h"
 
+// Camera mobility
 UENUM(BlueprintType)
 enum class ECameraMobility : uint8
 {
@@ -10,6 +11,7 @@ enum class ECameraMobility : uint8
 	ECM_Static	UMETA(DisplayName = "Static")
 };
 
+// Sides
 UENUM(BlueprintType)
 enum class ESide : uint8
 {
@@ -21,7 +23,7 @@ enum class ESide : uint8
 	ES_Bottom	UMETA(DisplayName = "Bottom")
 };
 
-//Side can be Open or Closed
+// Side type (Open or Closed)
 UENUM(BlueprintType)
 enum class ESideType : uint8
 {
@@ -29,7 +31,7 @@ enum class ESideType : uint8
 	EST_Closed	UMETA(DisplayName = "Closed")
 };
 
-//Side Transition can be Smooth or Cut
+// Side Transition Type (Smooth or Cut)
 UENUM(BlueprintType)
 enum class ESideTransitionType : uint8
 {
@@ -38,6 +40,7 @@ enum class ESideTransitionType : uint8
 	ESTT_Cut	UMETA(DisplayName = "Cut")
 };
 
+// Side info
 USTRUCT(BlueprintType)
 struct FSideInfo
 {
