@@ -3,7 +3,7 @@
 /**
 * Camera volume actor stores desired camera parameters and volume information.
 * Calculates camera preview, side indicators and volume extents by itself when updated in Editor.
-* This actor and it's parameters are static in context of this algorithm.
+* This actor and is static in context of this algorithm, but it's parameters can be changed in runtime.
 */
 
 #pragma once
@@ -25,7 +25,6 @@ class CAMERAVOLUMES_API ACameraVolumeActor : public AActor
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
 	ACameraVolumeActor();
 
 protected:
@@ -177,9 +176,8 @@ public:
 	/** Speed of smooth camera transition */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (ClampMin = "0.1", ClampMax = "10.0", UIMin = "0.1", UIMax = "10.0"))
 		float CameraSmoothTransitionSpeed;
-	//--------------------------------------------------
 
-	// Sides info
+	/** Right side info */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SidesInfo, Meta = (ShowOnlyInnerProperties))
 		FSideInfo RightSide;
 
@@ -187,6 +185,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = SidesInfo)
 		virtual void SetRightSide(FSideInfo NewRightSide);
 
+	/** Left side info */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SidesInfo, Meta = (ShowOnlyInnerProperties))
 		FSideInfo LeftSide;
 
@@ -194,6 +193,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = SidesInfo)
 		virtual void SetLeftSide(FSideInfo NewLeftSide);
 
+	/** Top side info */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SidesInfo, Meta = (ShowOnlyInnerProperties))
 		FSideInfo TopSide;
 
@@ -201,6 +201,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = SidesInfo)
 		virtual void SetTopSide(FSideInfo NewTopSide);
 
+	/** Bottom side info */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SidesInfo, Meta = (ShowOnlyInnerProperties))
 		FSideInfo BottomSide;
 
@@ -208,6 +209,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = SidesInfo)
 		virtual void SetBottomSide(FSideInfo NewBottomSide);
 
+	/** Front side info */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SidesInfo, Meta = (ShowOnlyInnerProperties))
 		FSideInfo FrontSide;
 
@@ -215,6 +217,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = SidesInfo)
 		virtual void SetFrontSide(FSideInfo NewFrontSide);
 
+	/** Back side info */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SidesInfo, Meta = (ShowOnlyInnerProperties))
 		FSideInfo BackSide;
 
