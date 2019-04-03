@@ -53,6 +53,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual void SetPerformBlockingCalculations(bool bNewPerformBlockingCalculations);
 
+	/** Calculate screen world extent at depth */
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
+		virtual FVector CalculateScreenWorldExtentAtDepth(float Depth);
+
 protected:
 	UPROPERTY()
 		class UCameraVolumesCameraComponent* CameraComponent;
@@ -62,6 +66,9 @@ protected:
 
 	UPROPERTY()
 		TArray<AActor*> OverlappingActors;
+
+	UPROPERTY()
+		TArray<ACameraVolumeActor*> OverlappingCameraVolumes;
 
 	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
 		class ACameraVolumeActor* CameraVolumeCurrent;

@@ -32,6 +32,11 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 	AdditionalCameraRotation = FRotator::ZeroRotator;
 	AdditionalCameraFOV = 0.f;
 	AdditionalCameraOrthoWidth = 0.f;
+
+	// Collision
+	bDoCollisionTest = false;
+	ProbeSize = 12.0f;
+	ProbeChannel = ECC_Camera;
 }
 
 void UCameraVolumesCameraComponent::UpdateCameraComponent()
