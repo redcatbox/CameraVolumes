@@ -123,9 +123,10 @@ void ACameraVolumeActor::UpdateVolume()
 	{
 		CameraFocalPoint = FVector::ZeroVector;
 		CameraRoll = 0.f;
+		CameraRotation = FRotator(0.f, -90.f, 0.f).Quaternion();
 	}
-
-	CameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(CameraLocation, CameraFocalPoint, CameraRoll);
+	else
+		CameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(CameraLocation, CameraFocalPoint, CameraRoll);
 
 	if (!bOverrideCameraFieldOfView)
 		CameraFieldOfView = 90.f;

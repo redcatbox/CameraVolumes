@@ -363,3 +363,44 @@ void ACameraVolumesCameraManager::SetTransitionBySideInfo(ACameraVolumeActor* Ca
 		bNeedsCutTransition = false;
 	}
 }
+
+FVector ACameraVolumesCameraManager::GetScreenWorldExtentAtDepth(float Depth)
+{
+	FVector ScreenExtentResult = FVector::ZeroVector;
+	APawn* PlayerPawn = GetOwningPlayerController()->GetPawn();
+	if (PlayerPawn)
+	{
+		ICameraVolumesCharacterInterface* PlayerCharacter = Cast<ICameraVolumesCharacterInterface>(PlayerPawn);
+		if (PlayerCharacter)
+		{
+			UCameraVolumesCameraComponent* PlayerCameraComponent = PlayerCharacter->GetCameraComponent();
+			float CameraFOV_OW;
+
+			if (PlayerCameraComponent->GetIsCameraOrthographic())
+			{
+				CameraFOV_OW = PlayerCameraComponent->OrthoWidth;
+				ScreenExtentResult.X = CameraFOV_OW * 0.5f;
+			}
+			else
+			{
+				CameraFOV_OW = PlayerCameraComponent->FieldOfView;
+				ScreenExtentResult.X = FMath::Abs((GetCameraLocation().Y - Depth) * FMath::Tan(FMath::DegreesToRadians(NewCameraFOV_OW * 0.5f))); //Side-scroller
+				//ScreenExtentResult.X = FMath::Abs((GetCameraLocation().Z - Depth) * FMath::Tan(FMath::DegreesToRadians(NewCameraFOV_OW * 0.5f))); //Top-down
+			}
+
+			float ScreenAspectRatio;
+			if (GEngine->GameViewport->Viewport)
+			{
+				const FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
+				ScreenAspectRatio = ViewportSize.X / ViewportSize.Y;
+			}
+			else
+				ScreenAspectRatio = CameraComponent->AspectRatio;
+
+			ScreenExtentResult = FVector(ScreenExtentResult.X, 0.f, ScreenExtentResult.X / ScreenAspectRatio); //Side-scroller
+			//ScreenExtentResult = FVector(ScreenExtentResult.X, ScreenExtentResult.X / ScreenAspectRatio, 0.f); //Top-down
+		}
+	}
+
+	return ScreenExtentResult;
+}

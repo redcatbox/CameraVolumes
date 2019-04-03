@@ -42,7 +42,7 @@ public:
 		bool bCheckCameraVolumes;
 
 	/** Set check for camera volumes. Used by Player Character according to overlapping camera volumes. */
-	UFUNCTION(BlueprintCallable, Meta = (Category = CameraVolumes))
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual void SetCheckCameraVolumes(bool bNewCheck);
 	
 	/** Should perform camera blocking calculations? */
@@ -50,8 +50,12 @@ public:
 		bool bPerformBlockingCalculations;
 
 	/** Set perform camera blocking calculations */
-	UFUNCTION(BlueprintCallable, Meta = (Category = CameraVolumes))
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual void SetPerformBlockingCalculations(bool bNewPerformBlockingCalculations);
+
+	/** Get screen world extent at depth */
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
+		virtual FVector GetScreenWorldExtentAtDepth(float Depth);
 
 protected:
 	UPROPERTY()
