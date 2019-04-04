@@ -287,6 +287,17 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 			if (CameraVolume->bOverrideCameraRotation)
 				NewCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(CameraVolume->CameraLocation, CameraVolume->CameraFocalPoint, CameraVolume->CameraRoll);
 		}
+
+		// Correct camera location and rotation according to volume rotation
+		if (!CameraVolume->GetActorRotation().IsZero())
+		{
+			if (CameraVolume->GetIsCameraStatic())
+				NewCameraLocation = CameraVolume->GetActorLocation() + CameraVolume->GetActorQuat().RotateVector(NewCameraLocation - CameraVolume->GetActorLocation());
+			else
+				NewCameraLocation = PlayerPawnLocation + CameraVolume->GetActorQuat().RotateVector(NewCameraLocation - PlayerPawnLocation);
+
+			NewCameraRotation = CameraVolume->GetActorQuat() * NewCameraRotation;
+		}
 	}
 
 	if (CameraComponent->bUseAdditionalCameraParams)
@@ -364,7 +375,7 @@ void ACameraVolumesCameraManager::SetTransitionBySideInfo(ACameraVolumeActor* Ca
 	}
 }
 
-FVector ACameraVolumesCameraManager::GetScreenWorldExtentAtDepth(float Depth)
+FVector ACameraVolumesCameraManager::CalculateScreenWorldExtentAtDepth(float Depth)
 {
 	FVector ScreenExtentResult = FVector::ZeroVector;
 	APawn* PlayerPawn = GetOwningPlayerController()->GetPawn();

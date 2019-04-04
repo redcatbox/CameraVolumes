@@ -37,7 +37,7 @@ ACameraVolumeActor::ACameraVolumeActor()
 
 	// Default values
 	Priority = 0;
-	VolumeExtent = FVector(500.f, 500.f, 500.f);
+	VolumeExtent = VolumeExtentDefault;
 
 	bUseZeroDepthExtentEditCond = true;
 	bUseZeroDepthExtent = false;
@@ -81,7 +81,7 @@ ACameraVolumeActor::ACameraVolumeActor()
 void ACameraVolumeActor::UpdateVolume()
 {
 	//Reset actor rotation and scale
-	SetActorRotation(FRotator::ZeroRotator);
+	//SetActorRotation(FRotator::ZeroRotator);
 	SetActorScale3D(FVector::OneVector);
 
 	//Extents
@@ -513,7 +513,23 @@ void ACameraVolumeActor::EditorApplyRotation(const FRotator& DeltaRotation, bool
 void ACameraVolumeActor::EditorApplyScale(const FVector& DeltaScale, const FVector* PivotLocation, bool bAltDown, bool bShiftDown, bool bCtrlDown)
 {
 	Super::EditorApplyScale(DeltaScale, PivotLocation, bAltDown, bShiftDown, bCtrlDown);
+
+	FVector CurrentScale = VolumeExtent / VolumeExtentDefault;
+	FVector ScaleToApply;
+
+	if (AActor::bUsePercentageBasedScaling)
+		ScaleToApply = CurrentScale * (FVector::OneVector + DeltaScale);
+	else
+		ScaleToApply = CurrentScale + DeltaScale;
+
+	VolumeExtent = VolumeExtentDefault * ScaleToApply;
 	UpdateVolume();
+}
+
+void ACameraVolumeActor::EditorApplyMirror(const FVector& MirrorScale, const FVector& PivotLocation)
+{
+	Super::EditorApplyMirror(MirrorScale, PivotLocation);
+	SetActorScale3D(FVector::OneVector);
 }
 #endif
 

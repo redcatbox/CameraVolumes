@@ -262,6 +262,7 @@ public:
 
 protected:
 	const float OpenEdgeOffset = 10000.f;
+	const FVector VolumeExtentDefault = FVector(500.f, 500.f, 500.f);
 
 #if WITH_EDITOR
 	UFUNCTION()
@@ -278,7 +279,7 @@ protected:
 
 public:
 	/** Text size of sides indicators. */
-	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = Camera)
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = Volume)
 		float TextSize;
 
 protected:
@@ -302,5 +303,6 @@ public:
 	virtual void EditorApplyTranslation(const FVector& DeltaTranslation, bool bAltDown, bool bShiftDown, bool bCtrlDown) override;
 	virtual void EditorApplyRotation(const FRotator& DeltaRotation, bool bAltDown, bool bShiftDown, bool bCtrlDown) override;
 	virtual void EditorApplyScale(const FVector& DeltaScale, const FVector* PivotLocation, bool bAltDown, bool bShiftDown, bool bCtrlDown) override;
+	virtual void EditorApplyMirror(const FVector& MirrorScale, const FVector& PivotLocation) override;
 #endif
 };

@@ -12,7 +12,7 @@
 #include "CameraVolumesFunctionLibrary.h"
 #include "CameraVolumesCameraManager.generated.h"
 
-UCLASS()
+UCLASS(Config = CameraVolumes)
 class CAMERAVOLUMES_API ACameraVolumesCameraManager : public APlayerCameraManager
 {
 	GENERATED_BODY()
@@ -46,16 +46,16 @@ public:
 		virtual void SetCheckCameraVolumes(bool bNewCheck);
 	
 	/** Should perform camera blocking calculations? */
-	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = CameraVolumes)
 		bool bPerformBlockingCalculations;
 
 	/** Set perform camera blocking calculations */
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual void SetPerformBlockingCalculations(bool bNewPerformBlockingCalculations);
 
-	/** Get screen world extent at depth */
+	/** Calculate screen world extent at depth */
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-		virtual FVector GetScreenWorldExtentAtDepth(float Depth);
+		virtual FVector CalculateScreenWorldExtentAtDepth(float Depth);
 
 protected:
 	UPROPERTY()

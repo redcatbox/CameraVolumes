@@ -10,6 +10,7 @@ ATwoPlayerCharacter::ATwoPlayerCharacter()
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(25.f, 25.f);
+	GetCapsuleComponent()->bHiddenInGame = false;
 
 	// Camera lag
 	GetCameraComponent()->bEnableCameraLocationLag = true;
