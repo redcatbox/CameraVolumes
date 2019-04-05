@@ -68,6 +68,7 @@ ACameraVolumeActor::ACameraVolumeActor()
 	CameraSmoothTransitionSpeed = 1.f;
 
 #if WITH_EDITORONLY_DATA
+	IndicatorsLocation = ESideIndicatorsLocation::ESIL_Edge;
 	TextSize = 50.f;
 #endif
 
@@ -239,7 +240,7 @@ FSideInfo ACameraVolumeActor::GetSideInfo(ESide Side)
 
 ESide ACameraVolumeActor::GetNearestVolumeSide(FVector& PlayerPawnLocation)
 {
-	ESide NearestSide;
+	ESide NearestSide = ESide::ES_Bottom;
 	TMap<ESide, float> Sides;
 
 	if (bUse6DOFVolume)
@@ -304,6 +305,18 @@ void ACameraVolumeActor::CreateSidesIndicators()
 
 void ACameraVolumeActor::UpdateSidesIndicators()
 {
+	switch (IndicatorsLocation)
+	{
+	case ESideIndicatorsLocation::ESIL_Edge:
+
+		break;
+	case ESideIndicatorsLocation::ESIL_Side:
+
+		break;
+	default:
+		break;
+	}
+
 	//Priority
 	Text_Indicators[0]->SetText(FText::FromString(FString::FromInt(Priority)));
 	Text_Indicators[0]->SetWorldSize(2.f * TextSize);

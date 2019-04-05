@@ -10,7 +10,9 @@ ATwoPlayerCharacter::ATwoPlayerCharacter()
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(25.f, 25.f);
-	GetCapsuleComponent()->bHiddenInGame = false;
+	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Overlap);
+	//GetCapsuleComponent()->bHiddenInGame = false;
 
 	// Camera lag
 	GetCameraComponent()->bEnableCameraLocationLag = true;

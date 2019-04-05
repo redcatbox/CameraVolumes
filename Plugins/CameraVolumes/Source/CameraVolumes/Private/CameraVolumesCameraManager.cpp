@@ -9,6 +9,7 @@ ACameraVolumesCameraManager::ACameraVolumesCameraManager()
 	bUpdateCamera = true;
 	bCheckCameraVolumes = true;
 	bPerformBlockingCalculations = true;
+	bUseSimpleOverlappingCalculations = false;
 	CameraVolumePrevious = nullptr;
 	CameraVolumeCurrent = nullptr;
 	OldCameraLocation = FVector::ZeroVector;
@@ -45,6 +46,11 @@ void ACameraVolumesCameraManager::SelectPerformBlockingCalculations(bool bCamera
 		bBlockingCalculations = bPerformBlockingCalculations;
 }
 
+void ACameraVolumesCameraManager::SetUseSimpleOverlappingCalculations(bool bNewUseSimpleOverlappingCalculations)
+{
+	bUseSimpleOverlappingCalculations = bNewUseSimpleOverlappingCalculations;
+}
+
 void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 {
 	if (bUpdateCamera)
@@ -76,7 +82,7 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 				{
 					// Try to get overlapping camera volumes stored in camera component
 					if (CameraComponent->OverlappingCameraVolumes.Num() > 0)
-						CameraVolumeCurrent = UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(CameraComponent->OverlappingCameraVolumes, PlayerPawnLocation);
+						OverlappingCameraVolumes = CameraComponent->OverlappingCameraVolumes;
 					// Try to get camera volumes from actors overlapping pawn
 					else
 					{
@@ -84,19 +90,25 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 						PlayerPawn->GetOverlappingActors(OverlappingActors, ACameraVolumeActor::StaticClass());
 						if (OverlappingActors.Num() > 0)
 						{
-							TArray<ACameraVolumeActor*> OverlappingCameraVolumes;
 							for (AActor* Actor : OverlappingActors)
 							{
 								ACameraVolumeActor* CameraVolume = Cast<ACameraVolumeActor>(Actor);
 								if (CameraVolume)
 									OverlappingCameraVolumes.Add(CameraVolume);
 							}
-							CameraVolumeCurrent = UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(OverlappingCameraVolumes, PlayerPawnLocation);
 						}
 						else
 							bCheckCameraVolumes = false;
 						// There are no camera volumes overlapping character at this time,
 						// so we don't need this check until player pawn overlap some camera volume again.
+					}
+
+					if (OverlappingCameraVolumes.Num() > 0)
+					{
+						if (bUseSimpleOverlappingCalculations)
+							CameraVolumeCurrent = UCameraVolumesFunctionLibrary::GetCurrentCameraVolumeSimple(OverlappingCameraVolumes);
+						else
+							CameraVolumeCurrent = UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(OverlappingCameraVolumes, PlayerPawnLocation);
 					}
 
 					if (CameraVolumeCurrent)

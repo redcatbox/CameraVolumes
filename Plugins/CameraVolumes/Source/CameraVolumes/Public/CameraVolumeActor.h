@@ -174,7 +174,7 @@ public:
 		float CameraOrthoWidth;
 
 	/** Speed of smooth camera transition */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (ClampMin = "0.1", ClampMax = "10.0", UIMin = "0.1", UIMax = "10.0"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SidesInfo, Meta = (ClampMin = "0.1", ClampMax = "10.0", UIMin = "0.1", UIMax = "10.0"))
 		float CameraSmoothTransitionSpeed;
 
 	/** Right side info */
@@ -278,8 +278,12 @@ protected:
 		TArray<UTextRenderComponent*> Text_Indicators;
 
 public:
+	/** Location of sides indicators. */
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = SidesIndicators)
+		ESideIndicatorsLocation IndicatorsLocation;
+
 	/** Text size of sides indicators. */
-	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = Volume)
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = SidesIndicators)
 		float TextSize;
 
 protected:
