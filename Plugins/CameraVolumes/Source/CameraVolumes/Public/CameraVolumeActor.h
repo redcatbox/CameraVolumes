@@ -278,15 +278,6 @@ protected:
 		TArray<UTextRenderComponent*> Text_Indicators;
 
 public:
-	/** Location of sides indicators. */
-	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = SidesInfo)
-		ESideIndicatorsLocation IndicatorsLocation;
-
-protected:
-	UPROPERTY()
-		bool bIndicatorsLocationOnSide;
-
-public:
 	/** Text size of sides indicators. */
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = SidesInfo)
 		float TextSize;

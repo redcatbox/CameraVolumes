@@ -34,7 +34,7 @@ public:
 		bool bUpdateCamera;
 
 	/** Set perform camera calculations. Use this to enable/disable camera updates if it's necessary. */
-	UFUNCTION(BlueprintCallable, Meta = (Category = CameraVolumes))
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual void SetUpdateCamera(bool bNewUpdateCamera);
 
 	/** Should check for camera volumes? */

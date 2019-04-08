@@ -64,11 +64,3 @@ struct FSideInfo
 		this->SideTransitionType = SideTransitionType;
 	}
 };
-
-// Side indicators location option
-UENUM(BlueprintType)
-enum class ESideIndicatorsLocation : uint8
-{
-	ESIL_Edge	UMETA(DisplayName = "Edge"),
-	ESIL_Side	UMETA(DisplayName = "Side")
-};
