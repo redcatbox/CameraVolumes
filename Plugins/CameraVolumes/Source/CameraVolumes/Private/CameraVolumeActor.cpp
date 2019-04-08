@@ -231,6 +231,10 @@ FSideInfo ACameraVolumeActor::GetSideInfo(ESide Side)
 	case ESide::ES_Bottom:
 		return BottomSide;
 		break;
+	default:
+		UE_LOG(LogTemp, Warning, TEXT("Unknown side type! Using SideInfo(Open, Normal)"))
+		return FSideInfo();
+		break;
 	}
 }
 
