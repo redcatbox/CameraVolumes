@@ -29,27 +29,34 @@ ACameraVolumeActor* UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(TArray
 	{
 		if (CameraVolume)
 		{
-			if (CameraVolume->bUse6DOFVolume)
+			if (CameraVolume->GetActorRotation().IsZero())
 			{
-				Condition = CameraVolume->CamVolWorldMin.X < PlayerPawnLocation.X
-					&& PlayerPawnLocation.X < CameraVolume->CamVolWorldMax.X
-					&& CameraVolume->CamVolWorldMin.Y < PlayerPawnLocation.Y
-					&& PlayerPawnLocation.Y < CameraVolume->CamVolWorldMax.Y
-					&& CameraVolume->CamVolWorldMin.Z < PlayerPawnLocation.Z
-					&& PlayerPawnLocation.Z < CameraVolume->CamVolWorldMax.Z;
+				if (CameraVolume->bUse6DOFVolume)
+				{
+					Condition = CameraVolume->CamVolWorldMin.X < PlayerPawnLocation.X
+						&& PlayerPawnLocation.X < CameraVolume->CamVolWorldMax.X
+						&& CameraVolume->CamVolWorldMin.Y < PlayerPawnLocation.Y
+						&& PlayerPawnLocation.Y < CameraVolume->CamVolWorldMax.Y
+						&& CameraVolume->CamVolWorldMin.Z < PlayerPawnLocation.Z
+						&& PlayerPawnLocation.Z < CameraVolume->CamVolWorldMax.Z;
+				}
+				else
+				{
+					//Side-scroller
+					Condition = CameraVolume->CamVolWorldMin.X < PlayerPawnLocation.X
+						&& PlayerPawnLocation.X < CameraVolume->CamVolWorldMax.X
+						&& CameraVolume->CamVolWorldMin.Z < PlayerPawnLocation.Z
+						&& PlayerPawnLocation.Z < CameraVolume->CamVolWorldMax.Z;
+					//Top-down
+					//Condition = CameraVolume->CamVolWorldMin.X < PlayerPawnLocation.X
+					//	&& PlayerPawnLocation.X < CameraVolume->CamVolWorldMax.X
+					//	&& CameraVolume->CamVolWorldMin.Y < PlayerPawnLocation.Y
+					//	&& PlayerPawnLocation.Y < CameraVolume->CamVolWorldMax.Y;
+				}
 			}
 			else
 			{
-				//Side-scroller
-				Condition = CameraVolume->CamVolWorldMin.X < PlayerPawnLocation.X
-					&& PlayerPawnLocation.X < CameraVolume->CamVolWorldMax.X
-					&& CameraVolume->CamVolWorldMin.Z < PlayerPawnLocation.Z
-					&& PlayerPawnLocation.Z < CameraVolume->CamVolWorldMax.Z;
-				//Top-down
-				//Condition = CameraVolume->CamVolWorldMin.X < PlayerPawnLocation.X
-				//	&& PlayerPawnLocation.X < CameraVolume->CamVolWorldMax.X
-				//	&& CameraVolume->CamVolWorldMin.Y < PlayerPawnLocation.Y
-				//	&& PlayerPawnLocation.Y < CameraVolume->CamVolWorldMax.Y;
+				Condition = false;
 			}
 
 			if (Condition && (CameraVolume->Priority > MaxPriorityIndex))
