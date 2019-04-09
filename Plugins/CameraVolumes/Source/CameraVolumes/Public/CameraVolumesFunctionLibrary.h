@@ -13,10 +13,6 @@ class CAMERAVOLUMES_API UCameraVolumesFunctionLibrary : public UBlueprintFunctio
 	GENERATED_BODY()
 	
 public:
-	/** Get current camera volume from array of volumes according to 6 sides and priority */
-	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-		static ACameraVolumeActor* GetCurrentCameraVolumeSimple(TArray<ACameraVolumeActor*> CameraVolumes);
-
 	/** Get current camera volume from array of volumes according to 6 sides, priority and coordinates */
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		static ACameraVolumeActor* GetCurrentCameraVolume(TArray<ACameraVolumeActor*> CameraVolumes, FVector& PlayerPawnLocation);

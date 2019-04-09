@@ -53,14 +53,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual void SetPerformBlockingCalculations(bool bNewPerformBlockingCalculations);
 
-	/** Should use simple overlapping calculations? */
-	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = CameraVolumes)
-		bool bUseSimpleOverlappingCalculations;
-
-	/** Set use simple overlapping calculations */
-	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-		virtual void SetUseSimpleOverlappingCalculations(bool bNewUseSimpleOverlappingCalculations);
-
 	/** Calculate screen world extent at depth */
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual FVector CalculateScreenWorldExtentAtDepth(float Depth);

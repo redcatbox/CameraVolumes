@@ -232,7 +232,7 @@ FSideInfo ACameraVolumeActor::GetSideInfo(ESide Side)
 		break;
 	default:
 		UE_LOG(LogTemp, Warning, TEXT("Unknown side type! Using SideInfo(Open, Normal)"))
-		return FSideInfo();
+			return FSideInfo();
 		break;
 	}
 }
@@ -242,27 +242,57 @@ ESide ACameraVolumeActor::GetNearestVolumeSide(FVector& PlayerPawnLocation)
 	ESide NearestSide = ESide::ES_Bottom;
 	TMap<ESide, float> Sides;
 
-	if (bUse6DOFVolume)
+	if (GetActorRotation().IsZero())
 	{
-		Sides.Add(ESide::ES_Front, FMath::Abs(PlayerPawnLocation.Y - CamVolWorldMax.Y));
-		Sides.Add(ESide::ES_Back, FMath::Abs(PlayerPawnLocation.Y - CamVolWorldMin.Y));
-		Sides.Add(ESide::ES_Right, FMath::Abs(PlayerPawnLocation.X - CamVolWorldMax.X));
-		Sides.Add(ESide::ES_Left, FMath::Abs(PlayerPawnLocation.X - CamVolWorldMin.X));
-		Sides.Add(ESide::ES_Top, FMath::Abs(PlayerPawnLocation.Z - CamVolWorldMax.Z));
-		Sides.Add(ESide::ES_Bottom, FMath::Abs(PlayerPawnLocation.Z - CamVolWorldMin.Z));
+		if (bUse6DOFVolume)
+		{
+			Sides.Add(ESide::ES_Front, FMath::Abs(PlayerPawnLocation.Y - CamVolWorldMax.Y));
+			Sides.Add(ESide::ES_Back, FMath::Abs(PlayerPawnLocation.Y - CamVolWorldMin.Y));
+			Sides.Add(ESide::ES_Right, FMath::Abs(PlayerPawnLocation.X - CamVolWorldMax.X));
+			Sides.Add(ESide::ES_Left, FMath::Abs(PlayerPawnLocation.X - CamVolWorldMin.X));
+			Sides.Add(ESide::ES_Top, FMath::Abs(PlayerPawnLocation.Z - CamVolWorldMax.Z));
+			Sides.Add(ESide::ES_Bottom, FMath::Abs(PlayerPawnLocation.Z - CamVolWorldMin.Z));
+		}
+		else
+		{
+			//Side-scroller
+			Sides.Add(ESide::ES_Right, FMath::Abs(PlayerPawnLocation.X - CamVolWorldMax.X));
+			Sides.Add(ESide::ES_Left, FMath::Abs(PlayerPawnLocation.X - CamVolWorldMin.X));
+			Sides.Add(ESide::ES_Top, FMath::Abs(PlayerPawnLocation.Z - CamVolWorldMax.Z));
+			Sides.Add(ESide::ES_Bottom, FMath::Abs(PlayerPawnLocation.Z - CamVolWorldMin.Z));
+			//Top-down
+			//Sides.Add(ESide::ES_Front, FMath::Abs(PlayerPawnLocation.Y - CamVolWorldMax.Y));
+			//Sides.Add(ESide::ES_Back, FMath::Abs(PlayerPawnLocation.Y - CamVolWorldMin.Y));
+			//Sides.Add(ESide::ES_Right, FMath::Abs(PlayerPawnLocation.X - CamVolWorldMax.X));
+			//Sides.Add(ESide::ES_Left, FMath::Abs(PlayerPawnLocation.X - CamVolWorldMin.X));
+		}
 	}
 	else
 	{
-		//Side-scroller
-		Sides.Add(ESide::ES_Right, FMath::Abs(PlayerPawnLocation.X - CamVolWorldMax.X));
-		Sides.Add(ESide::ES_Left, FMath::Abs(PlayerPawnLocation.X - CamVolWorldMin.X));
-		Sides.Add(ESide::ES_Top, FMath::Abs(PlayerPawnLocation.Z - CamVolWorldMax.Z));
-		Sides.Add(ESide::ES_Bottom, FMath::Abs(PlayerPawnLocation.Z - CamVolWorldMin.Z));
-		//Top-down
-		//Sides.Add(ESide::ES_Front, FMath::Abs(PlayerPawnLocation.Y - CamVolWorldMax.Y));
-		//Sides.Add(ESide::ES_Back, FMath::Abs(PlayerPawnLocation.Y - CamVolWorldMin.Y));
-		//Sides.Add(ESide::ES_Right, FMath::Abs(PlayerPawnLocation.X - CamVolWorldMax.X));
-		//Sides.Add(ESide::ES_Left, FMath::Abs(PlayerPawnLocation.X - CamVolWorldMin.X));
+		FVector PlayerPawnLocationTransformed = GetActorTransform().InverseTransformPositionNoScale(PlayerPawnLocation);
+
+		if (bUse6DOFVolume)
+		{
+			Sides.Add(ESide::ES_Front, FMath::Abs(PlayerPawnLocationTransformed.Y - VolumeExtent.Y));
+			Sides.Add(ESide::ES_Back, FMath::Abs(PlayerPawnLocationTransformed.Y + VolumeExtent.Y));
+			Sides.Add(ESide::ES_Right, FMath::Abs(PlayerPawnLocationTransformed.X - VolumeExtent.X));
+			Sides.Add(ESide::ES_Left, FMath::Abs(PlayerPawnLocationTransformed.X + VolumeExtent.X));
+			Sides.Add(ESide::ES_Top, FMath::Abs(PlayerPawnLocationTransformed.Z - VolumeExtent.Z));
+			Sides.Add(ESide::ES_Bottom, FMath::Abs(PlayerPawnLocationTransformed.Z + VolumeExtent.Z));
+		}
+		else
+		{
+			//Side-scroller
+			Sides.Add(ESide::ES_Right, FMath::Abs(PlayerPawnLocationTransformed.X - VolumeExtent.X));
+			Sides.Add(ESide::ES_Left, FMath::Abs(PlayerPawnLocationTransformed.X + VolumeExtent.X));
+			Sides.Add(ESide::ES_Top, FMath::Abs(PlayerPawnLocationTransformed.Z - VolumeExtent.Z));
+			Sides.Add(ESide::ES_Bottom, FMath::Abs(PlayerPawnLocationTransformed.Z + VolumeExtent.Z));
+			//Top-down
+			//Sides.Add(ESide::ES_Front, FMath::Abs(PlayerPawnLocationTransformed.Y - VolumeExtent.Y));
+			//Sides.Add(ESide::ES_Back, FMath::Abs(PlayerPawnLocationTransformed.Y + VolumeExtent.Y));
+			//Sides.Add(ESide::ES_Right, FMath::Abs(PlayerPawnLocationTransformed.X - VolumeExtent.X));
+			//Sides.Add(ESide::ES_Left, FMath::Abs(PlayerPawnLocationTransformed.X + VolumeExtent.X));
+		}
 	}
 
 	Sides.ValueSort([](float Min, float Max) { return Min < Max; });

@@ -9,7 +9,6 @@ ACameraVolumesCameraManager::ACameraVolumesCameraManager()
 	bUpdateCamera = true;
 	bCheckCameraVolumes = true;
 	bPerformBlockingCalculations = true;
-	bUseSimpleOverlappingCalculations = false;
 	CameraVolumePrevious = nullptr;
 	CameraVolumeCurrent = nullptr;
 	OldCameraLocation = FVector::ZeroVector;
@@ -46,11 +45,6 @@ void ACameraVolumesCameraManager::SelectPerformBlockingCalculations(bool bCamera
 		bBlockingCalculations = bPerformBlockingCalculations;
 }
 
-void ACameraVolumesCameraManager::SetUseSimpleOverlappingCalculations(bool bNewUseSimpleOverlappingCalculations)
-{
-	bUseSimpleOverlappingCalculations = bNewUseSimpleOverlappingCalculations;
-}
-
 void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 {
 	if (bUpdateCamera)
@@ -82,7 +76,9 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 				{
 					// Try to get overlapping camera volumes stored in camera component
 					if (CameraComponent->OverlappingCameraVolumes.Num() > 0)
-						OverlappingCameraVolumes = CameraComponent->OverlappingCameraVolumes;
+					{
+						CameraVolumeCurrent = UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(CameraComponent->OverlappingCameraVolumes, PlayerPawnLocation);
+					}
 					// Try to get camera volumes from actors overlapping pawn
 					else
 					{
@@ -90,25 +86,20 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 						PlayerPawn->GetOverlappingActors(OverlappingActors, ACameraVolumeActor::StaticClass());
 						if (OverlappingActors.Num() > 0)
 						{
+							OverlappingCameraVolumes.Empty();
+
 							for (AActor* Actor : OverlappingActors)
 							{
 								ACameraVolumeActor* CameraVolume = Cast<ACameraVolumeActor>(Actor);
-								if (CameraVolume)
-									OverlappingCameraVolumes.Add(CameraVolume);
+								OverlappingCameraVolumes.Add(CameraVolume);
 							}
+
+							CameraVolumeCurrent = UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(OverlappingCameraVolumes, PlayerPawnLocation);
 						}
 						else
 							bCheckCameraVolumes = false;
 						// There are no camera volumes overlapping character at this time,
 						// so we don't need this check until player pawn overlap some camera volume again.
-					}
-
-					if (OverlappingCameraVolumes.Num() > 0)
-					{
-						if (bUseSimpleOverlappingCalculations)
-							CameraVolumeCurrent = UCameraVolumesFunctionLibrary::GetCurrentCameraVolumeSimple(OverlappingCameraVolumes);
-						else
-							CameraVolumeCurrent = UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(OverlappingCameraVolumes, PlayerPawnLocation);
 					}
 
 					if (CameraVolumeCurrent)
@@ -210,12 +201,28 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 		// Location and Rotation
 		if (CameraVolume->GetIsCameraStatic())
 		{
-			NewCameraLocation = CameraVolume->GetActorLocation() + CameraVolume->CameraLocation;
+			if (CameraVolume->GetActorRotation().IsZero())
+			{
+				NewCameraLocation = CameraVolume->GetActorLocation() + CameraVolume->CameraLocation;
 
-			if (CameraVolume->bFocalPointIsPlayer)
-				NewCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotationToCharacter(CameraVolume->CameraLocation, CameraVolume->CameraFocalPoint, CameraVolume->CameraRoll, PlayerPawnLocation, CameraVolume->GetActorLocation());
+				if (CameraVolume->bFocalPointIsPlayer)
+					NewCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotationToCharacter(CameraVolume->CameraLocation, CameraVolume->CameraFocalPoint, CameraVolume->CameraRoll, PlayerPawnLocation, CameraVolume->GetActorLocation());
+				else
+					NewCameraRotation = CameraVolume->CameraRotation;
+			}
 			else
-				NewCameraRotation = CameraVolume->CameraRotation;
+			{
+				NewCameraLocation = CameraVolume->GetActorLocation() + CameraVolume->GetActorQuat().RotateVector(CameraVolume->CameraLocation);
+
+				if (CameraVolume->bFocalPointIsPlayer)
+				{
+					FVector CameraLocationRotated = CameraVolume->GetActorQuat().RotateVector(CameraVolume->CameraLocation);
+					FVector CameraFocalPointRotated = CameraVolume->GetActorQuat().RotateVector(CameraVolume->CameraFocalPoint);
+					NewCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotationToCharacter(CameraLocationRotated, CameraFocalPointRotated, CameraVolume->CameraRoll, PlayerPawnLocation, CameraVolume->GetActorLocation());
+				}
+				else
+					NewCameraRotation = CameraVolume->GetActorQuat() * CameraVolume->CameraRotation;
+			}
 		}
 		else
 		{
@@ -283,32 +290,39 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 				FVector ScreenWorldMax = NewCamVolWorldMaxCorrected - ScreenExtent;
 
 				// New camera location
-				//Side-scroller
-				NewCameraLocation = FVector(
-					FMath::Clamp(NewCameraLocation.X, ScreenWorldMin.X, ScreenWorldMax.X),
-					CameraOffset + CameraVolume->GetActorLocation().Y,
-					FMath::Clamp(NewCameraLocation.Z, ScreenWorldMin.Z, ScreenWorldMax.Z));
-				//Top-down
-				//NewCameraLocation = FVector(
-				//	FMath::Clamp(NewCameraLocation.X, ScreenWorldMin.X, ScreenWorldMax.X),
-				//	FMath::Clamp(NewCameraLocation.Y, ScreenWorldMin.Y, ScreenWorldMax.Y),
-				//	CameraOffset + CameraVolume->GetActorLocation().Z);
+				if (CameraVolume->GetActorRotation().IsZero())
+				{
+					//Side-scroller
+					NewCameraLocation = FVector(
+						FMath::Clamp(NewCameraLocation.X, ScreenWorldMin.X, ScreenWorldMax.X),
+						CameraOffset + CameraVolume->GetActorLocation().Y,
+						FMath::Clamp(NewCameraLocation.Z, ScreenWorldMin.Z, ScreenWorldMax.Z));
+					//Top-down
+					//NewCameraLocation = FVector(
+					//	FMath::Clamp(NewCameraLocation.X, ScreenWorldMin.X, ScreenWorldMax.X),
+					//	FMath::Clamp(NewCameraLocation.Y, ScreenWorldMin.Y, ScreenWorldMax.Y),
+					//	CameraOffset + CameraVolume->GetActorLocation().Z);
+				}
+				else
+				{
+					FVector PlayerPawnLocationRotated = CameraVolume->GetActorTransform().InverseTransformPositionNoScale(PlayerPawnLocation);
+					float RotatedLocationDelta = PlayerPawnLocationRotated.X - CameraVolume->GetActorLocation().X;
+
+					NewCameraLocation = PlayerPawnLocation + CameraVolume->GetActorQuat().RotateVector(NewCameraLocation - PlayerPawnLocation);
+
+					NewCameraLocation = FVector(
+						FMath::Clamp(NewCameraLocation.X, ScreenWorldMin.X, ScreenWorldMax.X),
+						CameraOffset + CameraVolume->GetActorLocation().Y,
+						FMath::Clamp(NewCameraLocation.Z, ScreenWorldMin.Z, ScreenWorldMax.Z));
+				}
 			}
 
 			// New camera rotation
 			if (CameraVolume->bOverrideCameraRotation)
 				NewCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(CameraVolume->CameraLocation, CameraVolume->CameraFocalPoint, CameraVolume->CameraRoll);
-		}
-
-		// Correct camera location and rotation according to volume rotation
-		if (!CameraVolume->GetActorRotation().IsZero())
-		{
-			if (CameraVolume->GetIsCameraStatic())
-				NewCameraLocation = CameraVolume->GetActorLocation() + CameraVolume->GetActorQuat().RotateVector(NewCameraLocation - CameraVolume->GetActorLocation());
-			else
-				NewCameraLocation = PlayerPawnLocation + CameraVolume->GetActorQuat().RotateVector(NewCameraLocation - PlayerPawnLocation);
-
-			NewCameraRotation = CameraVolume->GetActorQuat() * NewCameraRotation;
+			// Correct to volume rotation
+			if (!CameraVolume->GetActorRotation().IsZero())
+				NewCameraRotation *= CameraVolume->GetActorQuat();
 		}
 	}
 
@@ -342,6 +356,7 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 	{
 		bNeedsSmoothTransition = false;
 		bNeedsCutTransition = false;
+		bGameCameraCutThisFrame = true;
 	}
 	else
 	{

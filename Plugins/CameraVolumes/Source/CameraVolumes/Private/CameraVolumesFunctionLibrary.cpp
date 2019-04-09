@@ -1,23 +1,7 @@
 //Dmitriy Barannik aka redbox, 2019
 
 #include "CameraVolumesFunctionLibrary.h"
-
-ACameraVolumeActor* UCameraVolumesFunctionLibrary::GetCurrentCameraVolumeSimple(TArray<ACameraVolumeActor*> CameraVolumes)
-{
-	ACameraVolumeActor* Result = nullptr;
-	int8 MaxPriorityIndex = -101; // this is clamped (-100, 100) in ACameraVolumeActor->Priority
-
-	for (ACameraVolumeActor* CameraVolume : CameraVolumes)
-	{
-		if (CameraVolume && (CameraVolume->Priority > MaxPriorityIndex))
-		{
-			MaxPriorityIndex = CameraVolume->Priority;
-			Result = CameraVolume;
-		}
-	}
-
-	return Result;
-}
+#include "DrawDebugHelpers.h"
 
 ACameraVolumeActor* UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(TArray<ACameraVolumeActor*> CameraVolumes, FVector& PlayerPawnLocation)
 {
@@ -34,29 +18,52 @@ ACameraVolumeActor* UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(TArray
 				if (CameraVolume->bUse6DOFVolume)
 				{
 					Condition = CameraVolume->CamVolWorldMin.X < PlayerPawnLocation.X
-						&& PlayerPawnLocation.X < CameraVolume->CamVolWorldMax.X
+						&& PlayerPawnLocation.X <= CameraVolume->CamVolWorldMax.X
 						&& CameraVolume->CamVolWorldMin.Y < PlayerPawnLocation.Y
-						&& PlayerPawnLocation.Y < CameraVolume->CamVolWorldMax.Y
+						&& PlayerPawnLocation.Y <= CameraVolume->CamVolWorldMax.Y
 						&& CameraVolume->CamVolWorldMin.Z < PlayerPawnLocation.Z
-						&& PlayerPawnLocation.Z < CameraVolume->CamVolWorldMax.Z;
+						&& PlayerPawnLocation.Z <= CameraVolume->CamVolWorldMax.Z;
 				}
 				else
 				{
 					//Side-scroller
 					Condition = CameraVolume->CamVolWorldMin.X < PlayerPawnLocation.X
-						&& PlayerPawnLocation.X < CameraVolume->CamVolWorldMax.X
+						&& PlayerPawnLocation.X <= CameraVolume->CamVolWorldMax.X
 						&& CameraVolume->CamVolWorldMin.Z < PlayerPawnLocation.Z
-						&& PlayerPawnLocation.Z < CameraVolume->CamVolWorldMax.Z;
+						&& PlayerPawnLocation.Z <= CameraVolume->CamVolWorldMax.Z;
 					//Top-down
 					//Condition = CameraVolume->CamVolWorldMin.X < PlayerPawnLocation.X
-					//	&& PlayerPawnLocation.X < CameraVolume->CamVolWorldMax.X
+					//	&& PlayerPawnLocation.X <= CameraVolume->CamVolWorldMax.X
 					//	&& CameraVolume->CamVolWorldMin.Y < PlayerPawnLocation.Y
-					//	&& PlayerPawnLocation.Y < CameraVolume->CamVolWorldMax.Y;
+					//	&& PlayerPawnLocation.Y <= CameraVolume->CamVolWorldMax.Y;
 				}
 			}
 			else
 			{
-				Condition = false;
+				FVector PlayerPawnLocationTransformed = CameraVolume->GetActorTransform().InverseTransformPositionNoScale(PlayerPawnLocation);
+
+				if (CameraVolume->bUse6DOFVolume)
+				{
+					Condition = -CameraVolume->VolumeExtent.X < PlayerPawnLocationTransformed.X
+						&& PlayerPawnLocationTransformed.X <= CameraVolume->VolumeExtent.X
+						&& -CameraVolume->VolumeExtent.Y < PlayerPawnLocationTransformed.Y
+						&& PlayerPawnLocationTransformed.Y <= CameraVolume->VolumeExtent.Y
+						&& -CameraVolume->VolumeExtent.Z < PlayerPawnLocationTransformed.Z
+						&& PlayerPawnLocationTransformed.Z <= CameraVolume->VolumeExtent.Z;
+				}
+				else
+				{
+					//Side-scroller
+					Condition = -CameraVolume->VolumeExtent.X < PlayerPawnLocationTransformed.X
+						&& PlayerPawnLocationTransformed.X <= CameraVolume->VolumeExtent.X
+						&& -CameraVolume->VolumeExtent.Z < PlayerPawnLocationTransformed.Z
+						&& PlayerPawnLocationTransformed.Z <= CameraVolume->VolumeExtent.Z;
+					//Top-down
+					//Condition = -CameraVolume->VolumeExtent.X < PlayerPawnLocationTransformed.X
+					//	&& PlayerPawnLocationTransformed.X <= CameraVolume->VolumeExtent.X
+					//	&& -CameraVolume->VolumeExtent.Y < PlayerPawnLocationTransformed.Y
+					//	&& PlayerPawnLocationTransformed.Y <= CameraVolume->VolumeExtent.Y;
+				}
 			}
 
 			if (Condition && (CameraVolume->Priority > MaxPriorityIndex))

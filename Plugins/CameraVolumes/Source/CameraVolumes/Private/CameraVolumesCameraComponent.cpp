@@ -45,27 +45,26 @@ void UCameraVolumesCameraComponent::UpdateCameraComponent()
 	{
 	case ECameraProjectionMode::Orthographic:
 		bIsCameraOrthographic = true;
-		this->SetOrthoWidth(DefaultCameraOrthoWidth);
+		SetOrthoWidth(DefaultCameraOrthoWidth);
 		break;
 	case ECameraProjectionMode::Perspective:
 		bIsCameraOrthographic = false;
-		this->SetFieldOfView(DefaultCameraFieldOfView);
+		SetFieldOfView(DefaultCameraFieldOfView);
 		break;
 	}
 
 	DefaultCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(DefaultCameraLocation, DefaultCameraFocalPoint, DefaultCameraRoll);
-	this->SetRelativeLocationAndRotation(DefaultCameraLocation, DefaultCameraRotation);
+	SetRelativeLocationAndRotation(DefaultCameraLocation, DefaultCameraRotation);
 }
 
 void UCameraVolumesCameraComponent::UpdateCamera(FVector& CameraLocation, FQuat& CameraRotation, float CameraFOV)
 {
-	this->SetWorldLocation(CameraLocation);
-	this->SetWorldRotation(CameraRotation);
+	SetWorldLocationAndRotation(CameraLocation, CameraRotation);
 
 	if (bIsCameraOrthographic)
-		this->SetOrthoWidth(CameraFOV);
+		SetOrthoWidth(CameraFOV);
 	else
-		this->SetFieldOfView(CameraFOV);
+		SetFieldOfView(CameraFOV);
 }
 
 //Update with changed property
