@@ -37,7 +37,7 @@ ACameraVolumeActor::ACameraVolumeActor()
 
 	// Default values
 	Priority = 0;
-	VolumeExtent = FVector(500.f, 500.f, 500.f);
+	VolumeExtent = VolumeExtentDefault;
 
 	bUseZeroDepthExtentEditCond = true;
 	bUseZeroDepthExtent = false;
@@ -123,9 +123,10 @@ void ACameraVolumeActor::UpdateVolume()
 	{
 		CameraFocalPoint = FVector::ZeroVector;
 		CameraRoll = 0.f;
+		CameraRotation = FRotator(0.f, -90.f, 0.f).Quaternion();
 	}
-
-	CameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(CameraLocation, CameraFocalPoint, CameraRoll);
+	else
+		CameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(CameraLocation, CameraFocalPoint, CameraRoll);
 
 	if (!bOverrideCameraFieldOfView)
 		CameraFieldOfView = 90.f;
@@ -238,7 +239,7 @@ FSideInfo ACameraVolumeActor::GetSideInfo(ESide Side)
 
 ESide ACameraVolumeActor::GetNearestVolumeSide(FVector& PlayerPawnLocation)
 {
-	ESide NearestSide;
+	ESide NearestSide = ESide::ES_Bottom;
 	TMap<ESide, float> Sides;
 
 	if (bUse6DOFVolume)
@@ -512,7 +513,23 @@ void ACameraVolumeActor::EditorApplyRotation(const FRotator& DeltaRotation, bool
 void ACameraVolumeActor::EditorApplyScale(const FVector& DeltaScale, const FVector* PivotLocation, bool bAltDown, bool bShiftDown, bool bCtrlDown)
 {
 	Super::EditorApplyScale(DeltaScale, PivotLocation, bAltDown, bShiftDown, bCtrlDown);
+
+	FVector CurrentScale = VolumeExtent / VolumeExtentDefault;
+	FVector ScaleToApply;
+
+	if (AActor::bUsePercentageBasedScaling)
+		ScaleToApply = CurrentScale * (FVector::OneVector + DeltaScale);
+	else
+		ScaleToApply = CurrentScale + DeltaScale;
+
+	VolumeExtent = VolumeExtentDefault * ScaleToApply;
 	UpdateVolume();
+}
+
+void ACameraVolumeActor::EditorApplyMirror(const FVector& MirrorScale, const FVector& PivotLocation)
+{
+	Super::EditorApplyMirror(MirrorScale, PivotLocation);
+	SetActorScale3D(FVector::OneVector);
 }
 #endif
 

@@ -82,15 +82,19 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 					{
 						OverlappingActors.Empty();
 						PlayerPawn->GetOverlappingActors(OverlappingActors, ACameraVolumeActor::StaticClass());
+						
 						if (OverlappingActors.Num() > 0)
 						{
 							TArray<ACameraVolumeActor*> OverlappingCameraVolumes;
+							
 							for (AActor* Actor : OverlappingActors)
 							{
 								ACameraVolumeActor* CameraVolume = Cast<ACameraVolumeActor>(Actor);
+								
 								if (CameraVolume)
 									OverlappingCameraVolumes.Add(CameraVolume);
 							}
+
 							CameraVolumeCurrent = UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(OverlappingCameraVolumes, PlayerPawnLocation);
 						}
 						else
@@ -319,6 +323,7 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 	{
 		bNeedsSmoothTransition = false;
 		bNeedsCutTransition = false;
+		bGameCameraCutThisFrame = true;
 	}
 	else
 	{

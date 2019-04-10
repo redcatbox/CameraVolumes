@@ -10,7 +10,7 @@
 	"DocsURL": "https://github.com/redcatbox/CameraVolumes/wiki",
 	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/b851f8a1270e41b6b72dc209d6732eac",
 	"SupportURL": "https://discord.gg/gVexAf",
-	"EngineVersion": "4.21.0",
+	"EngineVersion": "4.22.0",
 	"CanContainContent": true,
 	"IsBetaVersion": false,
 	"Installed": true,
