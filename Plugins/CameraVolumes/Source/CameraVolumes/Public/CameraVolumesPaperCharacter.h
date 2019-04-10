@@ -8,7 +8,6 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "PaperCharacter.h"
 #include "CameraVolumesCharacterInterface.h"
 #include "CameraVolumesPaperCharacter.generated.h"
