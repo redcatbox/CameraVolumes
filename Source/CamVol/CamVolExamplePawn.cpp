@@ -3,6 +3,7 @@
 #include "CamVolExamplePawn.h"
 #include "Components/InputComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Engine/CollisionProfile.h"
 #include "CameraVolumesCameraManager.h"
 
@@ -16,11 +17,18 @@ ACamVolExamplePawn::ACamVolExamplePawn()
 	CapsuleComponent->SetCollisionProfileName(UCollisionProfile::Pawn_ProfileName);
 	CapsuleComponent->CanCharacterStepUpOn = ECB_No;
 	CapsuleComponent->SetShouldUpdatePhysicsVolume(true);
-	CapsuleComponent->bCheckAsyncSceneOnMove = false;
+	//CapsuleComponent->bCheckAsyncSceneOnMove = false;
 	CapsuleComponent->SetCanEverAffectNavigation(false);
 	CapsuleComponent->bDynamicObstacle = true;
 	CapsuleComponent->bHiddenInGame = false;
 	RootComponent = CapsuleComponent;
+
+	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
+	StaticMeshComponent->SetupAttachment(CapsuleComponent);
+	StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> StaticMeshObj(TEXT("/Game/Geometry/Meshes/1M_Cube"));
+	if (StaticMeshObj.Object)
+		StaticMeshComponent->SetStaticMesh(StaticMeshObj.Object);
 
 	// Bind overlap events
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ACamVolExamplePawn::OnCapsuleComponentBeginOverlapDelegate);
@@ -53,19 +61,19 @@ void ACamVolExamplePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 void ACamVolExamplePawn::MoveRight(float Value)
 {
 	// add offset in that direction
-	AddActorLocalOffset(FVector(1.f, 0.f, 0.f) * Value * 25.f, true);
+	AddActorLocalOffset(FVector(1.f, 0.f, 0.f) * Value * 5.f, true);
 }
 
 void ACamVolExamplePawn::MoveForward(float Value)
 {
 	// add offset in that direction
-	AddActorLocalOffset(FVector(0.f, 1.f, 0.f) * Value * 25.f, true);
+	AddActorLocalOffset(FVector(0.f, 1.f, 0.f) * Value * 5.f, true);
 }
 
 void ACamVolExamplePawn::MoveUp(float Value)
 {
 	// add offset in that direction
-	AddActorLocalOffset(FVector(0.f, 0.f, 1.f) * Value * 25.f, true);
+	AddActorLocalOffset(FVector(0.f, 0.f, 1.f) * Value * 5.f, true);
 }
 
 void ACamVolExamplePawn::OnCapsuleComponentBeginOverlapDelegate(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
