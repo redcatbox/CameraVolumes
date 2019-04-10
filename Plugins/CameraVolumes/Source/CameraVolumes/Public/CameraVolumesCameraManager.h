@@ -12,7 +12,7 @@
 #include "CameraVolumesFunctionLibrary.h"
 #include "CameraVolumesCameraManager.generated.h"
 
-UCLASS()
+UCLASS(Config = CameraVolumes)
 class CAMERAVOLUMES_API ACameraVolumesCameraManager : public APlayerCameraManager
 {
 	GENERATED_BODY()
@@ -34,7 +34,7 @@ public:
 		bool bUpdateCamera;
 
 	/** Set perform camera calculations. Use this to enable/disable camera updates if it's necessary. */
-	UFUNCTION(BlueprintCallable, Meta = (Category = CameraVolumes))
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual void SetUpdateCamera(bool bNewUpdateCamera);
 
 	/** Should check for camera volumes? */
@@ -42,15 +42,15 @@ public:
 		bool bCheckCameraVolumes;
 
 	/** Set check for camera volumes. Used by Player Character according to overlapping camera volumes. */
-	UFUNCTION(BlueprintCallable, Meta = (Category = CameraVolumes))
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual void SetCheckCameraVolumes(bool bNewCheck);
 	
 	/** Should perform camera blocking calculations? */
-	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = CameraVolumes)
 		bool bPerformBlockingCalculations;
 
 	/** Set perform camera blocking calculations */
-	UFUNCTION(BlueprintCallable, Meta = (Category = CameraVolumes))
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual void SetPerformBlockingCalculations(bool bNewPerformBlockingCalculations);
 
 protected:
