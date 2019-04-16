@@ -67,9 +67,6 @@ protected:
 	UPROPERTY()
 		TArray<AActor*> OverlappingActors;
 
-	UPROPERTY()
-		TArray<ACameraVolumeActor*> OverlappingCameraVolumes;
-
 	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
 		class ACameraVolumeActor* CameraVolumeCurrent;
 
@@ -109,6 +106,12 @@ protected:
 
 	UPROPERTY()
 		bool bNeedsCutTransition;
+
+	UPROPERTY()
+		bool bCameraVolumeRotationIsZero;
+
+	UPROPERTY()
+		FQuat CameraVolumeRotation;
 
 	UPROPERTY()
 		bool bBlockingCalculations;
