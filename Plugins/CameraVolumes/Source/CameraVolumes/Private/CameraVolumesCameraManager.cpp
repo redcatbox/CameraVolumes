@@ -252,7 +252,7 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 			{
 				if (CameraVolume->bCameraLocationRelativeToVolume)
 				{
-					FVector PlayerPawnLocationTransformed = CameraVolume->GetActorTransform().InverseTransformPositionNoScale(PlayerPawnLocation - CameraVolume->GetActorLocation());
+					FVector PlayerPawnLocationTransformed = CameraVolume->GetActorTransform().InverseTransformPositionNoScale(PlayerPawnLocation);
 
 					if (CameraVolume->bOverrideCameraLocation)
 					{
@@ -278,7 +278,7 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 
 			if (bBlockingCalculations)
 			{
-				// Camera offset is always relative to CameraVolume->GetActorLocation().Y
+				// Camera offset is always relative to camera volume local X axis.
 				float CameraOffset;
 
 				if (CameraVolume->bCameraLocationRelativeToVolume)
@@ -354,9 +354,7 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 				{
 					FVector PlayerPawnLocationRotated = CameraVolume->GetActorTransform().InverseTransformPositionNoScale(PlayerPawnLocation);
 					float RotatedLocationDelta = PlayerPawnLocationRotated.X - CameraVolume->GetActorLocation().X;
-
 					NewCameraLocation = PlayerPawnLocation + CameraVolumeRotation.RotateVector(NewCameraLocation - PlayerPawnLocation);
-
 					NewCameraLocation = FVector(
 						FMath::Clamp(NewCameraLocation.X, ScreenWorldMin.X, ScreenWorldMax.X),
 						CameraOffset + CameraVolume->GetActorLocation().Y,
