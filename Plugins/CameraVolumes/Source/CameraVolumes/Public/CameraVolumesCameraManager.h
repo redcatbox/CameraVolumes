@@ -108,12 +108,6 @@ protected:
 		bool bNeedsCutTransition;
 
 	UPROPERTY()
-		bool bCameraVolumeRotationIsZero;
-
-	UPROPERTY()
-		FQuat CameraVolumeRotation;
-
-	UPROPERTY()
 		bool bBlockingCalculations;
 
 	UFUNCTION()

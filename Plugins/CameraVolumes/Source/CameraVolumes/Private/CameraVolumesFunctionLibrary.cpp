@@ -113,10 +113,3 @@ FQuat UCameraVolumesFunctionLibrary::CalculateCameraRotation(FVector& CameraLoca
 	CameraRotation = FQuat(CameraRotation.GetAxisX(), FMath::DegreesToRadians(CameraRoll)) * CameraRotation;
 	return CameraRotation;
 }
-
-FQuat UCameraVolumesFunctionLibrary::CalculateCameraRotationToCharacter(FVector& CameraLocation, FVector& CameraFocalPoint, float CameraRoll, FVector PlayerPawnLocation, FVector CameraVolumeLocation)
-{
-	FQuat CameraRotation = (FRotationMatrix::MakeFromX(PlayerPawnLocation - CameraVolumeLocation - CameraLocation + CameraFocalPoint)).ToQuat();
-	CameraRotation = FQuat(CameraRotation.GetAxisX(), FMath::DegreesToRadians(CameraRoll)) * CameraRotation;
-	return CameraRotation;
-}
