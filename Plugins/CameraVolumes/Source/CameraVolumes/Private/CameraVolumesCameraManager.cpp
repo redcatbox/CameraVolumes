@@ -3,6 +3,7 @@
 #include "CameraVolumesCameraManager.h"
 #include "CameraVolumesCharacterInterface.h"
 #include "GameFramework/PlayerController.h"
+#include "DrawDebugHelpers.h"
 
 ACameraVolumesCameraManager::ACameraVolumesCameraManager()
 {
@@ -108,40 +109,32 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 					{
 						if (CameraVolumeCurrent != CameraVolumePrevious) // Do we changed to another volume?
 						{
-							// Check for dynamic camera volumes
-							ACameraVolumeDynamicActor* CameraVolumeCurrentDynamic = Cast<ACameraVolumeDynamicActor>(CameraVolumeCurrent);
-							if (CameraVolumeCurrentDynamic)
-								CameraVolumeCurrentDynamic->SetActive(true);
-							ACameraVolumeDynamicActor* CameraVolumePreviousDynamic = Cast<ACameraVolumeDynamicActor>(CameraVolumePrevious);
-							if (CameraVolumePreviousDynamic)
-								CameraVolumePreviousDynamic->SetActive(false);
-
-							ESide PassedSideCurrent;
-							PassedSideCurrent = CameraVolumeCurrent->GetNearestVolumeSide(PlayerPawnLocation);
+							FSideInfo PassedSideInfoCurrent;
+							PassedSideInfoCurrent = CameraVolumeCurrent->GetNearestVolumeSideInfo(PlayerPawnLocation);
 
 							if (CameraVolumePrevious)
 							{
-								ESide PassedSidePrevious;
-								PassedSidePrevious = CameraVolumePrevious->GetNearestVolumeSide(PlayerPawnLocation);
+								FSideInfo PassedSideInfoPrevious;
+								PassedSideInfoPrevious = CameraVolumePrevious->GetNearestVolumeSideInfo(PlayerPawnLocation);
 
-								if (UCameraVolumesFunctionLibrary::CompareSidesPairs(PassedSideCurrent, PassedSidePrevious, CameraVolumePrevious->bUse6DOFVolume))
+								if (UCameraVolumesFunctionLibrary::CompareSidesPairs(PassedSideInfoCurrent.Side, PassedSideInfoPrevious.Side, CameraVolumePrevious->bUse6DOFVolume))
 									// We've passed to nearby volume
 									// Use settings of side we have passed to
-									SetTransitionBySideInfo(CameraVolumeCurrent, PassedSideCurrent);
+									SetTransitionBySideInfo(CameraVolumeCurrent, PassedSideInfoCurrent);
 								else
 								{
 									// we've passed to volume with another priority
 									if (CameraVolumeCurrent->Priority > CameraVolumePrevious->Priority)
 										// Use settings of side we have passed to
-										SetTransitionBySideInfo(CameraVolumeCurrent, PassedSideCurrent);
+										SetTransitionBySideInfo(CameraVolumeCurrent, PassedSideInfoCurrent);
 									else
 										// Use settings of side we have passed from
-										SetTransitionBySideInfo(CameraVolumePrevious, PassedSidePrevious);
+										SetTransitionBySideInfo(CameraVolumePrevious, PassedSideInfoPrevious);
 								}
 							}
 							else
 								// We've passed from void to volume
-								SetTransitionBySideInfo(CameraVolumeCurrent, PassedSideCurrent);
+								SetTransitionBySideInfo(CameraVolumeCurrent, PassedSideInfoCurrent);
 						}
 
 						SelectPerformBlockingCalculations(CameraVolumeCurrent->bPerformCameraBlocking);
@@ -149,14 +142,10 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 					}
 					else if (CameraVolumePrevious) // Do we passed from volume to void?
 					{
-						// Check for dynamic camera volumes
-						ACameraVolumeDynamicActor* CameraVolumePreviousDynamic = Cast<ACameraVolumeDynamicActor>(CameraVolumePrevious);
-						if (CameraVolumePreviousDynamic)
-							CameraVolumePreviousDynamic->SetActive(false);
-
 						// Use settings of side we've passed from
-						ESide PassedSidePrevious = CameraVolumePrevious->GetNearestVolumeSide(PlayerPawnLocation);
-						SetTransitionBySideInfo(CameraVolumePrevious, PassedSidePrevious);
+						FSideInfo PassedSideInfoPrevious;
+						PassedSideInfoPrevious = CameraVolumePrevious->GetNearestVolumeSideInfo(PlayerPawnLocation);
+						SetTransitionBySideInfo(CameraVolumePrevious, PassedSideInfoPrevious);
 						CalcNewCameraParams(nullptr, DeltaTime);
 					}
 					else
@@ -236,12 +225,10 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 
 			if (bBlockingCalculations)
 			{
-				// Camera offset is always relative to camera volume local X axis.
-				float CameraOffset;
-				CameraOffset = NewCameraLocation.Y; //Side-scroller
-				//CameraOffset = NewCameraLocation.Z; //Top-down
+				FVector NewCamVolExtentCorrected = CameraVolume->CamVolExtentCorrected;
+				FVector NewCamVolMinCorrected = CameraVolume->CamVolMinCorrected;
+				FVector NewCamVolMaxCorrected = CameraVolume->CamVolMaxCorrected;
 
-				FVector NewCamVolExtentCorrected = CameraVolume->VolumeExtent;
 				// Calculate delta volume extent with +Y volume extent (+Z in top-down)
 				if (!CameraVolume->bUseZeroDepthExtent || !bIsCameraOrthographic)
 				{
@@ -253,7 +240,14 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 					//DeltaExtent.X = FMath::Abs((NewCamVolExtentCorrected.Z) * PlayerCamFOVTangens);
 					//DeltaExtent = FVector(DeltaExtent.X, DeltaExtent.X / ScreenAspectRatio, 0.f);
 					NewCamVolExtentCorrected += DeltaExtent;
+					NewCamVolMinCorrected -= DeltaExtent;
+					NewCamVolMaxCorrected += DeltaExtent;
 				}
+
+				// Camera offset is always relative to camera volume local X axis.
+				float CameraOffset;
+				CameraOffset = NewCameraLocation.Y; //Side-scroller
+				//CameraOffset = NewCameraLocation.Z; //Top-down
 
 				// Calculate new camera offset and screen world extent at depth (CameraOffset)
 				FVector ScreenExtent = FVector::ZeroVector;
@@ -262,7 +256,7 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 				{
 					if (CameraVolume->CamVolAspectRatio >= ScreenAspectRatio) // Horizontal movement
 						NewCameraFOV_OW = FMath::Clamp(NewCameraFOV_OW, NewCameraFOV_OW, 2.f * NewCamVolExtentCorrected.Z * ScreenAspectRatio); //Side-scroller
-						//CameraOffset = FMath::Clamp(CameraOffset, CameraOffset, 2.f * NewCamVolExtentCorrected.Y * ScreenAspectRatio); //Top-down
+						//NewCameraFOV_OW = FMath::Clamp(NewCameraFOV_OW, NewCameraFOV_OW, 2.f * NewCamVolExtentCorrected.Y * ScreenAspectRatio); //Top-down
 					else // Vertical movement
 						NewCameraFOV_OW = FMath::Clamp(NewCameraFOV_OW, NewCameraFOV_OW, 2.f * NewCamVolExtentCorrected.X);
 
@@ -281,25 +275,30 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 
 				ScreenExtent = FVector(ScreenExtent.X, 0.f, ScreenExtent.X / ScreenAspectRatio); //Side-scroller
 				//ScreenExtent = FVector(ScreenExtent.X, ScreenExtent.X / ScreenAspectRatio, 0.f); //Top-down
-				FVector ScreenMin = -NewCamVolExtentCorrected + ScreenExtent;
-				FVector ScreenMax = NewCamVolExtentCorrected - ScreenExtent;
+				FVector ScreenMin = NewCamVolMinCorrected + ScreenExtent;
+				FVector ScreenMax = NewCamVolMaxCorrected - ScreenExtent;
 
-				// New camera location
+				DrawDebugSphere(GetWorld(), CameraVolume->GetActorTransform().TransformPositionNoScale(ScreenMin), 25.f, 8, FColor::White, false, -1.f, 0, 5.f);
+				DrawDebugSphere(GetWorld(), CameraVolume->GetActorTransform().TransformPositionNoScale(ScreenMax), 25.f, 8, FColor::White, false, -1.f, 0, 5.f);
+
+				CameraVolume->GetActorTransform().TransformPositionNoScale(ScreenMax);
+
 				//Side-scroller
 				NewCameraLocation = FVector(
 					FMath::Clamp(NewCameraLocation.X, ScreenMin.X, ScreenMax.X),
-					CameraOffset + CameraVolume->GetActorLocation().Y,
+					CameraOffset,
 					FMath::Clamp(NewCameraLocation.Z, ScreenMin.Z, ScreenMax.Z));
 				//Top-down
 				//NewCameraLocation = FVector(
-				//	FMath::Clamp(NewCameraLocation.X, ScreenWorldMin.X, ScreenWorldMax.X),
-				//	FMath::Clamp(NewCameraLocation.Y, ScreenWorldMin.Y, ScreenWorldMax.Y),
-				//	CameraOffset + CameraVolume->GetActorLocation().Z);
+				//	FMath::Clamp(NewCameraLocation.X, ScreenMin.X, ScreenMax.X),
+				//	FMath::Clamp(NewCameraLocation.Y, ScreenMin.Y, ScreenMax.Y),
+				//	CameraOffset);
 			}
-
-			NewCameraLocation = CameraVolume->GetActorTransform().TransformPositionNoScale(NewCameraLocation);
-			NewCameraRotation = CameraVolume->GetActorTransform().TransformRotation(NewCameraRotation);
 		}
+
+		// Final world-space values
+		NewCameraLocation = CameraVolume->GetActorTransform().TransformPositionNoScale(NewCameraLocation);
+		NewCameraRotation = CameraVolume->GetActorTransform().TransformRotation(NewCameraRotation);
 	}
 
 	if (CameraComponent->bUseAdditionalCameraParams)
@@ -355,9 +354,8 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 	}
 }
 
-void ACameraVolumesCameraManager::SetTransitionBySideInfo(ACameraVolumeActor* CameraVolume, ESide Side)
+void ACameraVolumesCameraManager::SetTransitionBySideInfo(ACameraVolumeActor* CameraVolume, FSideInfo SideInfo)
 {
-	FSideInfo SideInfo = CameraVolume->GetSideInfo(Side);
 	if (SideInfo.SideTransitionType == ESideTransitionType::ESTT_Smooth)
 	{
 		bNeedsSmoothTransition = true;
@@ -376,6 +374,9 @@ void ACameraVolumesCameraManager::SetTransitionBySideInfo(ACameraVolumeActor* Ca
 		SmoothTransitionAlpha = 0.f;
 		bNeedsCutTransition = false;
 	}
+
+	// Broadcast volume changed event
+	OnCameraVolumeChanged.Broadcast(CameraVolume, SideInfo);
 }
 
 FVector ACameraVolumesCameraManager::CalculateScreenWorldExtentAtDepth(float Depth)

@@ -230,16 +230,10 @@ public:
 		float CamVolAspectRatio;
 
 	UPROPERTY()
-		FVector CamVolWorldMin;
+		FVector CamVolMinCorrected;
 
 	UPROPERTY()
-		FVector CamVolWorldMax;
-
-	UPROPERTY()
-		FVector CamVolWorldMinCorrected;
-
-	UPROPERTY()
-		FVector CamVolWorldMaxCorrected;
+		FVector CamVolMaxCorrected;
 
 	UPROPERTY()
 		FVector CamVolExtentCorrected;
@@ -252,13 +246,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual void CalculateVolumeExtents();
 
-	/** Get side info */
+	/** Get side info for the volume side nearest to player location */
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-		virtual FSideInfo GetSideInfo(ESide Side);
-
-	/** Get volume side nearest to player location */
-	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-		virtual ESide GetNearestVolumeSide(FVector& PlayerPawnLocation);
+		virtual FSideInfo GetNearestVolumeSideInfo(FVector& PlayerPawnLocation);
 
 protected:
 	const float OpenEdgeOffset = 10000.f;

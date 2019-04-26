@@ -71,6 +71,13 @@ ACameraVolumeActor::ACameraVolumeActor()
 	TextSize = 50.f;
 #endif
 
+	RightSide.Side = ESide::ES_Right;
+	LeftSide.Side = ESide::ES_Left;
+	TopSide.Side = ESide::ES_Top;
+	BottomSide.Side = ESide::ES_Bottom;
+	FrontSide.Side = ESide::ES_Front;
+	BackSide.Side = ESide::ES_Back;
+
 #if WITH_EDITOR
 	CreateSidesIndicators();
 #endif
@@ -112,6 +119,7 @@ void ACameraVolumeActor::UpdateVolume()
 	case ECameraMobility::ECM_Static:
 		bIsCameraStatic = true;
 		bOverrideCameraLocation = true;
+		bPerformCameraBlocking = false;
 		break;
 	}
 
@@ -151,66 +159,99 @@ void ACameraVolumeActor::UpdateVolume()
 void ACameraVolumeActor::CalculateVolumeExtents()
 {
 	VolumeExtent = VolumeExtent.GetAbs();
-	CamVolWorldMax = GetActorLocation() + VolumeExtent;
-	CamVolWorldMin = CamVolWorldMax - VolumeExtent * 2.f;
-	CamVolWorldMinCorrected = CamVolWorldMin;
-	CamVolWorldMaxCorrected = CamVolWorldMax;
+	CamVolMinCorrected = -VolumeExtent;
+	CamVolMaxCorrected = VolumeExtent;
 
 	if (RightSide.SideType == ESideType::EST_Open)
-		CamVolWorldMaxCorrected.X = CamVolWorldMaxCorrected.X + OpenEdgeOffset;
+		CamVolMaxCorrected.X = CamVolMaxCorrected.X + OpenEdgeOffset;
 
 	if (LeftSide.SideType == ESideType::EST_Open)
-		CamVolWorldMinCorrected.X = CamVolWorldMinCorrected.X - OpenEdgeOffset;
+		CamVolMinCorrected.X = CamVolMinCorrected.X - OpenEdgeOffset;
 
 	//Side-scroller
 	if (TopSide.SideType == ESideType::EST_Open)
-		CamVolWorldMaxCorrected.Z = CamVolWorldMaxCorrected.Z + OpenEdgeOffset;
+		CamVolMaxCorrected.Z = CamVolMaxCorrected.Z + OpenEdgeOffset;
 
 	if (BottomSide.SideType == ESideType::EST_Open)
-		CamVolWorldMinCorrected.Z = CamVolWorldMinCorrected.Z - OpenEdgeOffset;
+		CamVolMinCorrected.Z = CamVolMinCorrected.Z - OpenEdgeOffset;
 
 	//Top-down
 	//if (FrontSide.SideType == ESideType::EST_Open)
-	//	CamVolWorldMaxCorrected.Y = CamVolWorldMaxCorrected.Y + OpenEdgeOffset;
+	//	CamVolMaxCorrected.Y = CamVolMaxCorrected.Y + OpenEdgeOffset;
 
 	//if (BackSide.SideType == ESideType::EST_Open)
-	//	CamVolWorldMinCorrected.Y = CamVolWorldMinCorrected.Y - OpenEdgeOffset;
+	//	CamVolMinCorrected.Y = CamVolMinCorrected.Y - OpenEdgeOffset;
 
 	if (bUse6DOFVolume)
 	{
 		//Side-scroller
 		if (FrontSide.SideType == ESideType::EST_Open)
-			CamVolWorldMaxCorrected.Y = CamVolWorldMaxCorrected.Y + OpenEdgeOffset;
+			CamVolMaxCorrected.Y = CamVolMaxCorrected.Y + OpenEdgeOffset;
 
 		if (BackSide.SideType == ESideType::EST_Open)
-			CamVolWorldMinCorrected.Y = CamVolWorldMinCorrected.Y - OpenEdgeOffset;
+			CamVolMinCorrected.Y = CamVolMinCorrected.Y - OpenEdgeOffset;
 
 		//Top-down
 		//if (TopSide.SideType == ESideType::EST_Open)
-		//	CamVolWorldMaxCorrected.Z = CamVolWorldMaxCorrected.Z + OpenEdgeOffset;
+		//	CamVolMaxCorrected.Z = CamVolMaxCorrected.Z + OpenEdgeOffset;
 
 		//if (BottomSide.SideType == ESideType::EST_Open)
-		//	CamVolWorldMinCorrected.Z = CamVolWorldMinCorrected.Z - OpenEdgeOffset;
+		//	CamVolMinCorrected.Z = CamVolMinCorrected.Z - OpenEdgeOffset;
 	}
 
 	if (bUseZeroDepthExtent)
 	{
 		//Side-scroller
-		CamVolWorldMinCorrected.Y = 0.f;
-		CamVolWorldMaxCorrected.Y = 0.f;
+		CamVolMinCorrected.Y = 0.f;
+		CamVolMaxCorrected.Y = 0.f;
 		//Top-down
-		//CamVolWorldMinCorrected.Z = 0.f;
-		//CamVolWorldMaxCorrected.Z = 0.f;
+		//CamVolMinCorrected.Z = 0.f;
+		//CamVolMaxCorrected.Z = 0.f;
 	}
 
-	CamVolExtentCorrected = (CamVolWorldMaxCorrected - CamVolWorldMinCorrected) * 0.5f;
+	CamVolExtentCorrected = (CamVolMaxCorrected - CamVolMinCorrected) * 0.5f;
 	CamVolAspectRatio = CamVolExtentCorrected.X / CamVolExtentCorrected.Z; //Side-scroller
 	//CamVolAspectRatio = CamVolExtentCorrected.X / CamVolExtentCorrected.Y; //Top-down
 }
 
-FSideInfo ACameraVolumeActor::GetSideInfo(ESide Side)
+FSideInfo ACameraVolumeActor::GetNearestVolumeSideInfo(FVector& PlayerPawnLocation)
 {
-	switch (Side)
+	ESide NearestSide = ESide::ES_Front;
+	TMap<ESide, float> Sides;
+	FVector PlayerPawnLocationTransformed = GetActorTransform().InverseTransformPositionNoScale(PlayerPawnLocation);
+
+	if (bUse6DOFVolume)
+	{
+		Sides.Add(ESide::ES_Front, FMath::Abs(PlayerPawnLocationTransformed.Y - VolumeExtent.Y));
+		Sides.Add(ESide::ES_Back, FMath::Abs(PlayerPawnLocationTransformed.Y + VolumeExtent.Y));
+		Sides.Add(ESide::ES_Right, FMath::Abs(PlayerPawnLocationTransformed.X - VolumeExtent.X));
+		Sides.Add(ESide::ES_Left, FMath::Abs(PlayerPawnLocationTransformed.X + VolumeExtent.X));
+		Sides.Add(ESide::ES_Top, FMath::Abs(PlayerPawnLocationTransformed.Z - VolumeExtent.Z));
+		Sides.Add(ESide::ES_Bottom, FMath::Abs(PlayerPawnLocationTransformed.Z + VolumeExtent.Z));
+	}
+	else
+	{
+		//Side-scroller
+		Sides.Add(ESide::ES_Right, FMath::Abs(PlayerPawnLocationTransformed.X - VolumeExtent.X));
+		Sides.Add(ESide::ES_Left, FMath::Abs(PlayerPawnLocationTransformed.X + VolumeExtent.X));
+		Sides.Add(ESide::ES_Top, FMath::Abs(PlayerPawnLocationTransformed.Z - VolumeExtent.Z));
+		Sides.Add(ESide::ES_Bottom, FMath::Abs(PlayerPawnLocationTransformed.Z + VolumeExtent.Z));
+		//Top-down
+		//Sides.Add(ESide::ES_Front, FMath::Abs(PlayerPawnLocationTransformed.Y - VolumeExtent.Y));
+		//Sides.Add(ESide::ES_Back, FMath::Abs(PlayerPawnLocationTransformed.Y + VolumeExtent.Y));
+		//Sides.Add(ESide::ES_Right, FMath::Abs(PlayerPawnLocationTransformed.X - VolumeExtent.X));
+		//Sides.Add(ESide::ES_Left, FMath::Abs(PlayerPawnLocationTransformed.X + VolumeExtent.X));
+	}
+
+	Sides.ValueSort([](float Min, float Max) { return Min < Max; });
+
+	for (auto& Pair : Sides)
+	{
+		NearestSide = Pair.Key;
+		break;
+	}
+
+	switch (NearestSide)
 	{
 	case ESide::ES_Front:
 		return FrontSide;
@@ -231,79 +272,10 @@ FSideInfo ACameraVolumeActor::GetSideInfo(ESide Side)
 		return BottomSide;
 		break;
 	default:
-		UE_LOG(LogTemp, Warning, TEXT("Unknown side type! Using SideInfo(Open, Normal)"))
-			return FSideInfo();
+		UE_LOG(LogTemp, Warning, TEXT("Unknown side type! Using SideInfo(Front, Open, Normal)"));
+		return FSideInfo();
 		break;
 	}
-}
-
-ESide ACameraVolumeActor::GetNearestVolumeSide(FVector& PlayerPawnLocation)
-{
-	ESide NearestSide = ESide::ES_Bottom;
-	TMap<ESide, float> Sides;
-
-	if (GetActorRotation().IsZero())
-	{
-		if (bUse6DOFVolume)
-		{
-			Sides.Add(ESide::ES_Front, FMath::Abs(PlayerPawnLocation.Y - CamVolWorldMax.Y));
-			Sides.Add(ESide::ES_Back, FMath::Abs(PlayerPawnLocation.Y - CamVolWorldMin.Y));
-			Sides.Add(ESide::ES_Right, FMath::Abs(PlayerPawnLocation.X - CamVolWorldMax.X));
-			Sides.Add(ESide::ES_Left, FMath::Abs(PlayerPawnLocation.X - CamVolWorldMin.X));
-			Sides.Add(ESide::ES_Top, FMath::Abs(PlayerPawnLocation.Z - CamVolWorldMax.Z));
-			Sides.Add(ESide::ES_Bottom, FMath::Abs(PlayerPawnLocation.Z - CamVolWorldMin.Z));
-		}
-		else
-		{
-			//Side-scroller
-			Sides.Add(ESide::ES_Right, FMath::Abs(PlayerPawnLocation.X - CamVolWorldMax.X));
-			Sides.Add(ESide::ES_Left, FMath::Abs(PlayerPawnLocation.X - CamVolWorldMin.X));
-			Sides.Add(ESide::ES_Top, FMath::Abs(PlayerPawnLocation.Z - CamVolWorldMax.Z));
-			Sides.Add(ESide::ES_Bottom, FMath::Abs(PlayerPawnLocation.Z - CamVolWorldMin.Z));
-			//Top-down
-			//Sides.Add(ESide::ES_Front, FMath::Abs(PlayerPawnLocation.Y - CamVolWorldMax.Y));
-			//Sides.Add(ESide::ES_Back, FMath::Abs(PlayerPawnLocation.Y - CamVolWorldMin.Y));
-			//Sides.Add(ESide::ES_Right, FMath::Abs(PlayerPawnLocation.X - CamVolWorldMax.X));
-			//Sides.Add(ESide::ES_Left, FMath::Abs(PlayerPawnLocation.X - CamVolWorldMin.X));
-		}
-	}
-	else
-	{
-		FVector PlayerPawnLocationTransformed = GetActorTransform().InverseTransformPositionNoScale(PlayerPawnLocation);
-
-		if (bUse6DOFVolume)
-		{
-			Sides.Add(ESide::ES_Front, FMath::Abs(PlayerPawnLocationTransformed.Y - VolumeExtent.Y));
-			Sides.Add(ESide::ES_Back, FMath::Abs(PlayerPawnLocationTransformed.Y + VolumeExtent.Y));
-			Sides.Add(ESide::ES_Right, FMath::Abs(PlayerPawnLocationTransformed.X - VolumeExtent.X));
-			Sides.Add(ESide::ES_Left, FMath::Abs(PlayerPawnLocationTransformed.X + VolumeExtent.X));
-			Sides.Add(ESide::ES_Top, FMath::Abs(PlayerPawnLocationTransformed.Z - VolumeExtent.Z));
-			Sides.Add(ESide::ES_Bottom, FMath::Abs(PlayerPawnLocationTransformed.Z + VolumeExtent.Z));
-		}
-		else
-		{
-			//Side-scroller
-			Sides.Add(ESide::ES_Right, FMath::Abs(PlayerPawnLocationTransformed.X - VolumeExtent.X));
-			Sides.Add(ESide::ES_Left, FMath::Abs(PlayerPawnLocationTransformed.X + VolumeExtent.X));
-			Sides.Add(ESide::ES_Top, FMath::Abs(PlayerPawnLocationTransformed.Z - VolumeExtent.Z));
-			Sides.Add(ESide::ES_Bottom, FMath::Abs(PlayerPawnLocationTransformed.Z + VolumeExtent.Z));
-			//Top-down
-			//Sides.Add(ESide::ES_Front, FMath::Abs(PlayerPawnLocationTransformed.Y - VolumeExtent.Y));
-			//Sides.Add(ESide::ES_Back, FMath::Abs(PlayerPawnLocationTransformed.Y + VolumeExtent.Y));
-			//Sides.Add(ESide::ES_Right, FMath::Abs(PlayerPawnLocationTransformed.X - VolumeExtent.X));
-			//Sides.Add(ESide::ES_Left, FMath::Abs(PlayerPawnLocationTransformed.X + VolumeExtent.X));
-		}
-	}
-
-	Sides.ValueSort([](float Min, float Max) { return Min < Max; });
-
-	for (auto& Pair : Sides)
-	{
-		NearestSide = Pair.Key;
-		break;
-	}
-
-	return NearestSide;
 }
 
 #if WITH_EDITOR

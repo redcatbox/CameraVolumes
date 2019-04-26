@@ -13,64 +13,36 @@ ACameraVolumeActor* UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(TArray
 	{
 		if (CameraVolume)
 		{
-			if (CameraVolume->GetActorRotation().IsZero())
+			FVector PlayerPawnLocationTransformed = CameraVolume->GetActorTransform().InverseTransformPositionNoScale(PlayerPawnLocation);
+
+			if (CameraVolume->bUse6DOFVolume)
 			{
-				if (CameraVolume->bUse6DOFVolume)
-				{
-					Condition = CameraVolume->CamVolWorldMin.X < PlayerPawnLocation.X
-						&& PlayerPawnLocation.X <= CameraVolume->CamVolWorldMax.X
-						&& CameraVolume->CamVolWorldMin.Y < PlayerPawnLocation.Y
-						&& PlayerPawnLocation.Y <= CameraVolume->CamVolWorldMax.Y
-						&& CameraVolume->CamVolWorldMin.Z < PlayerPawnLocation.Z
-						&& PlayerPawnLocation.Z <= CameraVolume->CamVolWorldMax.Z;
-				}
-				else
-				{
-					//Side-scroller
-					Condition = CameraVolume->CamVolWorldMin.X < PlayerPawnLocation.X
-						&& PlayerPawnLocation.X <= CameraVolume->CamVolWorldMax.X
-						&& CameraVolume->CamVolWorldMin.Z < PlayerPawnLocation.Z
-						&& PlayerPawnLocation.Z <= CameraVolume->CamVolWorldMax.Z;
-					//Top-down
-					//Condition = CameraVolume->CamVolWorldMin.X < PlayerPawnLocation.X
-					//	&& PlayerPawnLocation.X <= CameraVolume->CamVolWorldMax.X
-					//	&& CameraVolume->CamVolWorldMin.Y < PlayerPawnLocation.Y
-					//	&& PlayerPawnLocation.Y <= CameraVolume->CamVolWorldMax.Y;
-				}
+				Condition = -CameraVolume->VolumeExtent.X < PlayerPawnLocationTransformed.X
+					&& PlayerPawnLocationTransformed.X <= CameraVolume->VolumeExtent.X
+					&& -CameraVolume->VolumeExtent.Y < PlayerPawnLocationTransformed.Y
+					&& PlayerPawnLocationTransformed.Y <= CameraVolume->VolumeExtent.Y
+					&& -CameraVolume->VolumeExtent.Z < PlayerPawnLocationTransformed.Z
+					&& PlayerPawnLocationTransformed.Z <= CameraVolume->VolumeExtent.Z;
 			}
 			else
 			{
-				FVector PlayerPawnLocationTransformed = CameraVolume->GetActorTransform().InverseTransformPositionNoScale(PlayerPawnLocation);
-
-				if (CameraVolume->bUse6DOFVolume)
-				{
-					Condition = -CameraVolume->VolumeExtent.X < PlayerPawnLocationTransformed.X
-						&& PlayerPawnLocationTransformed.X <= CameraVolume->VolumeExtent.X
-						&& -CameraVolume->VolumeExtent.Y < PlayerPawnLocationTransformed.Y
-						&& PlayerPawnLocationTransformed.Y <= CameraVolume->VolumeExtent.Y
-						&& -CameraVolume->VolumeExtent.Z < PlayerPawnLocationTransformed.Z
-						&& PlayerPawnLocationTransformed.Z <= CameraVolume->VolumeExtent.Z;
-				}
-				else
-				{
-					//Side-scroller
-					Condition = -CameraVolume->VolumeExtent.X < PlayerPawnLocationTransformed.X
-						&& PlayerPawnLocationTransformed.X <= CameraVolume->VolumeExtent.X
-						&& -CameraVolume->VolumeExtent.Z < PlayerPawnLocationTransformed.Z
-						&& PlayerPawnLocationTransformed.Z <= CameraVolume->VolumeExtent.Z;
-					//Top-down
-					//Condition = -CameraVolume->VolumeExtent.X < PlayerPawnLocationTransformed.X
-					//	&& PlayerPawnLocationTransformed.X <= CameraVolume->VolumeExtent.X
-					//	&& -CameraVolume->VolumeExtent.Y < PlayerPawnLocationTransformed.Y
-					//	&& PlayerPawnLocationTransformed.Y <= CameraVolume->VolumeExtent.Y;
-				}
+				//Side-scroller
+				Condition = -CameraVolume->VolumeExtent.X < PlayerPawnLocationTransformed.X
+					&& PlayerPawnLocationTransformed.X <= CameraVolume->VolumeExtent.X
+					&& -CameraVolume->VolumeExtent.Z < PlayerPawnLocationTransformed.Z
+					&& PlayerPawnLocationTransformed.Z <= CameraVolume->VolumeExtent.Z;
+				//Top-down
+				//Condition = -CameraVolume->VolumeExtent.X < PlayerPawnLocationTransformed.X
+				//	&& PlayerPawnLocationTransformed.X <= CameraVolume->VolumeExtent.X
+				//	&& -CameraVolume->VolumeExtent.Y < PlayerPawnLocationTransformed.Y
+				//	&& PlayerPawnLocationTransformed.Y <= CameraVolume->VolumeExtent.Y;
 			}
+		}
 
-			if (Condition && (CameraVolume->Priority > MaxPriorityIndex))
-			{
-				MaxPriorityIndex = CameraVolume->Priority;
-				Result = CameraVolume;
-			}
+		if (Condition && (CameraVolume->Priority > MaxPriorityIndex))
+		{
+			MaxPriorityIndex = CameraVolume->Priority;
+			Result = CameraVolume;
 		}
 	}
 

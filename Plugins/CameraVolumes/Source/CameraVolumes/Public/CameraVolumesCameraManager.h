@@ -12,6 +12,9 @@
 #include "CameraVolumesFunctionLibrary.h"
 #include "CameraVolumesCameraManager.generated.h"
 
+/** Delegate for notification when camera volume is changed */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FCameraVolumeChangedSignature, ACameraVolumeActor*, CameraVolume, FSideInfo, PassedSideInfo);
+
 UCLASS(Config = CameraVolumes)
 class CAMERAVOLUMES_API ACameraVolumesCameraManager : public APlayerCameraManager
 {
@@ -23,7 +26,7 @@ public:
 
 	/** Set transition according to side info */
 	UFUNCTION()
-		virtual void SetTransitionBySideInfo(ACameraVolumeActor* CameraVolume, ESide Side);
+		virtual void SetTransitionBySideInfo(ACameraVolumeActor* CameraVolume, FSideInfo SideInfo);
 
 	/** Calculate new camera parameters */
 	UFUNCTION()
@@ -56,6 +59,10 @@ public:
 	/** Calculate screen world extent at depth */
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual FVector CalculateScreenWorldExtentAtDepth(float Depth);
+
+	/** OnCameraVolumeChanged event signature */
+	UPROPERTY(BlueprintAssignable, Category = CameraVolumes)
+		FCameraVolumeChangedSignature OnCameraVolumeChanged;
 
 protected:
 	UPROPERTY()
