@@ -70,7 +70,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DefaultParameters", Meta = (EditCondition = "bEnableCameraOrthoWidthInterp", ClampMin = "0.0", ClampMax = "1000.0", UIMin = "0.0", UIMax = "1000.0"))
 		float CameraOrthoWidthInterpSpeed;
 
-	/** Should camera use additional parameters? */
+	/** Should camera use additional (WORLD-SPACE) parameters? */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | AdditionalParameters")
 		bool bUseAdditionalCameraParams;
 

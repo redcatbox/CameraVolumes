@@ -87,8 +87,7 @@ ACameraVolumeActor::ACameraVolumeActor()
 
 void ACameraVolumeActor::UpdateVolume()
 {
-	//Reset actor rotation and scale
-	//SetActorRotation(FRotator::ZeroRotator);
+	//Reset actor scale
 	SetActorScale3D(FVector::OneVector);
 
 	//Extents
@@ -163,40 +162,40 @@ void ACameraVolumeActor::CalculateVolumeExtents()
 	CamVolMaxCorrected = VolumeExtent;
 
 	if (RightSide.SideType == ESideType::EST_Open)
-		CamVolMaxCorrected.X = CamVolMaxCorrected.X + OpenEdgeOffset;
+		CamVolMaxCorrected.X += OpenEdgeOffset;
 
 	if (LeftSide.SideType == ESideType::EST_Open)
-		CamVolMinCorrected.X = CamVolMinCorrected.X - OpenEdgeOffset;
+		CamVolMinCorrected.X -= OpenEdgeOffset;
 
 	//Side-scroller
 	if (TopSide.SideType == ESideType::EST_Open)
-		CamVolMaxCorrected.Z = CamVolMaxCorrected.Z + OpenEdgeOffset;
+		CamVolMaxCorrected.Z += OpenEdgeOffset;
 
 	if (BottomSide.SideType == ESideType::EST_Open)
-		CamVolMinCorrected.Z = CamVolMinCorrected.Z - OpenEdgeOffset;
+		CamVolMinCorrected.Z -= OpenEdgeOffset;
 
 	//Top-down
 	//if (FrontSide.SideType == ESideType::EST_Open)
-	//	CamVolMaxCorrected.Y = CamVolMaxCorrected.Y + OpenEdgeOffset;
+	//	CamVolMaxCorrected.Y += OpenEdgeOffset;
 
 	//if (BackSide.SideType == ESideType::EST_Open)
-	//	CamVolMinCorrected.Y = CamVolMinCorrected.Y - OpenEdgeOffset;
+	//	CamVolMinCorrected.Y -= OpenEdgeOffset;
 
 	if (bUse6DOFVolume)
 	{
 		//Side-scroller
 		if (FrontSide.SideType == ESideType::EST_Open)
-			CamVolMaxCorrected.Y = CamVolMaxCorrected.Y + OpenEdgeOffset;
+			CamVolMaxCorrected.Y += OpenEdgeOffset;
 
 		if (BackSide.SideType == ESideType::EST_Open)
-			CamVolMinCorrected.Y = CamVolMinCorrected.Y - OpenEdgeOffset;
+			CamVolMinCorrected.Y -= OpenEdgeOffset;
 
 		//Top-down
 		//if (TopSide.SideType == ESideType::EST_Open)
-		//	CamVolMaxCorrected.Z = CamVolMaxCorrected.Z + OpenEdgeOffset;
+		//	CamVolMaxCorrected.Z += OpenEdgeOffset;
 
 		//if (BottomSide.SideType == ESideType::EST_Open)
-		//	CamVolMinCorrected.Z = CamVolMinCorrected.Z - OpenEdgeOffset;
+		//	CamVolMinCorrected.Z -= OpenEdgeOffset;
 	}
 
 	if (bUseZeroDepthExtent)

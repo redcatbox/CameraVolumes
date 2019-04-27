@@ -3,7 +3,6 @@
 #include "CameraVolumesCameraManager.h"
 #include "CameraVolumesCharacterInterface.h"
 #include "GameFramework/PlayerController.h"
-#include "DrawDebugHelpers.h"
 
 ACameraVolumesCameraManager::ACameraVolumesCameraManager()
 {
@@ -229,15 +228,15 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 				FVector NewCamVolMinCorrected = CameraVolume->CamVolMinCorrected;
 				FVector NewCamVolMaxCorrected = CameraVolume->CamVolMaxCorrected;
 
-				// Calculate delta volume extent with +Y volume extent (+Z in top-down)
+				// Calculate delta volume extent with max +Y volume coordinate (+Z in top-down)
 				if (!CameraVolume->bUseZeroDepthExtent || !bIsCameraOrthographic)
 				{
 					FVector DeltaExtent = FVector::ZeroVector;
 					//Side-scroller
-					DeltaExtent.X = FMath::Abs((NewCamVolExtentCorrected.Y) * PlayerCamFOVTangens);
+					DeltaExtent.X = FMath::Abs((NewCamVolMaxCorrected.Y) * PlayerCamFOVTangens);
 					DeltaExtent = FVector(DeltaExtent.X, 0.f, DeltaExtent.X / ScreenAspectRatio);
 					//Top-down
-					//DeltaExtent.X = FMath::Abs((NewCamVolExtentCorrected.Z) * PlayerCamFOVTangens);
+					//DeltaExtent.X = FMath::Abs((NewCamVolMaxCorrected.Z) * PlayerCamFOVTangens);
 					//DeltaExtent = FVector(DeltaExtent.X, DeltaExtent.X / ScreenAspectRatio, 0.f);
 					NewCamVolExtentCorrected += DeltaExtent;
 					NewCamVolMinCorrected -= DeltaExtent;
@@ -277,11 +276,6 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 				//ScreenExtent = FVector(ScreenExtent.X, ScreenExtent.X / ScreenAspectRatio, 0.f); //Top-down
 				FVector ScreenMin = NewCamVolMinCorrected + ScreenExtent;
 				FVector ScreenMax = NewCamVolMaxCorrected - ScreenExtent;
-
-				DrawDebugSphere(GetWorld(), CameraVolume->GetActorTransform().TransformPositionNoScale(ScreenMin), 25.f, 8, FColor::White, false, -1.f, 0, 5.f);
-				DrawDebugSphere(GetWorld(), CameraVolume->GetActorTransform().TransformPositionNoScale(ScreenMax), 25.f, 8, FColor::White, false, -1.f, 0, 5.f);
-
-				CameraVolume->GetActorTransform().TransformPositionNoScale(ScreenMax);
 
 				//Side-scroller
 				NewCameraLocation = FVector(
