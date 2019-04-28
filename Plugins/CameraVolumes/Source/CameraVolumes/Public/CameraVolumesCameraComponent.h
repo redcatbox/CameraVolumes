@@ -90,18 +90,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | AdditionalParameters")
 		float AdditionalCameraOrthoWidth;
 
-	/** If true, do a collision test using ProbeChannel and ProbeSize to prevent camera clipping into level.  */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | Collision")
-		bool bDoCollisionTest;
-
-	/** How big should the query probe sphere be (in unreal units) */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraCollision | Collision", Meta = (EditCondition = "bDoCollisionTest"))
-		float ProbeSize;
-
-	/** Collision channel of the query probe (defaults to ECC_Camera) */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraCollision | Collision", Meta = (EditCondition = "bDoCollisionTest"))
-		TEnumAsByte<ECollisionChannel> ProbeChannel;
-
 	/** Overlapping camera volumes */
 	UPROPERTY()
 		TArray<ACameraVolumeActor*> OverlappingCameraVolumes;
