@@ -23,8 +23,7 @@
 				"Win64",
 				"Win32",
 				"HTML5",
-        "Android",
-        "IOS"
+				"Android"
 		]
     }
 	],
