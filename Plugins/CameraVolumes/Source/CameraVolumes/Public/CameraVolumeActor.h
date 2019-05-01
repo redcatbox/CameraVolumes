@@ -225,6 +225,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = SidesInfo)
 		virtual void SetBackSide(FSideInfo NewBackSide);
 
+#if WITH_EDITOR
 	/** Set all open */
 	UFUNCTION(CallInEditor, Category = SidesInfo)
 		virtual void SetAllOpen();
@@ -244,6 +245,7 @@ public:
 	/** Set all cut */
 	UFUNCTION(CallInEditor, Category = SidesInfo)
 		virtual void SetAllCut();
+#endif
 	//--------------------------------------------------
 
 	UPROPERTY()

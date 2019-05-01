@@ -625,6 +625,7 @@ void ACameraVolumeActor::SetBackSide(FSideInfo NewBackSide)
 	CalculateVolumeExtents();
 }
 
+#if WITH_EDITOR
 void ACameraVolumeActor::SetAllOpen()
 {
 	FrontSide.SideType = ESideType::EST_Open;
@@ -684,3 +685,4 @@ void ACameraVolumeActor::SetAllCut()
 
 	UpdateVolume();
 }
+#endif
