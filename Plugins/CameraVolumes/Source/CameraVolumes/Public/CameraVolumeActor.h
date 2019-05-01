@@ -224,6 +224,26 @@ public:
 	/** Set new BackSide info */
 	UFUNCTION(BlueprintCallable, Category = SidesInfo)
 		virtual void SetBackSide(FSideInfo NewBackSide);
+
+	/** Set all open */
+	UFUNCTION(CallInEditor, Category = SidesInfo)
+		virtual void SetAllOpen();
+
+	/** Set all closed */
+	UFUNCTION(CallInEditor, Category = SidesInfo)
+		virtual void SetAllClosed();
+
+	/** Set all normal */
+	UFUNCTION(CallInEditor, Category = SidesInfo)
+		virtual void SetAllNormal();
+
+	/** Set all smooth */
+	UFUNCTION(CallInEditor, Category = SidesInfo)
+		virtual void SetAllSmooth();
+
+	/** Set all cut */
+	UFUNCTION(CallInEditor, Category = SidesInfo)
+		virtual void SetAllCut();
 	//--------------------------------------------------
 
 	UPROPERTY()

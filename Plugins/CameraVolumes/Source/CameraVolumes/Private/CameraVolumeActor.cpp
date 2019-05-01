@@ -71,12 +71,12 @@ ACameraVolumeActor::ACameraVolumeActor()
 	TextSize = 50.f;
 #endif
 
+	FrontSide.Side = ESide::ES_Front;
+	BackSide.Side = ESide::ES_Back;
 	RightSide.Side = ESide::ES_Right;
 	LeftSide.Side = ESide::ES_Left;
 	TopSide.Side = ESide::ES_Top;
 	BottomSide.Side = ESide::ES_Bottom;
-	FrontSide.Side = ESide::ES_Front;
-	BackSide.Side = ESide::ES_Back;
 
 #if WITH_EDITOR
 	CreateSidesIndicators();
@@ -623,4 +623,64 @@ void ACameraVolumeActor::SetBackSide(FSideInfo NewBackSide)
 {
 	BackSide = NewBackSide;
 	CalculateVolumeExtents();
+}
+
+void ACameraVolumeActor::SetAllOpen()
+{
+	FrontSide.SideType = ESideType::EST_Open;
+	BackSide.SideType = ESideType::EST_Open;
+	RightSide.SideType = ESideType::EST_Open;
+	LeftSide.SideType = ESideType::EST_Open;
+	TopSide.SideType = ESideType::EST_Open;
+	BottomSide.SideType = ESideType::EST_Open;
+	
+	UpdateVolume();
+}
+
+void ACameraVolumeActor::SetAllClosed()
+{
+	FrontSide.SideType = ESideType::EST_Closed;
+	BackSide.SideType = ESideType::EST_Closed;
+	RightSide.SideType = ESideType::EST_Closed;
+	LeftSide.SideType = ESideType::EST_Closed;
+	TopSide.SideType = ESideType::EST_Closed;
+	BottomSide.SideType = ESideType::EST_Closed;
+
+	UpdateVolume();
+}
+
+void ACameraVolumeActor::SetAllNormal()
+{
+	FrontSide.SideTransitionType = ESideTransitionType::ESTT_Normal;
+	BackSide.SideTransitionType = ESideTransitionType::ESTT_Normal;
+	RightSide.SideTransitionType = ESideTransitionType::ESTT_Normal;
+	LeftSide.SideTransitionType = ESideTransitionType::ESTT_Normal;
+	TopSide.SideTransitionType = ESideTransitionType::ESTT_Normal;
+	BottomSide.SideTransitionType = ESideTransitionType::ESTT_Normal;
+
+	UpdateVolume();
+}
+
+void ACameraVolumeActor::SetAllSmooth()
+{
+	FrontSide.SideTransitionType = ESideTransitionType::ESTT_Smooth;
+	BackSide.SideTransitionType = ESideTransitionType::ESTT_Smooth;
+	RightSide.SideTransitionType = ESideTransitionType::ESTT_Smooth;
+	LeftSide.SideTransitionType = ESideTransitionType::ESTT_Smooth;
+	TopSide.SideTransitionType = ESideTransitionType::ESTT_Smooth;
+	BottomSide.SideTransitionType = ESideTransitionType::ESTT_Smooth;
+
+	UpdateVolume();
+}
+
+void ACameraVolumeActor::SetAllCut()
+{
+	FrontSide.SideTransitionType = ESideTransitionType::ESTT_Cut;
+	BackSide.SideTransitionType = ESideTransitionType::ESTT_Cut;
+	RightSide.SideTransitionType = ESideTransitionType::ESTT_Cut;
+	LeftSide.SideTransitionType = ESideTransitionType::ESTT_Cut;
+	TopSide.SideTransitionType = ESideTransitionType::ESTT_Cut;
+	BottomSide.SideTransitionType = ESideTransitionType::ESTT_Cut;
+
+	UpdateVolume();
 }
