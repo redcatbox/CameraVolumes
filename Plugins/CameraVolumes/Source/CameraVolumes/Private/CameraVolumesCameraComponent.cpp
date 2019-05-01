@@ -32,6 +32,8 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 	AdditionalCameraRotation = FRotator::ZeroRotator;
 	AdditionalCameraFOV = 0.f;
 	AdditionalCameraOrthoWidth = 0.f;
+
+	bUpdateCamera = true;
 }
 
 void UCameraVolumesCameraComponent::UpdateCameraComponent()
@@ -54,12 +56,15 @@ void UCameraVolumesCameraComponent::UpdateCameraComponent()
 
 void UCameraVolumesCameraComponent::UpdateCamera(FVector& CameraLocation, FQuat& CameraRotation, float CameraFOV)
 {
-	SetWorldLocationAndRotation(CameraLocation, CameraRotation);
+	if (bUpdateCamera)
+	{
+		SetWorldLocationAndRotation(CameraLocation, CameraRotation);
 
-	if (bIsCameraOrthographic)
-		SetOrthoWidth(CameraFOV);
-	else
-		SetFieldOfView(CameraFOV);
+		if (bIsCameraOrthographic)
+			SetOrthoWidth(CameraFOV);
+		else
+			SetFieldOfView(CameraFOV);
+	}
 }
 
 //Update with changed property

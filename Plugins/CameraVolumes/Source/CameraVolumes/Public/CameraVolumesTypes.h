@@ -46,6 +46,9 @@ struct FSideInfo
 {
 	GENERATED_BODY()
 
+	UPROPERTY(BlueprintReadOnly, Category = SidesInfo)
+		ESide Side;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SidesInfo)
 		ESideType SideType;
 
@@ -54,13 +57,8 @@ struct FSideInfo
 
 	FSideInfo()
 	{
+		Side = ESide::ES_Front;
 		SideType = ESideType::EST_Open;
 		SideTransitionType = ESideTransitionType::ESTT_Normal;
-	}
-
-	FSideInfo(ESideType SideType, ESideTransitionType SideTransitionType)
-	{
-		this->SideType = SideType;
-		this->SideTransitionType = SideTransitionType;
 	}
 };

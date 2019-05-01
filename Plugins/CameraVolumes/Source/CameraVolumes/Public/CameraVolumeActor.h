@@ -174,7 +174,7 @@ public:
 		float CameraOrthoWidth;
 
 	/** Speed of smooth camera transition */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SidesInfo, Meta = (ClampMin = "0.1", ClampMax = "10.0", UIMin = "0.1", UIMax = "10.0"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SidesInfo, Meta = (ClampMin = "0.01", ClampMax = "10.0", UIMin = "0.01", UIMax = "10.0"))
 		float CameraSmoothTransitionSpeed;
 
 	/** Right side info */
@@ -224,22 +224,38 @@ public:
 	/** Set new BackSide info */
 	UFUNCTION(BlueprintCallable, Category = SidesInfo)
 		virtual void SetBackSide(FSideInfo NewBackSide);
+
+#if WITH_EDITOR
+	/** Set all open */
+	UFUNCTION(CallInEditor, Category = SidesInfo)
+		virtual void SetAllOpen();
+
+	/** Set all closed */
+	UFUNCTION(CallInEditor, Category = SidesInfo)
+		virtual void SetAllClosed();
+
+	/** Set all normal */
+	UFUNCTION(CallInEditor, Category = SidesInfo)
+		virtual void SetAllNormal();
+
+	/** Set all smooth */
+	UFUNCTION(CallInEditor, Category = SidesInfo)
+		virtual void SetAllSmooth();
+
+	/** Set all cut */
+	UFUNCTION(CallInEditor, Category = SidesInfo)
+		virtual void SetAllCut();
+#endif
 	//--------------------------------------------------
 
 	UPROPERTY()
 		float CamVolAspectRatio;
 
 	UPROPERTY()
-		FVector CamVolWorldMin;
+		FVector CamVolMinCorrected;
 
 	UPROPERTY()
-		FVector CamVolWorldMax;
-
-	UPROPERTY()
-		FVector CamVolWorldMinCorrected;
-
-	UPROPERTY()
-		FVector CamVolWorldMaxCorrected;
+		FVector CamVolMaxCorrected;
 
 	UPROPERTY()
 		FVector CamVolExtentCorrected;
@@ -252,13 +268,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual void CalculateVolumeExtents();
 
-	/** Get side info */
+	/** Get side info for the volume side nearest to player location */
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-		virtual FSideInfo GetSideInfo(ESide Side);
-
-	/** Get volume side nearest to player location */
-	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-		virtual ESide GetNearestVolumeSide(FVector& PlayerPawnLocation);
+		virtual FSideInfo GetNearestVolumeSideInfo(FVector& PlayerPawnLocation);
 
 protected:
 	const float OpenEdgeOffset = 10000.f;
