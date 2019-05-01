@@ -32,11 +32,11 @@ public:
 	UFUNCTION()
 		virtual void CalcNewCameraParams(ACameraVolumeActor* CameraVolume, float DeltaTime);
 
-	/** Should perform camera calculations? */
+	/** Should perform camera updates? */
 	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
 		bool bUpdateCamera;
 
-	/** Set perform camera calculations. Use this to enable/disable camera updates if it's necessary. */
+	/** Set perform camera updates. */
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual void SetUpdateCamera(bool bNewUpdateCamera);
 
@@ -47,7 +47,7 @@ public:
 	/** Set check for camera volumes. Used by Player Character according to overlapping camera volumes. */
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual void SetCheckCameraVolumes(bool bNewCheck);
-	
+
 	/** Should perform camera blocking calculations? */
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = CameraVolumes)
 		bool bPerformBlockingCalculations;
@@ -63,6 +63,14 @@ public:
 	/** OnCameraVolumeChanged event signature */
 	UPROPERTY(BlueprintAssignable, Category = CameraVolumes)
 		FCameraVolumeChangedSignature OnCameraVolumeChanged;
+
+	/** Get new calculated camera location. */
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
+		virtual FVector GetNewCameraLocation() { return NewCameraLocation; }
+
+	/** Get new calculated camera rotation. */
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
+		virtual FRotator GetNewCameraRotation() { return NewCameraRotation.Rotator(); }
 
 protected:
 	UPROPERTY()

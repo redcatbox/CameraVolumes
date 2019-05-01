@@ -7,7 +7,7 @@
 #include "CameraVolumeActor.h"
 #include "CameraVolumesCameraComponent.generated.h"
 
-UCLASS(AutoExpandCategories = (DefaultCameraParameters))
+UCLASS(AutoExpandCategories = (CameraSettings))
 class CAMERAVOLUMES_API UCameraVolumesCameraComponent : public UCameraComponent
 {
 	GENERATED_BODY()
@@ -91,7 +91,7 @@ public:
 		float AdditionalCameraOrthoWidth;
 
 	/** Overlapping camera volumes */
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
 		TArray<ACameraVolumeActor*> OverlappingCameraVolumes;
 
 	/** Updates camera by camera manager */
@@ -105,6 +105,10 @@ public:
 	/** Update camera component parameters */
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual void UpdateCameraComponent();
+
+	/** Should update camera parameters? */
+	UPROPERTY(BlueprintReadWrite, Category = CameraVolumes)
+		bool bUpdateCamera;
 
 #if WITH_EDITOR
 	//Override PostEditChangeProperty
