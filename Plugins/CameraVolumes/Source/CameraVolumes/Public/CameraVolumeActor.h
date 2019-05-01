@@ -174,7 +174,7 @@ public:
 		float CameraOrthoWidth;
 
 	/** Speed of smooth camera transition */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SidesInfo, Meta = (ClampMin = "0.1", ClampMax = "10.0", UIMin = "0.1", UIMax = "10.0"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SidesInfo, Meta = (ClampMin = "0.01", ClampMax = "10.0", UIMin = "0.01", UIMax = "10.0"))
 		float CameraSmoothTransitionSpeed;
 
 	/** Right side info */
