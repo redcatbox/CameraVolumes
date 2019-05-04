@@ -19,7 +19,7 @@
 #include "CameraVolumesTypes.h"
 #include "CameraVolumeActor.generated.h"
 
-UCLASS(Config = CameraVolumes, AutoExpandCategories = (Volume, Camera))
+UCLASS(Config = CameraVolumes, AutoExpandCategories = (Camera, SidesInfo, Volume))
 class CAMERAVOLUMES_API ACameraVolumeActor : public AActor
 {
 	GENERATED_BODY()
