@@ -95,7 +95,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | AdditionalParameters")
 		float AdditionalCameraOrthoWidth;
 
-	/** If true, do a collision test using ProbeChannel and ProbeSize to prevent camera clipping into level.  */
+	/** If true, do a collision test using ProbeChannel and ProbeSize to prevent camera clipping into level. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraCollision")
 		bool bDoCollisionTest;
 
@@ -126,10 +126,6 @@ public:
 	/** Should update camera parameters? */
 	UPROPERTY(BlueprintReadWrite, Category = CameraVolumes)
 		bool bUpdateCamera;
-
-	/** Is current camera static? */
-	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
-		bool bCameraStatic;
 
 #if WITH_EDITOR
 	//Override PostEditChangeProperty

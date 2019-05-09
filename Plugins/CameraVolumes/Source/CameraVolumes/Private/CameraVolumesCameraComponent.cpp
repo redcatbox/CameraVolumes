@@ -37,7 +37,6 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 	ProbeChannel = ECC_Camera;
 
 	bUpdateCamera = true;
-	bCameraStatic = false;
 }
 
 void UCameraVolumesCameraComponent::UpdateCameraComponent()
@@ -62,8 +61,6 @@ void UCameraVolumesCameraComponent::UpdateCamera(FVector& CameraLocation, FVecto
 {
 	if (bUpdateCamera)
 	{
-		bCameraStatic = bIsCameraStatic;
-
 		if (bDoCollisionTest && !bIsCameraStatic)
 		{
 			FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(SpringArm), false, GetOwner());
