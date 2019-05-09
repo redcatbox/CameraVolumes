@@ -95,6 +95,9 @@ protected:
 		FVector NewCameraLocation;
 
 	UPROPERTY()
+		FVector NewCameraFocalPoint;
+
+	UPROPERTY()
 		FQuat OldCameraRotation;
 
 	UPROPERTY()
@@ -106,6 +109,9 @@ protected:
 	/** Used as FOV or OrthoWidth depending on bIsCameraOrthographic */
 	UPROPERTY()
 		float NewCameraFOV_OW;
+
+	UPROPERTY()
+		float bIsCameraStatic;
 
 	UPROPERTY()
 		bool bIsCameraOrthographic;

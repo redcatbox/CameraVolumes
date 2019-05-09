@@ -1,5 +1,10 @@
 // Dmitriy Barannik aka redbox, 2019
 
+/**
+* Camera component contains overlapped camera volumes and updates final camera parameters provided by camera manager.
+* Can do camera collision test similar to SpringArm.
+*/
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -7,7 +12,7 @@
 #include "CameraVolumeActor.h"
 #include "CameraVolumesCameraComponent.generated.h"
 
-UCLASS(AutoExpandCategories = (CameraSettings))
+UCLASS(AutoExpandCategories = (CameraSettings, "CameraSettings | DefaultParameters", "CameraSettings | AdditionalParameters", "CameraSettings | CameraCollision"))
 class CAMERAVOLUMES_API UCameraVolumesCameraComponent : public UCameraComponent
 {
 	GENERATED_BODY()
@@ -90,13 +95,25 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | AdditionalParameters")
 		float AdditionalCameraOrthoWidth;
 
+	/** If true, do a collision test using ProbeChannel and ProbeSize to prevent camera clipping into level. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraCollision")
+		bool bDoCollisionTest;
+
+	/** How big should the query probe sphere be (in unreal units) */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraCollision", Meta = (EditCondition = "bDoCollisionTest"))
+		float ProbeSize;
+
+	/** Collision channel of the query probe (defaults to ECC_Camera) */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraCollision", Meta = (EditCondition = "bDoCollisionTest"))
+		TEnumAsByte<ECollisionChannel> ProbeChannel;
+
 	/** Overlapping camera volumes */
 	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
 		TArray<ACameraVolumeActor*> OverlappingCameraVolumes;
 
 	/** Updates camera by camera manager */
 	UFUNCTION()
-		virtual void UpdateCamera(FVector& CameraLocation, FQuat& CameraRotation, float CameraFOV);
+		virtual void UpdateCamera(FVector& CameraLocation, FVector& CameraFocalPoint, FQuat& CameraRotation, float CameraFOV, bool bIsCameraStatic);
 
 	/** Get is camera uses orthographic projection mode */
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)

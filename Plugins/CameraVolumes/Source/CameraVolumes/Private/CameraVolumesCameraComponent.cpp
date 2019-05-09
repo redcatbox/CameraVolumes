@@ -6,11 +6,9 @@
 UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 {
 	// Camera defaults
-	DefaultCameraLocation = FVector(0.f, 1000.f, 0.f); //Side-scroller
-	//DefaultCameraLocation = FVector(0.f, 0.f, 1000.f); //Top-down
+	DefaultCameraLocation = FVector(0.f, 1000.f, 0.f);
 	DefaultCameraFocalPoint = FVector::ZeroVector;
-	DefaultCameraRoll = 0.f; //Side-scroller
-	//DefaultCameraRoll = 90.f; //Top-down
+	DefaultCameraRoll = 0.f;
 	DefaultCameraFieldOfView = 90.f;
 	DefaultCameraOrthoWidth = 512.f;
 	bIsCameraOrthographic = false;
@@ -33,6 +31,11 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 	AdditionalCameraFOV = 0.f;
 	AdditionalCameraOrthoWidth = 0.f;
 
+	// Camera collision
+	bDoCollisionTest = false;
+	ProbeSize = 12.0f;
+	ProbeChannel = ECC_Camera;
+
 	bUpdateCamera = true;
 }
 
@@ -54,10 +57,20 @@ void UCameraVolumesCameraComponent::UpdateCameraComponent()
 	SetRelativeLocationAndRotation(DefaultCameraLocation, DefaultCameraRotation);
 }
 
-void UCameraVolumesCameraComponent::UpdateCamera(FVector& CameraLocation, FQuat& CameraRotation, float CameraFOV)
+void UCameraVolumesCameraComponent::UpdateCamera(FVector& CameraLocation, FVector& CameraFocalPoint, FQuat& CameraRotation, float CameraFOV, bool bIsCameraStatic)
 {
 	if (bUpdateCamera)
 	{
+		if (bDoCollisionTest && !bIsCameraStatic)
+		{
+			FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(SpringArm), false, GetOwner());
+			FHitResult HitResult;
+			GetWorld()->SweepSingleByChannel(HitResult, CameraFocalPoint, CameraLocation, FQuat::Identity, ProbeChannel, FCollisionShape::MakeSphere(ProbeSize), QueryParams);
+
+			if (HitResult.bBlockingHit)
+				CameraLocation = HitResult.Location;
+		}
+
 		SetWorldLocationAndRotation(CameraLocation, CameraRotation);
 
 		if (bIsCameraOrthographic)
