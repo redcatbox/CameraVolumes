@@ -127,6 +127,10 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = CameraVolumes)
 		bool bUpdateCamera;
 
+	/** Is current camera static? */
+	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
+		bool bCameraStatic;
+
 #if WITH_EDITOR
 	//Override PostEditChangeProperty
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;

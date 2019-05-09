@@ -26,16 +26,10 @@ ACameraVolumeActor* UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(TArray
 			}
 			else
 			{
-				//Side-scroller
 				Condition = -CameraVolume->VolumeExtent.X < PlayerPawnLocationTransformed.X
 					&& PlayerPawnLocationTransformed.X <= CameraVolume->VolumeExtent.X
 					&& -CameraVolume->VolumeExtent.Z < PlayerPawnLocationTransformed.Z
 					&& PlayerPawnLocationTransformed.Z <= CameraVolume->VolumeExtent.Z;
-				//Top-down
-				//Condition = -CameraVolume->VolumeExtent.X < PlayerPawnLocationTransformed.X
-				//	&& PlayerPawnLocationTransformed.X <= CameraVolume->VolumeExtent.X
-				//	&& -CameraVolume->VolumeExtent.Y < PlayerPawnLocationTransformed.Y
-				//	&& PlayerPawnLocationTransformed.Y <= CameraVolume->VolumeExtent.Y;
 			}
 		}
 
@@ -63,16 +57,10 @@ bool UCameraVolumesFunctionLibrary::CompareSidesPairs(ESide SideA, ESide SideB, 
 	}
 	else
 	{
-		//Side-scroller
 		if ((SideA == ESide::ES_Right && SideB == ESide::ES_Left)
 			|| (SideA == ESide::ES_Left && SideB == ESide::ES_Right)
 			|| (SideA == ESide::ES_Top && SideB == ESide::ES_Bottom)
 			|| (SideA == ESide::ES_Bottom && SideB == ESide::ES_Top))
-			//Top-down
-			//if ((SideA == ESide::ES_Front && SideB == ESide::ES_Back)
-			//	|| (SideA == ESide::ES_Back && SideB == ESide::ES_Front)
-			//	|| (SideA == ESide::ES_Right && SideB == ESide::ES_Left)
-			//	|| (SideA == ESide::ES_Left && SideB == ESide::ES_Right))
 			return true;
 	}
 

@@ -6,11 +6,9 @@
 UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 {
 	// Camera defaults
-	DefaultCameraLocation = FVector(0.f, 1000.f, 0.f); //Side-scroller
-	//DefaultCameraLocation = FVector(0.f, 0.f, 1000.f); //Top-down
+	DefaultCameraLocation = FVector(0.f, 1000.f, 0.f);
 	DefaultCameraFocalPoint = FVector::ZeroVector;
-	DefaultCameraRoll = 0.f; //Side-scroller
-	//DefaultCameraRoll = 90.f; //Top-down
+	DefaultCameraRoll = 0.f;
 	DefaultCameraFieldOfView = 90.f;
 	DefaultCameraOrthoWidth = 512.f;
 	bIsCameraOrthographic = false;
@@ -39,6 +37,7 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 	ProbeChannel = ECC_Camera;
 
 	bUpdateCamera = true;
+	bCameraStatic = false;
 }
 
 void UCameraVolumesCameraComponent::UpdateCameraComponent()
@@ -63,6 +62,8 @@ void UCameraVolumesCameraComponent::UpdateCamera(FVector& CameraLocation, FVecto
 {
 	if (bUpdateCamera)
 	{
+		bCameraStatic = bIsCameraStatic;
+
 		if (bDoCollisionTest && !bIsCameraStatic)
 		{
 			FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(SpringArm), false, GetOwner());
