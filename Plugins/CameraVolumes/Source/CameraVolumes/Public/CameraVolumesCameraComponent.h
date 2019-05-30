@@ -24,13 +24,25 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DefaultParameters")
 		FVector DefaultCameraLocation;
 
+	/** Set default camera location */
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
+		virtual void SetDefaultCameraLocation(FVector NewDefaultCameraLocation);
+
 	/** Default camera RELATIVE focal point */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DefaultParameters")
 		FVector DefaultCameraFocalPoint;
 
+	/** Set default camera focal point */
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
+		virtual void SetDefaultCameraFocalPoint(FVector NewDefaultCameraFocalPoint);
+
 	/** Default camera roll */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DefaultParameters")
 		float DefaultCameraRoll;
+
+	/** Set default camera roll */
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
+		virtual void SetDefaultCameraRoll(float NewDefaultCameraRoll);
 
 	UPROPERTY()
 		FQuat DefaultCameraRotation;
