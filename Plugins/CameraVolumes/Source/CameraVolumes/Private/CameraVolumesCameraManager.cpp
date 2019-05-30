@@ -9,6 +9,8 @@ ACameraVolumesCameraManager::ACameraVolumesCameraManager()
 	bUpdateCamera = true;
 	bCheckCameraVolumes = true;
 	bPerformBlockingCalculations = true;
+	PlayerPawnLocationOld = FVector::ZeroVector;
+	PlayerPawnLocation = FVector::ZeroVector;
 	CameraVolumePrevious = nullptr;
 	CameraVolumeCurrent = nullptr;
 	OldCameraLocation = FVector::ZeroVector;
@@ -22,6 +24,8 @@ ACameraVolumesCameraManager::ACameraVolumesCameraManager()
 	bIsCameraOrthographic = false;
 	bNeedsSmoothTransition = false;
 	bNeedsCutTransition = false;
+	bBroadcastOnCameraVolumeChanged = false;
+	bUsePlayerPawnControlRotation = false;
 }
 
 void ACameraVolumesCameraManager::SetUpdateCamera(bool bNewUpdateCamera)
@@ -51,7 +55,7 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 {
 	if (bUpdateCamera)
 	{
-		APawn* PlayerPawn = GetOwningPlayerController()->GetPawn();
+		PlayerPawn = GetOwningPlayerController()->GetPawn();
 		if (PlayerPawn)
 		{
 			ICameraVolumesCharacterInterface* PlayerCharacter = Cast<ICameraVolumesCharacterInterface>(PlayerPawn);
@@ -70,6 +74,8 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 				NewCameraFocalPoint = PlayerPawnLocation + CameraComponent->DefaultCameraFocalPoint;
 				bIsCameraStatic = false;
 				OldCameraFOV_OW = NewCameraFOV_OW;
+				bBroadcastOnCameraVolumeChanged = false;
+				bUsePlayerPawnControlRotation = false;
 
 				if (bIsCameraOrthographic)
 					NewCameraFOV_OW = CameraComponent->DefaultCameraOrthoWidth;
@@ -194,7 +200,6 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 		if (bIsCameraStatic)
 		{
 			NewCameraLocation = CameraVolume->CameraLocation;
-			//NewCameraFocalPoint = CameraVolume->CameraFocalPoint;
 
 			if (CameraVolume->bFocalPointIsPlayer)
 			{
@@ -309,17 +314,38 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 		NewCameraLocation = CameraVolume->GetActorTransform().TransformPositionNoScale(NewCameraLocation);
 		NewCameraFocalPoint = CameraVolume->GetActorTransform().TransformPositionNoScale(NewCameraFocalPoint);
 		NewCameraRotation = CameraVolume->GetActorTransform().TransformRotation(NewCameraRotation);
+
+		bUsePlayerPawnControlRotation = false;
 	}
-
-	if (CameraComponent->bUseAdditionalCameraParams)
+	else if (CameraComponent->bUsePawnControlRotationCV)
 	{
-		NewCameraLocation += CameraComponent->AdditionalCameraLocation;
-		NewCameraRotation *= CameraComponent->AdditionalCameraRotation.Quaternion();
+		FRotator CamRot = CameraComponent->DefaultCameraRotation.Rotator();
+		FRotator PawnViewRot = PlayerPawn->GetViewRotation();
 
-		if (bIsCameraOrthographic)
-			NewCameraFOV_OW += CameraComponent->AdditionalCameraOrthoWidth;
-		else
-			NewCameraFOV_OW += CameraComponent->AdditionalCameraFOV;
+		if (!CameraComponent->bInheritPitchCV)
+			PawnViewRot.Pitch = CamRot.Pitch;
+
+		if (!CameraComponent->bInheritYawCV)
+			PawnViewRot.Yaw = CamRot.Yaw;
+
+		if (!CameraComponent->bInheritRollCV)
+			PawnViewRot.Roll = CamRot.Roll;
+
+		NewCameraRotation = PawnViewRot.Quaternion();
+
+		if (CameraComponent->bEnableCameraRotationLag)
+			NewCameraRotation = FMath::QInterpTo(OldCameraRotation, NewCameraRotation, DeltaTime, CameraComponent->CameraRotationLagSpeed);
+
+		NewCameraLocation = PlayerPawnLocation;
+
+		if (CameraComponent->bEnableCameraLocationLag)
+			NewCameraLocation = FMath::VInterpTo(PlayerPawnLocationOld, NewCameraLocation, DeltaTime, CameraComponent->CameraLocationLagSpeed);
+
+		PlayerPawnLocationOld = NewCameraLocation;
+		NewCameraFocalPoint = NewCameraLocation + PlayerPawn->GetActorQuat().RotateVector(CameraComponent->DefaultCameraFocalPoint);
+		NewCameraLocation = NewCameraFocalPoint + NewCameraRotation.RotateVector(CameraComponent->DefaultCameraLocation - CameraComponent->DefaultCameraFocalPoint);
+
+		bUsePlayerPawnControlRotation = true;
 	}
 
 	if (bNeedsSmoothTransition)
@@ -345,10 +371,10 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 	}
 	else
 	{
-		if (CameraComponent->bEnableCameraLocationLag)
+		if (CameraComponent->bEnableCameraLocationLag && !bUsePlayerPawnControlRotation)
 			NewCameraLocation = FMath::VInterpTo(OldCameraLocation, NewCameraLocation, DeltaTime, CameraComponent->CameraLocationLagSpeed);
 
-		if (CameraComponent->bEnableCameraRotationLag)
+		if (CameraComponent->bEnableCameraRotationLag && !bUsePlayerPawnControlRotation)
 			NewCameraRotation = FMath::QInterpTo(OldCameraRotation, NewCameraRotation, DeltaTime, CameraComponent->CameraRotationLagSpeed);
 
 		if (bIsCameraOrthographic)
@@ -362,6 +388,21 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 				NewCameraFOV_OW = FMath::FInterpTo(OldCameraFOV_OW, NewCameraFOV_OW, DeltaTime, CameraComponent->CameraFOVInterpSpeed);
 		}
 	}
+
+	if (CameraComponent->bUseAdditionalCameraParams)
+	{
+		NewCameraLocation += CameraComponent->AdditionalCameraLocation;
+		NewCameraRotation *= CameraComponent->AdditionalCameraRotation.Quaternion();
+
+		if (bIsCameraOrthographic)
+			NewCameraFOV_OW += CameraComponent->AdditionalCameraOrthoWidth;
+		else
+			NewCameraFOV_OW += CameraComponent->AdditionalCameraFOV;
+	}
+
+	// Broadcast volume changed event
+	if (bBroadcastOnCameraVolumeChanged)
+		OnCameraVolumeChanged.Broadcast(BroadcastCameraVolume, BroadcastSideInfo);
 }
 
 void ACameraVolumesCameraManager::SetTransitionBySideInfo(ACameraVolumeActor* CameraVolume, FSideInfo SideInfo)
@@ -385,17 +426,24 @@ void ACameraVolumesCameraManager::SetTransitionBySideInfo(ACameraVolumeActor* Ca
 		bNeedsCutTransition = false;
 	}
 
-	// Broadcast volume changed event
-	OnCameraVolumeChanged.Broadcast(CameraVolume, SideInfo);
+	// Store OnCameraVolumeChanged broadcast params
+	bBroadcastOnCameraVolumeChanged = true;
+
+	if (bBroadcastOnCameraVolumeChanged)
+	{
+		BroadcastCameraVolume = CameraVolume;
+		BroadcastSideInfo = SideInfo;
+	}
 }
 
 FVector ACameraVolumesCameraManager::CalculateScreenWorldExtentAtDepth(float Depth)
 {
 	FVector ScreenExtentResult = FVector::ZeroVector;
-	APawn* PlayerPawn = GetOwningPlayerController()->GetPawn();
-	if (PlayerPawn)
+	APawn* PlayerPawnRef = GetOwningPlayerController()->GetPawn();
+
+	if (PlayerPawnRef)
 	{
-		ICameraVolumesCharacterInterface* PlayerCharacter = Cast<ICameraVolumesCharacterInterface>(PlayerPawn);
+		ICameraVolumesCharacterInterface* PlayerCharacter = Cast<ICameraVolumesCharacterInterface>(PlayerPawnRef);
 		if (PlayerCharacter)
 		{
 			UCameraVolumesCameraComponent* PlayerCameraComponent = PlayerCharacter->GetCameraComponent();

@@ -36,6 +36,12 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 	ProbeSize = 12.0f;
 	ProbeChannel = ECC_Camera;
 
+	// Camera rotation
+	bUsePawnControlRotationCV = false;
+	bInheritPitchCV = true;
+	bInheritYawCV = true;
+	bInheritRollCV = true;
+
 	bUpdateCamera = true;
 }
 

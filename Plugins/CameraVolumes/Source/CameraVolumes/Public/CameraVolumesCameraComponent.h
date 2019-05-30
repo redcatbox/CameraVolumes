@@ -107,6 +107,22 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraCollision", Meta = (EditCondition = "bDoCollisionTest"))
 		TEnumAsByte<ECollisionChannel> ProbeChannel;
 
+	/** Should it use the view/control rotation of the pawn where possible? */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraRotation")
+		bool bUsePawnControlRotationCV;
+
+	/** Should we inherit pitch from parent component. Does nothing if using Absolute Rotation. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraRotation")
+		bool bInheritPitchCV;
+
+	/** Should we inherit yaw from parent component. Does nothing if using Absolute Rotation. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraRotation")
+		bool bInheritYawCV;
+
+	/** Should we inherit roll from parent component. Does nothing if using Absolute Rotation. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraRotation")
+		bool bInheritRollCV;
+
 	/** Overlapping camera volumes */
 	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
 		TArray<ACameraVolumeActor*> OverlappingCameraVolumes;
