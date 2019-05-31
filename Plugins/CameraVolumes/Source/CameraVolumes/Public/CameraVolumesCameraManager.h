@@ -74,10 +74,19 @@ public:
 
 protected:
 	UPROPERTY()
-		class UCameraVolumesCameraComponent* CameraComponent;
+		class APawn* PlayerPawn;
+
+	UPROPERTY()
+		bool bUsePlayerPawnControlRotation;
 
 	UPROPERTY()
 		FVector PlayerPawnLocation;
+
+	UPROPERTY()
+		FVector PlayerPawnLocationOld;
+
+	UPROPERTY()
+		class UCameraVolumesCameraComponent* CameraComponent;
 
 	UPROPERTY()
 		TArray<AActor*> OverlappingActors;
@@ -133,4 +142,13 @@ protected:
 
 	UFUNCTION()
 		virtual void SelectPerformBlockingCalculations(bool bCameraVolumePerformCameraBlocking);
+
+	UPROPERTY()
+		bool bBroadcastOnCameraVolumeChanged;
+
+	UPROPERTY()
+		ACameraVolumeActor* BroadcastCameraVolume;
+
+	UPROPERTY()
+		FSideInfo BroadcastSideInfo;
 };

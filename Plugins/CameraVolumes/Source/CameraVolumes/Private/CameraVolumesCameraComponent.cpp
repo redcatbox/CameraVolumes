@@ -36,6 +36,12 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 	ProbeSize = 12.0f;
 	ProbeChannel = ECC_Camera;
 
+	// Camera rotation
+	bUsePawnControlRotationCV = false;
+	bInheritPitchCV = true;
+	bInheritYawCV = true;
+	bInheritRollCV = true;
+
 	bUpdateCamera = true;
 }
 
@@ -95,3 +101,22 @@ void UCameraVolumesCameraComponent::PostEditChangeProperty(FPropertyChangedEvent
 		UpdateCameraComponent();
 }
 #endif
+
+// Runtime setters
+void UCameraVolumesCameraComponent::SetDefaultCameraLocation(FVector NewDefaultCameraLocation)
+{
+	DefaultCameraLocation = NewDefaultCameraLocation;
+	DefaultCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(DefaultCameraLocation, DefaultCameraFocalPoint, DefaultCameraRoll);
+}
+
+void UCameraVolumesCameraComponent::SetDefaultCameraFocalPoint(FVector NewDefaultCameraFocalPoint)
+{
+	DefaultCameraFocalPoint = NewDefaultCameraFocalPoint;
+	DefaultCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(DefaultCameraLocation, DefaultCameraFocalPoint, DefaultCameraRoll);
+}
+
+void UCameraVolumesCameraComponent::SetDefaultCameraRoll(float NewDefaultCameraRoll)
+{
+	DefaultCameraRoll = NewDefaultCameraRoll;
+	DefaultCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(DefaultCameraLocation, DefaultCameraFocalPoint, DefaultCameraRoll);
+}
