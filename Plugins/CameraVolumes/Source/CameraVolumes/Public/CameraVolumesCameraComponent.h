@@ -12,7 +12,7 @@
 #include "CameraVolumeActor.h"
 #include "CameraVolumesCameraComponent.generated.h"
 
-UCLASS(AutoExpandCategories = (CameraSettings, "CameraSettings | DefaultParameters", "CameraSettings | AdditionalParameters", "CameraSettings | CameraCollision"))
+UCLASS(AutoExpandCategories = (CameraSettings, "CameraSettings | DefaultParameters", "CameraSettings | AdditionalParameters", "CameraSettings | CameraCollision", "CameraSettings | CameraRotation"))
 class CAMERAVOLUMES_API UCameraVolumesCameraComponent : public UCameraComponent
 {
 	GENERATED_BODY()
@@ -123,15 +123,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraRotation")
 		bool bUsePawnControlRotationCV;
 
-	/** Should we inherit pitch from parent component. Does nothing if using Absolute Rotation. */
+	/** Should we inherit pitch from parent component. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraRotation")
 		bool bInheritPitchCV;
 
-	/** Should we inherit yaw from parent component. Does nothing if using Absolute Rotation. */
+	/** Should we inherit yaw from parent component. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraRotation")
 		bool bInheritYawCV;
 
-	/** Should we inherit roll from parent component. Does nothing if using Absolute Rotation. */
+	/** Should we inherit roll from parent component. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraRotation")
 		bool bInheritRollCV;
 
