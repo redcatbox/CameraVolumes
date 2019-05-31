@@ -63,24 +63,6 @@ void UCameraVolumesCameraComponent::UpdateCameraComponent()
 	SetRelativeLocationAndRotation(DefaultCameraLocation, DefaultCameraRotation);
 }
 
-void UCameraVolumesCameraComponent::SetDefaultCameraLocation(FVector NewDefaultCameraLocation)
-{
-	DefaultCameraLocation = NewDefaultCameraLocation;
-	DefaultCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(DefaultCameraLocation, DefaultCameraFocalPoint, DefaultCameraRoll);
-}
-
-void UCameraVolumesCameraComponent::SetDefaultCameraFocalPoint(FVector NewDefaultCameraFocalPoint)
-{
-	DefaultCameraFocalPoint = NewDefaultCameraFocalPoint;
-	DefaultCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(DefaultCameraLocation, DefaultCameraFocalPoint, DefaultCameraRoll);
-}
-
-void UCameraVolumesCameraComponent::SetDefaultCameraRoll(float NewDefaultCameraRoll)
-{
-	DefaultCameraRoll = NewDefaultCameraRoll;
-	DefaultCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(DefaultCameraLocation, DefaultCameraFocalPoint, DefaultCameraRoll);
-}
-
 void UCameraVolumesCameraComponent::UpdateCamera(FVector& CameraLocation, FVector& CameraFocalPoint, FQuat& CameraRotation, float CameraFOV, bool bIsCameraStatic)
 {
 	if (bUpdateCamera)
@@ -119,3 +101,22 @@ void UCameraVolumesCameraComponent::PostEditChangeProperty(FPropertyChangedEvent
 		UpdateCameraComponent();
 }
 #endif
+
+// Runtime setters
+void UCameraVolumesCameraComponent::SetDefaultCameraLocation(FVector NewDefaultCameraLocation)
+{
+	DefaultCameraLocation = NewDefaultCameraLocation;
+	DefaultCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(DefaultCameraLocation, DefaultCameraFocalPoint, DefaultCameraRoll);
+}
+
+void UCameraVolumesCameraComponent::SetDefaultCameraFocalPoint(FVector NewDefaultCameraFocalPoint)
+{
+	DefaultCameraFocalPoint = NewDefaultCameraFocalPoint;
+	DefaultCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(DefaultCameraLocation, DefaultCameraFocalPoint, DefaultCameraRoll);
+}
+
+void UCameraVolumesCameraComponent::SetDefaultCameraRoll(float NewDefaultCameraRoll)
+{
+	DefaultCameraRoll = NewDefaultCameraRoll;
+	DefaultCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(DefaultCameraLocation, DefaultCameraFocalPoint, DefaultCameraRoll);
+}

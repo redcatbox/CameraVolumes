@@ -66,6 +66,7 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 				CameraVolumeCurrent = nullptr;
 				CameraComponent = PlayerCharacter->GetCameraComponent();
 				bIsCameraOrthographic = CameraComponent->GetIsCameraOrthographic();
+				PlayerPawnLocationOld = PlayerPawnLocation;
 				PlayerPawnLocation = PlayerPawn->GetActorLocation();
 				OldCameraLocation = NewCameraLocation;
 				OldCameraRotation = NewCameraRotation;
