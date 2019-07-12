@@ -43,6 +43,7 @@ ACameraVolumeActor::ACameraVolumeActor()
 	bUseZeroDepthExtent = false;
 	bUse6DOFVolume = false;
 	bPerformCameraBlocking = true;
+	bDisableMainBoxCollision = false;
 
 #if WITH_EDITORONLY_DATA
 	CameraProjectionMode = ECameraProjectionMode::Perspective;
@@ -65,6 +66,10 @@ ACameraVolumeActor::ACameraVolumeActor()
 	CameraOrthoWidth = 512.f;
 
 	CameraSmoothTransitionSpeed = 1.f;
+
+	bUseCameraRotationAxis = false;
+	CameraRotationAxisStart = FVector(0.f, 0.f, -100.f);
+	CameraRotationAxisEnd = FVector(0.f, 0.f, 100.f);
 
 #if WITH_EDITORONLY_DATA
 	TextSize = 50.f;
@@ -94,6 +99,7 @@ void ACameraVolumeActor::UpdateVolume()
 
 	//Components
 	BoxComponent->SetBoxExtent(VolumeExtent);
+	SetDisableMainBoxCollision(bDisableMainBoxCollision);
 
 #if WITH_EDITORONLY_DATA
 	BillboardComponent->SetRelativeLocation(FVector::ZeroVector);
@@ -435,7 +441,9 @@ void ACameraVolumeActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyC
 		|| TEXT("bOverrideCameraFieldOfView") || TEXT("CameraFieldOfView")
 		|| TEXT("bOverrideCameraOrthoWidth") || TEXT("CameraOrthoWidth")
 		|| TEXT("FrontSide") || TEXT("BackSide") || TEXT("RightSide") || TEXT("LeftSide") || TEXT("TopSide") || TEXT("BottomSide")
-		|| TEXT("TextSize"))
+		|| TEXT("TextSize")
+		|| TEXT("bDisableMainBoxCollision")
+		|| TEXT("bUseCameraRotationAxis") || TEXT("CameraRotationAxisStart") || TEXT("CameraRotationAxisEnd"))
 		UpdateVolume();
 }
 
@@ -626,3 +634,38 @@ void ACameraVolumeActor::SetAllCut()
 	UpdateVolume();
 }
 #endif
+
+// Runtime setters
+void ACameraVolumeActor::SetDisableMainBoxCollision(bool bNewDisableMainBoxCollision)
+{
+	bDisableMainBoxCollision = bNewDisableMainBoxCollision;
+
+	if (bDisableMainBoxCollision)
+		BoxComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	else
+		BoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+}
+
+void ACameraVolumeActor::SetUseCameraRotationAxis(bool bNewUseCameraRotationAxis)
+{
+	bUseCameraRotationAxis = bNewUseCameraRotationAxis;
+	CalcCameraRotationAxisVector();
+}
+
+void ACameraVolumeActor::SetCameraRotationAxisStart(FVector NewCameraRotationAxisStart)
+{
+	CameraRotationAxisStart = NewCameraRotationAxisStart;
+	CalcCameraRotationAxisVector();
+}
+
+void ACameraVolumeActor::SetCameraRotationAxisEnd(FVector NewCameraRotationAxisEnd)
+{
+	CameraRotationAxisEnd = NewCameraRotationAxisEnd;
+	CalcCameraRotationAxisVector();
+}
+
+void ACameraVolumeActor::CalcCameraRotationAxisVector()
+{
+	CameraRotationAxisVector = CameraRotationAxisEnd - CameraRotationAxisStart;
+	CameraRotationAxisDirection = CameraRotationAxisVector.GetSafeNormal();
+}

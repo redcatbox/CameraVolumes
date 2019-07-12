@@ -42,7 +42,6 @@ protected:
 	UPROPERTY()
 		class UCameraComponent* CameraComponent;
 #endif
-	//--------------------------------------------------
 
 public:
 	//Parameters
@@ -83,6 +82,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Volume)
 		bool bPerformCameraBlocking;
 
+	/** Should disable collision for main box primitive? */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Volume)
+		bool bDisableMainBoxCollision;
+
+	/** Disable main box collision */
+	UFUNCTION(BlueprintCallable, Category = Volume)
+		virtual void SetDisableMainBoxCollision(bool bNewDisableMainBoxCollision);
+
 #if WITH_EDITORONLY_DATA
 	/** Camera projection mode (For camera frustrum preview only!) */
 	UPROPERTY(Config, EditAnywhere, BlueprintReadWrite, Category = Camera)
@@ -103,7 +110,7 @@ protected:
 
 public:
 	/** Returns is volume uses static camera settings */
-	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
+	UFUNCTION(BlueprintCallable, Category = Camera)
 		bool GetIsCameraStatic() const { return bIsCameraStatic; }
 
 	/** Should override camera location? */
@@ -172,6 +179,50 @@ public:
 	/** New camera OrthoWidth. For orthographic cameras. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (EditCondition = "bOverrideCameraOrthoWidth"))
 		float CameraOrthoWidth;
+
+	/** Should rotate camera around specified axis? */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera)
+		bool bUseCameraRotationAxis;
+
+	/** Set use camera rotation axis */
+	UFUNCTION(BlueprintCallable, Category = Camera)
+		virtual void SetUseCameraRotationAxis(bool bNewUseCameraRotationAxis);
+
+	/** Rotation axis start point */
+	UPROPERTY(EditAnywhere, Category = Camera, Meta = (EditCondition = "bUseCameraRotationAxis", MakeEditWidget = true))
+		FVector CameraRotationAxisStart;
+
+	/** Set camera rotation axis start point */
+	UFUNCTION(BlueprintCallable, Category = Camera)
+		virtual void SetCameraRotationAxisStart(FVector NewCameraRotationAxisStart);
+
+	/** Rotation axis end point */
+	UPROPERTY(EditAnywhere, Category = Camera, Meta = (EditCondition = "bUseCameraRotationAxis", MakeEditWidget = true))
+		FVector CameraRotationAxisEnd;
+
+	/** Set camera rotation axis end point */
+	UFUNCTION(BlueprintCallable, Category = Camera)
+		virtual void SetCameraRotationAxisEnd(FVector NewCameraRotationAxisEnd);
+
+protected:
+	UPROPERTY()
+		FVector CameraRotationAxisVector;
+
+	/** Calc camera rotation axis direction vector */
+	UFUNCTION()
+		virtual void CalcCameraRotationAxisVector();
+
+	UPROPERTY()
+		FVector CameraRotationAxisDirection;
+
+public:
+	/** Returns camera rotation axis vector */
+	UFUNCTION(BlueprintCallable, Category = Camera)
+		FVector GetCameraRotationAxisVector() const { return CameraRotationAxisVector; }
+
+	/** Returns camera rotation axis direction vector */
+	UFUNCTION(BlueprintCallable, Category = Camera)
+		FVector GetCameraRotationAxisDirection() const { return CameraRotationAxisDirection; }
 
 	/** Speed of smooth camera transition */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SidesInfo, Meta = (ClampMin = "0.01", ClampMax = "10.0", UIMin = "0.01", UIMax = "10.0"))
@@ -246,7 +297,6 @@ public:
 	UFUNCTION(CallInEditor, Category = SidesInfo)
 		virtual void SetAllCut();
 #endif
-	//--------------------------------------------------
 
 	UPROPERTY()
 		float CamVolAspectRatio;
@@ -306,7 +356,6 @@ protected:
 	const FText Text_Normal = FText::FromString("NORMAL");
 	const FText Text_Smooth = FText::FromString("SMOOTH");
 	const FText Text_Cut = FText::FromString("CUT");
-	//--------------------------------------------------
 #endif
 
 public:

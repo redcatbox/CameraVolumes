@@ -1,7 +1,6 @@
 //Dmitriy Barannik aka redbox, 2019
 
 #include "CameraVolumesFunctionLibrary.h"
-#include "DrawDebugHelpers.h"
 
 ACameraVolumeActor* UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(TArray<ACameraVolumeActor*> CameraVolumes, FVector& PlayerPawnLocation)
 {
