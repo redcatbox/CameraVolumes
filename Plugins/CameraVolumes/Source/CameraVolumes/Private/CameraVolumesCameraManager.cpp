@@ -256,11 +256,13 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 			if (CameraVolume->bUseCameraRotationAxis)
 			{
 				//A + dot(AP, AB) / dot(AB, AB) * AB;
-				FVector CamToAxisDist = CameraVolume->CameraRotationAxisStart + FVector::DotProduct(PlayerPawnLocationTransformed, CameraVolume->GetCameraRotationAxisVector());
-				FVector CamToAxisDir = FVector::CrossProduct(CameraVolume->GetCameraRotationAxisDirection(), FVector::CrossProduct(CameraVolume->GetCameraRotationAxisDirection(), (PlayerPawnLocationTransformed - CameraVolume->CameraRotationAxisStart).GetSafeNormal()));
+				
+				//FVector CamToAxisDist = CameraVolume->CameraRotationAxisStart + FVector::DotProduct(PlayerPawnLocationTransformed, CameraVolume->GetCameraRotationAxisVector());
 
-				NewCameraLocation = ;
-				NewCameraLocation += CameraVolume->CameraLocation * CamToAxisDir;
+				//FVector CamToAxisDir = FVector::CrossProduct(CameraVolume->GetCameraRotationAxisDirection(), FVector::CrossProduct(CameraVolume->GetCameraRotationAxisDirection(), (PlayerPawnLocationTransformed - CameraVolume->CameraRotationAxisStart).GetSafeNormal()));
+
+				NewCameraLocation = CameraVolume->CameraLocation;
+				//NewCameraLocation += CameraVolume->CameraLocation * CamToAxisDir;
 			}
 
 			if (bBlockingCalculations && !CameraVolume->bUseCameraRotationAxis)

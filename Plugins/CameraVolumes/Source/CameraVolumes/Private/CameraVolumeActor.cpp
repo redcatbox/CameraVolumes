@@ -67,9 +67,8 @@ ACameraVolumeActor::ACameraVolumeActor()
 
 	CameraSmoothTransitionSpeed = 1.f;
 
+	bUseCameraRotationAxisEditCond = true;
 	bUseCameraRotationAxis = false;
-	CameraRotationAxisStart = FVector(0.f, 0.f, -100.f);
-	CameraRotationAxisEnd = FVector(0.f, 0.f, 100.f);
 
 #if WITH_EDITORONLY_DATA
 	TextSize = 50.f;
@@ -119,13 +118,24 @@ void ACameraVolumeActor::UpdateVolume()
 	case ECameraMobility::ECM_Movable:
 		bIsCameraStatic = false;
 		bFocalPointIsPlayer = true;
+		bUseCameraRotationAxisEditCond = true;
 		break;
 	case ECameraMobility::ECM_Static:
 		bIsCameraStatic = true;
 		bOverrideCameraLocation = true;
 		bPerformCameraBlocking = false;
+		bUseCameraRotationAxisEditCond = false;
+		bUseCameraRotationAxis = false;
 		break;
 	}
+
+	if (bUseCameraRotationAxis)
+	{
+		bPerformCameraBlockingEditCond = false;
+		bPerformCameraBlocking = false;
+	}
+	else
+		bPerformCameraBlockingEditCond = true;
 
 	if (!bOverrideCameraLocation)
 		CameraLocation = FVector(0.f, 1000.f, 0.f);
@@ -434,16 +444,15 @@ void ACameraVolumeActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyC
 	FName PropertyName = (PropertyChangedEvent.Property != NULL) ? PropertyChangedEvent.Property->GetFName() : NAME_None;
 	if (PropertyName == TEXT("Priority") || TEXT("VolumeExtent")
 		|| TEXT("bUseZeroDepthExtent") || TEXT("bUse6DOFVolume")
-		|| TEXT("CameraProjectionMode")
-		|| TEXT("CameraMobility")
+		|| TEXT("bDisableMainBoxCollision")
+		|| TEXT("CameraProjectionMode") || TEXT("CameraMobility")
 		|| TEXT("bOverrideCameraLocation") || TEXT("CameraLocation")
 		|| TEXT("bOverrideCameraRotation") || TEXT("CameraFocalPoint") || TEXT("CameraRoll")
 		|| TEXT("bOverrideCameraFieldOfView") || TEXT("CameraFieldOfView")
 		|| TEXT("bOverrideCameraOrthoWidth") || TEXT("CameraOrthoWidth")
 		|| TEXT("FrontSide") || TEXT("BackSide") || TEXT("RightSide") || TEXT("LeftSide") || TEXT("TopSide") || TEXT("BottomSide")
 		|| TEXT("TextSize")
-		|| TEXT("bDisableMainBoxCollision")
-		|| TEXT("bUseCameraRotationAxis") || TEXT("CameraRotationAxisStart") || TEXT("CameraRotationAxisEnd"))
+		|| TEXT("bUseCameraRotationAxis"))
 		UpdateVolume();
 }
 
@@ -644,28 +653,4 @@ void ACameraVolumeActor::SetDisableMainBoxCollision(bool bNewDisableMainBoxColli
 		BoxComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	else
 		BoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-}
-
-void ACameraVolumeActor::SetUseCameraRotationAxis(bool bNewUseCameraRotationAxis)
-{
-	bUseCameraRotationAxis = bNewUseCameraRotationAxis;
-	CalcCameraRotationAxisVector();
-}
-
-void ACameraVolumeActor::SetCameraRotationAxisStart(FVector NewCameraRotationAxisStart)
-{
-	CameraRotationAxisStart = NewCameraRotationAxisStart;
-	CalcCameraRotationAxisVector();
-}
-
-void ACameraVolumeActor::SetCameraRotationAxisEnd(FVector NewCameraRotationAxisEnd)
-{
-	CameraRotationAxisEnd = NewCameraRotationAxisEnd;
-	CalcCameraRotationAxisVector();
-}
-
-void ACameraVolumeActor::CalcCameraRotationAxisVector()
-{
-	CameraRotationAxisVector = CameraRotationAxisEnd - CameraRotationAxisStart;
-	CameraRotationAxisDirection = CameraRotationAxisVector.GetSafeNormal();
 }

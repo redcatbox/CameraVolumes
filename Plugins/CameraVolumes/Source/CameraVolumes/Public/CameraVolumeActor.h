@@ -78,8 +78,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Volume)
 		virtual void SetUse6DOFVolume(bool bNewUse6DOFVolume);
 
+protected:
+	UPROPERTY()
+		bool bPerformCameraBlockingEditCond;
+	
+public:
 	/** Should perform camera blocking calculations in this volume? */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Volume)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Volume, Meta = (EditCondition = "bPerformCameraBlockingEditCond"))
 		bool bPerformCameraBlocking;
 
 	/** Should disable collision for main box primitive? */
@@ -180,49 +185,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (EditCondition = "bOverrideCameraOrthoWidth"))
 		float CameraOrthoWidth;
 
-	/** Should rotate camera around specified axis? */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera)
-		bool bUseCameraRotationAxis;
-
-	/** Set use camera rotation axis */
-	UFUNCTION(BlueprintCallable, Category = Camera)
-		virtual void SetUseCameraRotationAxis(bool bNewUseCameraRotationAxis);
-
-	/** Rotation axis start point */
-	UPROPERTY(EditAnywhere, Category = Camera, Meta = (EditCondition = "bUseCameraRotationAxis", MakeEditWidget = true))
-		FVector CameraRotationAxisStart;
-
-	/** Set camera rotation axis start point */
-	UFUNCTION(BlueprintCallable, Category = Camera)
-		virtual void SetCameraRotationAxisStart(FVector NewCameraRotationAxisStart);
-
-	/** Rotation axis end point */
-	UPROPERTY(EditAnywhere, Category = Camera, Meta = (EditCondition = "bUseCameraRotationAxis", MakeEditWidget = true))
-		FVector CameraRotationAxisEnd;
-
-	/** Set camera rotation axis end point */
-	UFUNCTION(BlueprintCallable, Category = Camera)
-		virtual void SetCameraRotationAxisEnd(FVector NewCameraRotationAxisEnd);
-
 protected:
 	UPROPERTY()
-		FVector CameraRotationAxisVector;
-
-	/** Calc camera rotation axis direction vector */
-	UFUNCTION()
-		virtual void CalcCameraRotationAxisVector();
-
-	UPROPERTY()
-		FVector CameraRotationAxisDirection;
+		bool bUseCameraRotationAxisEditCond;
 
 public:
-	/** Returns camera rotation axis vector */
-	UFUNCTION(BlueprintCallable, Category = Camera)
-		FVector GetCameraRotationAxisVector() const { return CameraRotationAxisVector; }
-
-	/** Returns camera rotation axis direction vector */
-	UFUNCTION(BlueprintCallable, Category = Camera)
-		FVector GetCameraRotationAxisDirection() const { return CameraRotationAxisDirection; }
+	/** Should rotate camera around specified axis? */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera, Meta = (EditCondition = "bUseCameraRotationAxisEditCond"))
+		bool bUseCameraRotationAxis;
 
 	/** Speed of smooth camera transition */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SidesInfo, Meta = (ClampMin = "0.01", ClampMax = "10.0", UIMin = "0.01", UIMax = "10.0"))
