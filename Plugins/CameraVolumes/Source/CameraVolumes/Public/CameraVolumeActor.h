@@ -191,7 +191,7 @@ protected:
 
 public:
 	/** Should rotate camera around specified axis? */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera, Meta = (EditCondition = "bUseCameraRotationAxisEditCond"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (EditCondition = "bUseCameraRotationAxisEditCond"))
 		bool bUseCameraRotationAxis;
 
 	/** Speed of smooth camera transition */

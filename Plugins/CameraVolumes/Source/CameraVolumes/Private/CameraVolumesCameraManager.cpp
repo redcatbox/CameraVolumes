@@ -214,42 +214,32 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 		{
 			if (CameraVolume->bUseCameraRotationAxis)
 			{
+				FQuat RotToAxis = FRotationMatrix::MakeFromX(PlayerPawnLocationTransformed.GetSafeNormal2D()).ToQuat();
+
 				if (CameraVolume->bCameraLocationRelativeToVolume)
 				{
 					if (CameraVolume->bOverrideCameraLocation)
-					{
-						NewCameraLocation = FRotationMatrix::MakeFromY(PlayerPawnLocationTransformed.GetSafeNormal2D()).ToQuat().RotateVector(CameraVolume->CameraLocation);
-					}
+						NewCameraLocation = RotToAxis.RotateVector(CameraVolume->CameraLocation);
 					else
-					{
-						NewCameraLocation = FRotationMatrix::MakeFromY(PlayerPawnLocationTransformed.GetSafeNormal2D()).ToQuat().RotateVector(CameraComponent->DefaultCameraLocation);
-					}
-
-					if (CameraVolume->bOverrideCameraRotation)
-					{
-						NewCameraFocalPoint = PlayerPawnLocationTransformed + CameraVolume->CameraFocalPoint;
-						NewCameraRotation = CameraVolume->CameraRotation * FRotationMatrix::MakeFromX(PlayerPawnLocationTransformed.GetSafeNormal2D()).ToQuat();
-					}
-					else
-					{
-						NewCameraFocalPoint = PlayerPawnLocationTransformed + CameraComponent->DefaultCameraFocalPoint;
-						NewCameraRotation = CameraVolume->CameraRotation * FRotationMatrix::MakeFromX(PlayerPawnLocationTransformed.GetSafeNormal2D()).ToQuat();
-					}
+						NewCameraLocation = RotToAxis.RotateVector(CameraComponent->DefaultCameraLocation);
 				}
 				else
 				{
 					if (CameraVolume->bOverrideCameraLocation)
-						NewCameraLocation = PlayerPawnLocationTransformed + CameraVolume->CameraLocation;
+						NewCameraLocation = PlayerPawnLocationTransformed + RotToAxis.RotateVector(CameraVolume->CameraLocation);
 					else
-						NewCameraLocation = PlayerPawnLocationTransformed + CameraComponent->DefaultCameraLocation;
+						NewCameraLocation = PlayerPawnLocationTransformed + RotToAxis.RotateVector(CameraComponent->DefaultCameraLocation);
+				}
 
-					if (CameraVolume->bOverrideCameraRotation)
-					{
-						NewCameraFocalPoint = PlayerPawnLocationTransformed + CameraVolume->CameraFocalPoint;
-						NewCameraRotation = CameraVolume->CameraRotation;
-					}
-					else
-						NewCameraFocalPoint = PlayerPawnLocationTransformed + CameraComponent->DefaultCameraFocalPoint;
+				if (CameraVolume->bOverrideCameraRotation)
+				{
+					NewCameraFocalPoint = PlayerPawnLocationTransformed + CameraVolume->CameraFocalPoint;
+					NewCameraRotation = CameraVolume->CameraRotation * RotToAxis;
+				}
+				else
+				{
+					NewCameraFocalPoint = PlayerPawnLocationTransformed + CameraComponent->DefaultCameraFocalPoint;
+					NewCameraRotation = CameraComponent->DefaultCameraRotation * RotToAxis;
 				}
 			}
 			else

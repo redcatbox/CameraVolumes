@@ -133,6 +133,8 @@ void ACameraVolumeActor::UpdateVolume()
 	{
 		bPerformCameraBlockingEditCond = false;
 		bPerformCameraBlocking = false;
+		bOverrideCameraLocation = true;
+		bOverrideCameraRotation = true;
 	}
 	else
 		bPerformCameraBlockingEditCond = true;
