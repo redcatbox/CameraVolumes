@@ -652,7 +652,13 @@ void ACameraVolumeActor::SetDisableMainBoxCollision(bool bNewDisableMainBoxColli
 	bDisableMainBoxCollision = bNewDisableMainBoxCollision;
 
 	if (bDisableMainBoxCollision)
+	{
 		BoxComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		BoxComponent->ShapeColor = FColor::Silver;
+	}
 	else
+	{
 		BoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		BoxComponent->ShapeColor = FColor(223, 149, 157, 255);
+	}
 }
