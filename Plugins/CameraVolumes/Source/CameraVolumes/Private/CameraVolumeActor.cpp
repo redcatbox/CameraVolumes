@@ -133,8 +133,6 @@ void ACameraVolumeActor::UpdateVolume()
 	{
 		bPerformCameraBlockingEditCond = false;
 		bPerformCameraBlocking = false;
-		bOverrideCameraLocation = true;
-		bOverrideCameraRotation = true;
 	}
 	else
 		bPerformCameraBlockingEditCond = true;
@@ -299,7 +297,7 @@ void ACameraVolumeActor::UpdateSidesIndicators()
 	Text_Indicators[0]->SetWorldSize(2.f * TextSize);
 	Text_Indicators[0]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y + 5.f, TextSize), FRotator(0.f, 90.f, 0.f));
 
-//Sides
+	//Sides
 	for (uint8 i = 1; i <= 18; i = i + 3)
 	{
 		Text_Indicators[i]->SetWorldSize(TextSize);
@@ -584,6 +582,22 @@ void ACameraVolumeActor::SetBackSide(FSideInfo NewBackSide)
 	CalculateVolumeExtents();
 }
 
+void ACameraVolumeActor::SetDisableMainBoxCollision(bool bNewDisableMainBoxCollision)
+{
+	bDisableMainBoxCollision = bNewDisableMainBoxCollision;
+
+	if (bDisableMainBoxCollision)
+	{
+		BoxComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		BoxComponent->ShapeColor = FColor(127, 127, 127, 255);
+	}
+	else
+	{
+		BoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		BoxComponent->ShapeColor = FColor(223, 149, 157, 255);
+	}
+}
+
 #if WITH_EDITOR
 void ACameraVolumeActor::SetAllOpen()
 {
@@ -593,7 +607,7 @@ void ACameraVolumeActor::SetAllOpen()
 	LeftSide.SideType = ESideType::EST_Open;
 	TopSide.SideType = ESideType::EST_Open;
 	BottomSide.SideType = ESideType::EST_Open;
-	
+
 	UpdateVolume();
 }
 
@@ -645,20 +659,3 @@ void ACameraVolumeActor::SetAllCut()
 	UpdateVolume();
 }
 #endif
-
-// Runtime setters
-void ACameraVolumeActor::SetDisableMainBoxCollision(bool bNewDisableMainBoxCollision)
-{
-	bDisableMainBoxCollision = bNewDisableMainBoxCollision;
-
-	if (bDisableMainBoxCollision)
-	{
-		BoxComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		BoxComponent->ShapeColor = FColor::Silver;
-	}
-	else
-	{
-		BoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-		BoxComponent->ShapeColor = FColor(223, 149, 157, 255);
-	}
-}

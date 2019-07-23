@@ -81,7 +81,7 @@ public:
 protected:
 	UPROPERTY()
 		bool bPerformCameraBlockingEditCond;
-	
+
 public:
 	/** Should perform camera blocking calculations in this volume? */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Volume, Meta = (EditCondition = "bPerformCameraBlockingEditCond"))
