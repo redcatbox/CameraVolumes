@@ -227,15 +227,12 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 					NewCameraLocation += PlayerPawnLocationTransformed;
 
 				if (CameraVolume->bOverrideCameraRotation)
-				{
-					NewCameraFocalPoint += CameraVolume->CameraFocalPoint;
-					NewCameraRotation = CameraVolume->CameraRotation * RotToAxis;//UCameraVolumesFunctionLibrary::CalculateCameraRotation(NewCameraLocation, NewCameraFocalPoint, CameraVolume->CameraRoll) * RotToAxis;
-				}
+					NewCameraFocalPoint = CameraVolume->CameraFocalPoint;
 				else
-				{
-					NewCameraFocalPoint += CameraComponent->DefaultCameraFocalPoint;
-					NewCameraRotation = CameraComponent->DefaultCameraRotation * RotToAxis;
-				}
+					NewCameraFocalPoint = CameraComponent->DefaultCameraFocalPoint;
+
+				NewCameraFocalPoint = RotToAxis.RotateVector(NewCameraFocalPoint);
+				NewCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(NewCameraLocation, NewCameraFocalPoint, CameraVolume->CameraRoll);
 			}
 			else
 			{

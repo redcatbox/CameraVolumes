@@ -129,13 +129,13 @@ void ACameraVolumeActor::UpdateVolume()
 		break;
 	}
 
-	if (bUseCameraRotationAxis)
-	{
-		bPerformCameraBlockingEditCond = false;
-		bPerformCameraBlocking = false;
-	}
-	else
-		bPerformCameraBlockingEditCond = true;
+	//if (bUseCameraRotationAxis)
+	//{
+	//	bPerformCameraBlockingEditCond = false;
+	//	bPerformCameraBlocking = false;
+	//}
+	//else
+	//	bPerformCameraBlockingEditCond = true;
 
 	if (!bOverrideCameraLocation)
 		CameraLocation = FVector(0.f, 1000.f, 0.f);
