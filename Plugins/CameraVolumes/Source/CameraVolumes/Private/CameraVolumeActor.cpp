@@ -42,6 +42,7 @@ ACameraVolumeActor::ACameraVolumeActor()
 	bUseZeroDepthExtentEditCond = true;
 	bUseZeroDepthExtent = false;
 	bUse6DOFVolume = false;
+	bPerformCameraBlockingEditCond = true;
 	bPerformCameraBlocking = true;
 	bDisableMainBoxCollision = false;
 

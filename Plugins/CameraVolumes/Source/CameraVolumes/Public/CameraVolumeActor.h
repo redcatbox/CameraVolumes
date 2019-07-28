@@ -293,7 +293,9 @@ public:
 		virtual FSideInfo GetNearestVolumeSideInfo(FVector& PlayerPawnLocation);
 
 protected:
-	const float OpenEdgeOffset = 10000.f;
+	UPROPERTY(Config)
+		float OpenEdgeOffset = 10000.f;
+
 	const FVector VolumeExtentDefault = FVector(500.f, 500.f, 500.f);
 
 #if WITH_EDITOR

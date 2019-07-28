@@ -214,14 +214,13 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 		{
 			if (CameraVolume->bUseCameraRotationAxis)
 			{
-				FQuat RotToAxis = FRotationMatrix::MakeFromX(PlayerPawnLocationTransformed.GetSafeNormal2D()).ToQuat();
-
 				if (CameraVolume->bOverrideCameraLocation)
 					NewCameraLocation = CameraVolume->CameraLocation;
 				else
 					NewCameraLocation = CameraComponent->DefaultCameraLocation;
 
-				NewCameraLocation = RotToAxis.RotateVector(NewCameraLocation);
+				FQuat RotToAxis = FRotationMatrix::MakeFromX(PlayerPawnLocationTransformed.GetSafeNormal2D()).ToQuat();
+				NewCameraLocation = RotToAxis.RotateVector(NewCameraLocation) + FVector(0.f, 0.f, PlayerPawnLocationTransformed.Z);
 
 				if (!CameraVolume->bCameraLocationRelativeToVolume && CameraVolume->bOverrideCameraLocation)
 					NewCameraLocation += PlayerPawnLocationTransformed;
@@ -266,7 +265,7 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 				}
 			}
 
-			if (bBlockingCalculations && !CameraVolume->bUseCameraRotationAxis)
+			if (bBlockingCalculations/* && !CameraVolume->bUseCameraRotationAxis*/)
 			{
 				FVector NewCamVolExtentCorrected = CameraVolume->CamVolExtentCorrected;
 				FVector NewCamVolMinCorrected = CameraVolume->CamVolMinCorrected;
@@ -283,7 +282,7 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 					NewCamVolMaxCorrected += DeltaExtent;
 				}
 
-				// Camera offset is always relative to camera volume local X axis.
+				// Camera offset is always relative to camera volume local X axis
 				float CameraOffset;
 				CameraOffset = NewCameraLocation.Y;
 
@@ -317,10 +316,16 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 				FVector ScreenMin = NewCamVolMinCorrected + ScreenExtent;
 				FVector ScreenMax = NewCamVolMaxCorrected - ScreenExtent;
 
-				NewCameraLocation = FVector(
-					FMath::Clamp(NewCameraLocation.X, ScreenMin.X, ScreenMax.X),
-					CameraOffset,
-					FMath::Clamp(NewCameraLocation.Z, ScreenMin.Z, ScreenMax.Z));
+				if (CameraVolume->bUseCameraRotationAxis) // Perform camera blocking only on top and bottom sides
+					NewCameraLocation = FVector(
+						NewCameraLocation.X,
+						CameraOffset,
+						FMath::Clamp(NewCameraLocation.Z, ScreenMin.Z, ScreenMax.Z));
+				else
+					NewCameraLocation = FVector(
+						FMath::Clamp(NewCameraLocation.X, ScreenMin.X, ScreenMax.X),
+						CameraOffset,
+						FMath::Clamp(NewCameraLocation.Z, ScreenMin.Z, ScreenMax.Z));
 			}
 		}
 
