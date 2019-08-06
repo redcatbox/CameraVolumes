@@ -219,19 +219,28 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 				else
 					NewCameraLocation = CameraComponent->DefaultCameraLocation;
 
-				FQuat RotToAxis = FRotationMatrix::MakeFromX(PlayerPawnLocationTransformed.GetSafeNormal2D()).ToQuat();
+				FVector DirToAxis = PlayerPawnLocationTransformed.GetSafeNormal2D();
+				FQuat RotToAxis = FRotationMatrix::MakeFromX(DirToAxis).ToQuat();
 				NewCameraLocation = RotToAxis.RotateVector(NewCameraLocation) + FVector(0.f, 0.f, PlayerPawnLocationTransformed.Z);
 
 				if (!CameraVolume->bCameraLocationRelativeToVolume && CameraVolume->bOverrideCameraLocation)
-					NewCameraLocation += PlayerPawnLocationTransformed;
+					NewCameraLocation += FVector(PlayerPawnLocationTransformed.X, PlayerPawnLocationTransformed.Y, 0.f);
+
+				NewCameraFocalPoint = PlayerPawnLocationTransformed;
+				float NewCameraRoll = 0;
 
 				if (CameraVolume->bOverrideCameraRotation)
-					NewCameraFocalPoint = CameraVolume->CameraFocalPoint;
+				{
+					NewCameraFocalPoint += RotToAxis.RotateVector(CameraVolume->CameraFocalPoint);
+					NewCameraRoll = CameraVolume->CameraRoll;
+				}
 				else
-					NewCameraFocalPoint = CameraComponent->DefaultCameraFocalPoint;
+				{
+					NewCameraFocalPoint += RotToAxis.RotateVector(CameraComponent->DefaultCameraFocalPoint);
+					NewCameraRoll = CameraComponent->DefaultCameraRoll;
+				}
 
-				NewCameraFocalPoint = RotToAxis.RotateVector(NewCameraFocalPoint);
-				NewCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(NewCameraLocation, NewCameraFocalPoint, CameraVolume->CameraRoll);
+				NewCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(NewCameraLocation, NewCameraFocalPoint, NewCameraRoll);
 			}
 			else
 			{
