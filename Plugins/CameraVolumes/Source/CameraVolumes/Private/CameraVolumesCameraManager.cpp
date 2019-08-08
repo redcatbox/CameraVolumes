@@ -221,6 +221,8 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 
 				FVector DirToAxis = PlayerPawnLocationTransformed.GetSafeNormal2D();
 				FQuat RotToAxis = FRotationMatrix::MakeFromX(DirToAxis).ToQuat();
+				FVector DirUpCross = FVector::CrossProduct(FVector::UpVector, DirToAxis);
+				FQuat RotDirUpCross = FRotationMatrix::MakeFromX(DirUpCross).ToQuat();
 				NewCameraLocation = RotToAxis.RotateVector(NewCameraLocation) + FVector(0.f, 0.f, PlayerPawnLocationTransformed.Z);
 
 				if (!CameraVolume->bCameraLocationRelativeToVolume && CameraVolume->bOverrideCameraLocation)
@@ -274,7 +276,8 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 				}
 			}
 
-			if (bBlockingCalculations/* && !CameraVolume->bUseCameraRotationAxis*/)
+			// Calculate camera blocking like it oriented to volume Front side
+			if (bBlockingCalculations)
 			{
 				FVector NewCamVolExtentCorrected = CameraVolume->CamVolExtentCorrected;
 				FVector NewCamVolMinCorrected = CameraVolume->CamVolMinCorrected;
@@ -291,9 +294,13 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 					NewCamVolMaxCorrected += DeltaExtent;
 				}
 
-				// Camera offset is always relative to camera volume local X axis
+				// Camera offset is always relative to camera volume local Y axis
 				float CameraOffset;
-				CameraOffset = NewCameraLocation.Y;
+
+				if (CameraVolume->bUseCameraRotationAxis)
+					CameraOffset = NewCameraLocation.Size2D();
+				else
+					CameraOffset = NewCameraLocation.Y;
 
 				// Calculate new camera offset and screen world extent at depth (CameraOffset)
 				FVector ScreenExtent = FVector::ZeroVector;
@@ -311,12 +318,19 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 				}
 				else
 				{
-					// Horizontal movement
-					if (CameraVolume->CamVolAspectRatio >= ScreenAspectRatio)
+					if (CameraVolume->bUseCameraRotationAxis)
+					{
 						CameraOffset = FMath::Clamp(CameraOffset, CameraOffset, NewCamVolExtentCorrected.Z * ScreenAspectRatio / PlayerCamFOVTangens);
-					// Vertical movement
+					}
 					else
-						CameraOffset = FMath::Clamp(CameraOffset, CameraOffset, NewCamVolExtentCorrected.X / PlayerCamFOVTangens);
+					{
+						// Horizontal movement
+						if (CameraVolume->CamVolAspectRatio >= ScreenAspectRatio)
+							CameraOffset = FMath::Clamp(CameraOffset, CameraOffset, NewCamVolExtentCorrected.Z * ScreenAspectRatio / PlayerCamFOVTangens);
+						// Vertical movement
+						else
+							CameraOffset = FMath::Clamp(CameraOffset, CameraOffset, NewCamVolExtentCorrected.X / PlayerCamFOVTangens);
+					}
 
 					ScreenExtent.X = FMath::Abs(CameraOffset * PlayerCamFOVTangens);
 				}
@@ -327,8 +341,8 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 
 				if (CameraVolume->bUseCameraRotationAxis) // Perform camera blocking only on top and bottom sides
 					NewCameraLocation = FVector(
-						NewCameraLocation.X,
-						CameraOffset,
+						NewCameraLocation.GetSafeNormal2D().X * CameraOffset,
+						NewCameraLocation.GetSafeNormal2D().Y * CameraOffset,
 						FMath::Clamp(NewCameraLocation.Z, ScreenMin.Z, ScreenMax.Z));
 				else
 					NewCameraLocation = FVector(
@@ -376,6 +390,7 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 		bUsePlayerPawnControlRotation = true;
 	}
 
+	// Transitions and interpolation
 	if (bNeedsSmoothTransition)
 	{
 		SmoothTransitionAlpha += DeltaTime * SmoothTransitionSpeed;
