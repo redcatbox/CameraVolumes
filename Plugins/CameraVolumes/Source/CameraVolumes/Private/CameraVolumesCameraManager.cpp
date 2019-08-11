@@ -319,9 +319,7 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 				else
 				{
 					if (CameraVolume->bUseCameraRotationAxis)
-					{
 						CameraOffset = FMath::Clamp(CameraOffset, CameraOffset, NewCamVolExtentCorrected.Z * ScreenAspectRatio / PlayerCamFOVTangens);
-					}
 					else
 					{
 						// Horizontal movement
