@@ -42,7 +42,9 @@ ACameraVolumeActor::ACameraVolumeActor()
 	bUseZeroDepthExtentEditCond = true;
 	bUseZeroDepthExtent = false;
 	bUse6DOFVolume = false;
+	bPerformCameraBlockingEditCond = true;
 	bPerformCameraBlocking = true;
+	bDisableMainBoxCollision = false;
 
 #if WITH_EDITORONLY_DATA
 	CameraProjectionMode = ECameraProjectionMode::Perspective;
@@ -65,6 +67,9 @@ ACameraVolumeActor::ACameraVolumeActor()
 	CameraOrthoWidth = 512.f;
 
 	CameraSmoothTransitionSpeed = 1.f;
+
+	bUseCameraRotationAxisEditCond = true;
+	bUseCameraRotationAxis = false;
 
 #if WITH_EDITORONLY_DATA
 	TextSize = 50.f;
@@ -94,6 +99,7 @@ void ACameraVolumeActor::UpdateVolume()
 
 	//Components
 	BoxComponent->SetBoxExtent(VolumeExtent);
+	SetDisableMainBoxCollision(bDisableMainBoxCollision);
 
 #if WITH_EDITORONLY_DATA
 	BillboardComponent->SetRelativeLocation(FVector::ZeroVector);
@@ -113,11 +119,14 @@ void ACameraVolumeActor::UpdateVolume()
 	case ECameraMobility::ECM_Movable:
 		bIsCameraStatic = false;
 		bFocalPointIsPlayer = true;
+		bUseCameraRotationAxisEditCond = true;
 		break;
 	case ECameraMobility::ECM_Static:
 		bIsCameraStatic = true;
 		bOverrideCameraLocation = true;
 		bPerformCameraBlocking = false;
+		bUseCameraRotationAxisEditCond = false;
+		bUseCameraRotationAxis = false;
 		break;
 	}
 
@@ -281,7 +290,7 @@ void ACameraVolumeActor::UpdateSidesIndicators()
 	Text_Indicators[0]->SetWorldSize(2.f * TextSize);
 	Text_Indicators[0]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y + 5.f, TextSize), FRotator(0.f, 90.f, 0.f));
 
-//Sides
+	//Sides
 	for (uint8 i = 1; i <= 18; i = i + 3)
 	{
 		Text_Indicators[i]->SetWorldSize(TextSize);
@@ -428,14 +437,15 @@ void ACameraVolumeActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyC
 	FName PropertyName = (PropertyChangedEvent.Property != NULL) ? PropertyChangedEvent.Property->GetFName() : NAME_None;
 	if (PropertyName == TEXT("Priority") || TEXT("VolumeExtent")
 		|| TEXT("bUseZeroDepthExtent") || TEXT("bUse6DOFVolume")
-		|| TEXT("CameraProjectionMode")
-		|| TEXT("CameraMobility")
+		|| TEXT("bDisableMainBoxCollision")
+		|| TEXT("CameraProjectionMode") || TEXT("CameraMobility")
 		|| TEXT("bOverrideCameraLocation") || TEXT("CameraLocation")
 		|| TEXT("bOverrideCameraRotation") || TEXT("CameraFocalPoint") || TEXT("CameraRoll")
 		|| TEXT("bOverrideCameraFieldOfView") || TEXT("CameraFieldOfView")
 		|| TEXT("bOverrideCameraOrthoWidth") || TEXT("CameraOrthoWidth")
 		|| TEXT("FrontSide") || TEXT("BackSide") || TEXT("RightSide") || TEXT("LeftSide") || TEXT("TopSide") || TEXT("BottomSide")
-		|| TEXT("TextSize"))
+		|| TEXT("TextSize")
+		|| TEXT("bUseCameraRotationAxis"))
 		UpdateVolume();
 }
 
@@ -565,6 +575,22 @@ void ACameraVolumeActor::SetBackSide(FSideInfo NewBackSide)
 	CalculateVolumeExtents();
 }
 
+void ACameraVolumeActor::SetDisableMainBoxCollision(bool bNewDisableMainBoxCollision)
+{
+	bDisableMainBoxCollision = bNewDisableMainBoxCollision;
+
+	if (bDisableMainBoxCollision)
+	{
+		BoxComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		BoxComponent->ShapeColor = FColor(127, 127, 127, 255);
+	}
+	else
+	{
+		BoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		BoxComponent->ShapeColor = FColor(223, 149, 157, 255);
+	}
+}
+
 #if WITH_EDITOR
 void ACameraVolumeActor::SetAllOpen()
 {
@@ -574,7 +600,7 @@ void ACameraVolumeActor::SetAllOpen()
 	LeftSide.SideType = ESideType::EST_Open;
 	TopSide.SideType = ESideType::EST_Open;
 	BottomSide.SideType = ESideType::EST_Open;
-	
+
 	UpdateVolume();
 }
 

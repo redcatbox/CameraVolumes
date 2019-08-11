@@ -1,7 +1,6 @@
 //Dmitriy Barannik aka redbox, 2019
 
 #include "CameraVolumesFunctionLibrary.h"
-#include "DrawDebugHelpers.h"
 
 ACameraVolumeActor* UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(TArray<ACameraVolumeActor*> CameraVolumes, FVector& PlayerPawnLocation)
 {
@@ -69,7 +68,7 @@ bool UCameraVolumesFunctionLibrary::CompareSidesPairs(ESide SideA, ESide SideB, 
 
 FQuat UCameraVolumesFunctionLibrary::CalculateCameraRotation(FVector& CameraLocation, FVector& CameraFocalPoint, float CameraRoll)
 {
-	FQuat CameraRotation = (FRotationMatrix::MakeFromX(CameraFocalPoint - CameraLocation)).ToQuat();
+	FQuat CameraRotation = FRotationMatrix::MakeFromX(CameraFocalPoint - CameraLocation).ToQuat();
 	CameraRotation = FQuat(CameraRotation.GetAxisX(), FMath::DegreesToRadians(CameraRoll)) * CameraRotation;
 	return CameraRotation;
 }

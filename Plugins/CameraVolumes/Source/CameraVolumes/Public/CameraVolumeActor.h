@@ -42,7 +42,6 @@ protected:
 	UPROPERTY()
 		class UCameraComponent* CameraComponent;
 #endif
-	//--------------------------------------------------
 
 public:
 	//Parameters
@@ -79,9 +78,22 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Volume)
 		virtual void SetUse6DOFVolume(bool bNewUse6DOFVolume);
 
+protected:
+	UPROPERTY()
+		bool bPerformCameraBlockingEditCond;
+
+public:
 	/** Should perform camera blocking calculations in this volume? */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Volume)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Volume, Meta = (EditCondition = "bPerformCameraBlockingEditCond"))
 		bool bPerformCameraBlocking;
+
+	/** Should disable collision for main box primitive? */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Volume)
+		bool bDisableMainBoxCollision;
+
+	/** Disable main box collision */
+	UFUNCTION(BlueprintCallable, Category = Volume)
+		virtual void SetDisableMainBoxCollision(bool bNewDisableMainBoxCollision);
 
 #if WITH_EDITORONLY_DATA
 	/** Camera projection mode (For camera frustrum preview only!) */
@@ -103,7 +115,7 @@ protected:
 
 public:
 	/** Returns is volume uses static camera settings */
-	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
+	UFUNCTION(BlueprintCallable, Category = Camera)
 		bool GetIsCameraStatic() const { return bIsCameraStatic; }
 
 	/** Should override camera location? */
@@ -172,6 +184,15 @@ public:
 	/** New camera OrthoWidth. For orthographic cameras. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (EditCondition = "bOverrideCameraOrthoWidth"))
 		float CameraOrthoWidth;
+
+protected:
+	UPROPERTY()
+		bool bUseCameraRotationAxisEditCond;
+
+public:
+	/** Should rotate camera around specified axis? */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (EditCondition = "bUseCameraRotationAxisEditCond"))
+		bool bUseCameraRotationAxis;
 
 	/** Speed of smooth camera transition */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SidesInfo, Meta = (ClampMin = "0.01", ClampMax = "10.0", UIMin = "0.01", UIMax = "10.0"))
@@ -246,7 +267,6 @@ public:
 	UFUNCTION(CallInEditor, Category = SidesInfo)
 		virtual void SetAllCut();
 #endif
-	//--------------------------------------------------
 
 	UPROPERTY()
 		float CamVolAspectRatio;
@@ -273,7 +293,9 @@ public:
 		virtual FSideInfo GetNearestVolumeSideInfo(FVector& PlayerPawnLocation);
 
 protected:
-	const float OpenEdgeOffset = 10000.f;
+	UPROPERTY(Config)
+		float OpenEdgeOffset = 10000.f;
+
 	const FVector VolumeExtentDefault = FVector(500.f, 500.f, 500.f);
 
 #if WITH_EDITOR
@@ -306,7 +328,6 @@ protected:
 	const FText Text_Normal = FText::FromString("NORMAL");
 	const FText Text_Smooth = FText::FromString("SMOOTH");
 	const FText Text_Cut = FText::FromString("CUT");
-	//--------------------------------------------------
 #endif
 
 public:
