@@ -190,7 +190,7 @@ protected:
 		bool bUseCameraRotationAxisEditCond;
 
 public:
-	/** Should rotate camera around specified axis? */
+	/** Should rotate camera around volume's central axis? */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (EditCondition = "bUseCameraRotationAxisEditCond"))
 		bool bUseCameraRotationAxis;
 
