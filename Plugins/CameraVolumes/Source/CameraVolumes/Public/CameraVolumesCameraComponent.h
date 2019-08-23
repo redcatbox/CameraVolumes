@@ -21,7 +21,7 @@ public:
 	UCameraVolumesCameraComponent();
 
 	/** Default camera RELATIVE location */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DefaultParameters")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CameraSettings | DefaultParameters")
 		FVector DefaultCameraLocation;
 
 	/** Set default camera location */
@@ -29,7 +29,7 @@ public:
 		virtual void SetDefaultCameraLocation(FVector NewDefaultCameraLocation);
 
 	/** Default camera RELATIVE focal point */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DefaultParameters")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CameraSettings | DefaultParameters")
 		FVector DefaultCameraFocalPoint;
 
 	/** Set default camera focal point */
@@ -37,7 +37,7 @@ public:
 		virtual void SetDefaultCameraFocalPoint(FVector NewDefaultCameraFocalPoint);
 
 	/** Default camera roll */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DefaultParameters")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CameraSettings | DefaultParameters")
 		float DefaultCameraRoll;
 
 	/** Set default camera roll */
