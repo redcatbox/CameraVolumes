@@ -8,6 +8,7 @@ public class CamVolTarget : TargetRules
 	public CamVolTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Game;
-		ExtraModuleNames.Add("CamVol");
+        DefaultBuildSettings = BuildSettingsVersion.V2;
+        ExtraModuleNames.Add("CamVol");
 	}
 }
