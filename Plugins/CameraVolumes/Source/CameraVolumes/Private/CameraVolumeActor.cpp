@@ -11,7 +11,7 @@ ACameraVolumeActor::ACameraVolumeActor()
 	// Default root
 	DefaultSceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultSceneRoot"));
 	DefaultSceneRoot->Mobility = EComponentMobility::Static;
-	DefaultSceneRoot->bVisible = false;
+	DefaultSceneRoot->SetVisibility(false);
 	RootComponent = DefaultSceneRoot;
 
 #if WITH_EDITORONLY_DATA
