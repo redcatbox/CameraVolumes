@@ -2,7 +2,7 @@
 
 /**
 * Camera component contains overlapped camera volumes and updates final camera parameters provided by camera manager.
-* Can do camera collision test similar to SpringArm.
+* Can do camera collision test and relative rotation similar to SpringArm.
 */
 
 #pragma once
@@ -124,15 +124,15 @@ public:
 		bool bUsePawnControlRotationCV;
 
 	/** Should use pitch? */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraRotation")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraRotation", Meta = (EditCondition = "bUsePawnControlRotationCV"))
 		bool bInheritPitchCV;
 
 	/** Should use yaw? */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraRotation")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraRotation", Meta = (EditCondition = "bUsePawnControlRotationCV"))
 		bool bInheritYawCV;
 
 	/** Should use roll? */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraRotation")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraRotation", Meta = (EditCondition = "bUsePawnControlRotationCV"))
 		bool bInheritRollCV;
 
 	/** Overlapping camera volumes */

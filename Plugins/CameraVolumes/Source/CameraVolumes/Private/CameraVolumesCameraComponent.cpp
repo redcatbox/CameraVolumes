@@ -74,15 +74,21 @@ void UCameraVolumesCameraComponent::UpdateCamera(FVector& CameraLocation, FVecto
 			GetWorld()->SweepSingleByChannel(HitResult, CameraFocalPoint, CameraLocation, FQuat::Identity, ProbeChannel, FCollisionShape::MakeSphere(ProbeSize), QueryParams);
 
 			if (HitResult.bBlockingHit)
+			{
 				CameraLocation = HitResult.Location;
+			}
 		}
 
 		SetWorldLocationAndRotation(CameraLocation, CameraRotation);
 
 		if (bIsCameraOrthographic)
+		{
 			SetOrthoWidth(CameraFOV);
+		}
 		else
+		{
 			SetFieldOfView(CameraFOV);
+		}
 	}
 }
 
@@ -98,7 +104,9 @@ void UCameraVolumesCameraComponent::PostEditChangeProperty(FPropertyChangedEvent
 		|| TEXT("DefaultCameraRoll")
 		|| TEXT("DefaultCameraFieldOfView")
 		|| TEXT("DefaultCameraOrthoWidth"))
+	{
 		UpdateCameraComponent();
+	}
 }
 #endif
 

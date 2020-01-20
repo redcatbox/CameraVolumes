@@ -42,7 +42,9 @@ void ACameraVolumesPaperCharacter::OnCapsuleComponentBeginOverlapDelegate(UPrimi
 		{
 			ACameraVolumesCameraManager* CameraVolumePCM = Cast<ACameraVolumesCameraManager>(PC->PlayerCameraManager);
 			if (CameraVolumePCM)
+			{
 				CameraVolumePCM->SetCheckCameraVolumes(true);
+			}
 		}
 	}
 }
@@ -51,7 +53,9 @@ void ACameraVolumesPaperCharacter::OnCapsuleComponentEndOverlapDelegate(UPrimiti
 {
 	ACameraVolumeActor* CameraVolume = Cast<ACameraVolumeActor>(OtherActor);
 	if (CameraVolume)
+	{
 		GetCameraComponent()->OverlappingCameraVolumes.Remove(CameraVolume);
+	}
 }
 
 UCameraVolumesCameraComponent* ACameraVolumesPaperCharacter::GetCameraComponent() const

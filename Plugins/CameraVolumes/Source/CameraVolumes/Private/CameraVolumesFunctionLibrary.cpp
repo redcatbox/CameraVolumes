@@ -52,7 +52,9 @@ bool UCameraVolumesFunctionLibrary::CompareSidesPairs(ESide SideA, ESide SideB, 
 			|| (SideA == ESide::ES_Left && SideB == ESide::ES_Right)
 			|| (SideA == ESide::ES_Top && SideB == ESide::ES_Bottom)
 			|| (SideA == ESide::ES_Bottom && SideB == ESide::ES_Top))
+		{
 			return true;
+		}
 	}
 	else
 	{
@@ -60,7 +62,9 @@ bool UCameraVolumesFunctionLibrary::CompareSidesPairs(ESide SideA, ESide SideB, 
 			|| (SideA == ESide::ES_Left && SideB == ESide::ES_Right)
 			|| (SideA == ESide::ES_Top && SideB == ESide::ES_Bottom)
 			|| (SideA == ESide::ES_Bottom && SideB == ESide::ES_Top))
+		{
 			return true;
+		}
 	}
 
 	return false;

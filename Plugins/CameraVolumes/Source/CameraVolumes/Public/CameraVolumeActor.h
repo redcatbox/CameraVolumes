@@ -19,7 +19,7 @@
 #include "CameraVolumesTypes.h"
 #include "CameraVolumeActor.generated.h"
 
-UCLASS(Config = CameraVolumes, AutoExpandCategories = (Camera, SidesInfo, Volume))
+UCLASS(Config = CameraVolumes, AutoExpandCategories = (Camera, Volume, VolumeSides))
 class CAMERAVOLUMES_API ACameraVolumeActor : public AActor
 {
 	GENERATED_BODY()
@@ -195,76 +195,76 @@ public:
 		bool bUseCameraRotationAxis;
 
 	/** Speed of smooth camera transition */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SidesInfo, Meta = (ClampMin = "0.01", ClampMax = "10.0", UIMin = "0.01", UIMax = "10.0"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = VolumeSides, Meta = (ClampMin = "0.01", ClampMax = "10.0", UIMin = "0.01", UIMax = "10.0"))
 		float CameraSmoothTransitionSpeed;
 
 	/** Right side info */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SidesInfo, Meta = (ShowOnlyInnerProperties))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = VolumeSides, Meta = (ShowOnlyInnerProperties))
 		FSideInfo RightSide;
 
 	/** Set new RightSide info */
-	UFUNCTION(BlueprintCallable, Category = SidesInfo)
+	UFUNCTION(BlueprintCallable, Category = VolumeSides)
 		virtual void SetRightSide(FSideInfo NewRightSide);
 
 	/** Left side info */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SidesInfo, Meta = (ShowOnlyInnerProperties))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = VolumeSides, Meta = (ShowOnlyInnerProperties))
 		FSideInfo LeftSide;
 
 	/** Set new LeftSide info */
-	UFUNCTION(BlueprintCallable, Category = SidesInfo)
+	UFUNCTION(BlueprintCallable, Category = VolumeSides)
 		virtual void SetLeftSide(FSideInfo NewLeftSide);
 
 	/** Top side info */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SidesInfo, Meta = (ShowOnlyInnerProperties))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = VolumeSides, Meta = (ShowOnlyInnerProperties))
 		FSideInfo TopSide;
 
 	/** Set new TopSide info */
-	UFUNCTION(BlueprintCallable, Category = SidesInfo)
+	UFUNCTION(BlueprintCallable, Category = VolumeSides)
 		virtual void SetTopSide(FSideInfo NewTopSide);
 
 	/** Bottom side info */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SidesInfo, Meta = (ShowOnlyInnerProperties))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = VolumeSides, Meta = (ShowOnlyInnerProperties))
 		FSideInfo BottomSide;
 
 	/** Set new BottomSide info */
-	UFUNCTION(BlueprintCallable, Category = SidesInfo)
+	UFUNCTION(BlueprintCallable, Category = VolumeSides)
 		virtual void SetBottomSide(FSideInfo NewBottomSide);
 
 	/** Front side info */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SidesInfo, Meta = (ShowOnlyInnerProperties))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = VolumeSides, Meta = (ShowOnlyInnerProperties))
 		FSideInfo FrontSide;
 
 	/** Set new FrontSide info */
-	UFUNCTION(BlueprintCallable, Category = SidesInfo)
+	UFUNCTION(BlueprintCallable, Category = VolumeSides)
 		virtual void SetFrontSide(FSideInfo NewFrontSide);
 
 	/** Back side info */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SidesInfo, Meta = (ShowOnlyInnerProperties))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = VolumeSides, Meta = (ShowOnlyInnerProperties))
 		FSideInfo BackSide;
 
 	/** Set new BackSide info */
-	UFUNCTION(BlueprintCallable, Category = SidesInfo)
+	UFUNCTION(BlueprintCallable, Category = VolumeSides)
 		virtual void SetBackSide(FSideInfo NewBackSide);
 
 #if WITH_EDITOR
 	/** Set all open */
-	UFUNCTION(CallInEditor, Category = SidesInfo)
+	UFUNCTION(CallInEditor, Category = VolumeSides)
 		virtual void SetAllOpen();
 
 	/** Set all closed */
-	UFUNCTION(CallInEditor, Category = SidesInfo)
+	UFUNCTION(CallInEditor, Category = VolumeSides)
 		virtual void SetAllClosed();
 
 	/** Set all normal */
-	UFUNCTION(CallInEditor, Category = SidesInfo)
+	UFUNCTION(CallInEditor, Category = VolumeSides)
 		virtual void SetAllNormal();
 
 	/** Set all smooth */
-	UFUNCTION(CallInEditor, Category = SidesInfo)
+	UFUNCTION(CallInEditor, Category = VolumeSides)
 		virtual void SetAllSmooth();
 
 	/** Set all cut */
-	UFUNCTION(CallInEditor, Category = SidesInfo)
+	UFUNCTION(CallInEditor, Category = VolumeSides)
 		virtual void SetAllCut();
 #endif
 
@@ -313,7 +313,7 @@ protected:
 
 public:
 	/** Text size of sides indicators. */
-	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = SidesInfo)
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = VolumeSides)
 		float TextSize;
 
 protected:

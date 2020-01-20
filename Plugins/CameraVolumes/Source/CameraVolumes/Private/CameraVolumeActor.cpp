@@ -21,7 +21,9 @@ ACameraVolumeActor::ACameraVolumeActor()
 	BillboardComponent->bHiddenInGame = true;
 	static ConstructorHelpers::FObjectFinder<UTexture2D> TextureObj(TEXT("/CameraVolumes/Icons/CameraVolume"));
 	if (TextureObj.Object)
+	{
 		BillboardComponent->Sprite = TextureObj.Object;
+	}
 
 	// CameraComponent
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
@@ -112,7 +114,9 @@ void ACameraVolumeActor::UpdateVolume()
 		bUseZeroDepthExtent = false;
 	}
 	else
+	{
 		bUseZeroDepthExtentEditCond = true;
+	}
 
 	switch (CameraMobility)
 	{
@@ -131,7 +135,9 @@ void ACameraVolumeActor::UpdateVolume()
 	}
 
 	if (!bOverrideCameraLocation)
+	{
 		CameraLocation = FVector(0.f, 1000.f, 0.f);
+	}
 
 	if (!bOverrideCameraRotation)
 	{
@@ -140,13 +146,19 @@ void ACameraVolumeActor::UpdateVolume()
 		CameraRotation = FRotator(0.f, -90.f, 0.f).Quaternion();
 	}
 	else
+	{
 		CameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(CameraLocation, CameraFocalPoint, CameraRoll);
+	}
 
 	if (!bOverrideCameraFieldOfView)
+	{
 		CameraFieldOfView = 90.f;
+	}
 
 	if (!bOverrideCameraOrthoWidth)
+	{
 		CameraOrthoWidth = 512.f;
+	}
 
 #if WITH_EDITORONLY_DATA
 	CameraComponent->SetRelativeLocationAndRotation(CameraLocation, CameraRotation);
@@ -169,24 +181,36 @@ void ACameraVolumeActor::CalculateVolumeExtents()
 	CamVolMaxCorrected = VolumeExtent;
 
 	if (RightSide.SideType == ESideType::EST_Open)
+	{
 		CamVolMaxCorrected.X += OpenEdgeOffset;
+	}
 
 	if (LeftSide.SideType == ESideType::EST_Open)
+	{
 		CamVolMinCorrected.X -= OpenEdgeOffset;
+	}
 
 	if (TopSide.SideType == ESideType::EST_Open)
+	{
 		CamVolMaxCorrected.Z += OpenEdgeOffset;
+	}
 
 	if (BottomSide.SideType == ESideType::EST_Open)
+	{
 		CamVolMinCorrected.Z -= OpenEdgeOffset;
+	}
 
 	if (bUse6DOFVolume)
 	{
 		if (FrontSide.SideType == ESideType::EST_Open)
+		{
 			CamVolMaxCorrected.Y += OpenEdgeOffset;
+		}
 
 		if (BackSide.SideType == ESideType::EST_Open)
+		{
 			CamVolMinCorrected.Y -= OpenEdgeOffset;
+		}
 	}
 
 	if (bUseZeroDepthExtent)
@@ -268,6 +292,7 @@ void ACameraVolumeActor::CreateSidesIndicators()
 	Text_Indicators.SetNum(19);
 	FName ComponentName;
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> TextMaterialObj(TEXT("/CameraVolumes/Materials/UnlitText.UnlitText"));
+
 	for (uint8 i = 0; i < 19; i++)
 	{
 		ComponentName = *(FString(TEXT("TextRenderComponent")) + FString::FromInt(i));
@@ -278,8 +303,11 @@ void ACameraVolumeActor::CreateSidesIndicators()
 		Text_Indicators[i]->HorizontalAlignment = EHorizTextAligment::EHTA_Center;
 		Text_Indicators[i]->VerticalAlignment = EVerticalTextAligment::EVRTA_TextCenter;
 		Text_Indicators[i]->SetTextRenderColor(FColor::White);
+
 		if (TextMaterialObj.Object)
+		{
 			Text_Indicators[i]->SetTextMaterial(TextMaterialObj.Object);
+		}
 	}
 }
 
@@ -446,7 +474,9 @@ void ACameraVolumeActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyC
 		|| TEXT("FrontSide") || TEXT("BackSide") || TEXT("RightSide") || TEXT("LeftSide") || TEXT("TopSide") || TEXT("BottomSide")
 		|| TEXT("TextSize")
 		|| TEXT("bUseCameraRotationAxis"))
+	{
 		UpdateVolume();
+	}
 }
 
 void ACameraVolumeActor::EditorApplyTranslation(const FVector& DeltaTranslation, bool bAltDown, bool bShiftDown, bool bCtrlDown)
@@ -469,9 +499,13 @@ void ACameraVolumeActor::EditorApplyScale(const FVector& DeltaScale, const FVect
 	FVector ScaleToApply;
 
 	if (AActor::bUsePercentageBasedScaling)
+	{
 		ScaleToApply = CurrentScale * (FVector::OneVector + DeltaScale);
+	}
 	else
+	{
 		ScaleToApply = CurrentScale + DeltaScale;
+	}
 
 	VolumeExtent = VolumeExtentDefault * ScaleToApply;
 	UpdateVolume();
