@@ -98,7 +98,7 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 					// and put into camera component
 					if (CameraComponent->OverlappingCameraVolumes.Num() == 0)
 					{
-						OverlappingActors.Empty();
+						TArray<AActor*> OverlappingActors;
 						PlayerPawn->GetOverlappingActors(OverlappingActors, ACameraVolumeActor::StaticClass());
 
 						if (OverlappingActors.Num() > 0)
