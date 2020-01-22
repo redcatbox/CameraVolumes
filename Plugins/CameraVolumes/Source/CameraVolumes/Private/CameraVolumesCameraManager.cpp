@@ -94,12 +94,13 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 				if (bCheckCameraVolumes)
 				{
 					// Check if camera component not contains any overlapped camera volumes,
-					// try to get them from actors overlapping pawn
+					// try to get them from actors overlapping character's primitive component
 					// and put into camera component
 					if (CameraComponent->OverlappingCameraVolumes.Num() == 0)
 					{
 						TArray<AActor*> OverlappingActors;
-						PlayerPawn->GetOverlappingActors(OverlappingActors, ACameraVolumeActor::StaticClass());
+						PlayerCharacter->GetCollisionPrimitiveComponent()->GetOverlappingActors(OverlappingActors, ACameraVolumeActor::StaticClass());
+						//PlayerPawn->GetOverlappingActors(OverlappingActors, ACameraVolumeActor::StaticClass());
 
 						if (OverlappingActors.Num() > 0)
 						{
@@ -350,7 +351,7 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 				}
 
 				// Camera offset is always relative to camera volume local Y axis
-				float CameraOffset = CameraVolume->bUseCameraRotationAxis ? NewCameraLocation.Size2D() : NewCameraLocation.Y;
+				float CameraOffset;
 
 				if (CameraVolume->bUseCameraRotationAxis)
 				{

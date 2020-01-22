@@ -4,6 +4,7 @@
 #pragma once
 
 #include "CameraVolumesCameraComponent.h"
+#include "Components/PrimitiveComponent.h"
 #include "CameraVolumesCharacterInterface.generated.h"
 
 UINTERFACE(Meta = (CannotImplementInterfaceInBlueprint = true))
@@ -27,4 +28,8 @@ public:
 	/** Returns CameraComponent subobject */
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual class UCameraVolumesCameraComponent* GetCameraComponent() const = 0;
+
+	/** Returns collision primitive subobject (CapsuleComponent for Characters) */
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
+		virtual class UPrimitiveComponent* GetCollisionPrimitiveComponent() const = 0;
 };

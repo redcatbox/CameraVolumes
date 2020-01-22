@@ -105,3 +105,8 @@ UCameraVolumesCameraComponent* ACamVolExamplePawn::GetCameraComponent() const
 {
 	return CameraComponent;
 }
+
+UPrimitiveComponent* ACamVolExamplePawn::GetCollisionPrimitiveComponent() const
+{
+	return CapsuleComponent;
+}

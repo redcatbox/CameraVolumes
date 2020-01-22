@@ -62,3 +62,8 @@ UCameraVolumesCameraComponent* ACameraVolumesPaperCharacter::GetCameraComponent(
 {
 	return CameraComponent;
 }
+
+UPrimitiveComponent* ACameraVolumesPaperCharacter::GetCollisionPrimitiveComponent() const
+{
+	return GetCapsuleComponent();
+}
