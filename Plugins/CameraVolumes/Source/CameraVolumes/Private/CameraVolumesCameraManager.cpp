@@ -35,7 +35,24 @@ void ACameraVolumesCameraManager::SetUpdateCamera(bool bNewUpdateCamera)
 
 void ACameraVolumesCameraManager::SetCheckCameraVolumes(bool bNewCheck)
 {
-	bCheckCameraVolumes = bNewCheck;
+	if (bCheckCameraVolumes != bNewCheck)
+	{
+		bCheckCameraVolumes = bNewCheck;
+
+		if (!bCheckCameraVolumes)
+		{
+			APawn* OwningPawn = GetOwningPlayerController()->GetPawn();
+			if (OwningPawn)
+			{
+				ICameraVolumesCharacterInterface* PlayerCharacter = Cast<ICameraVolumesCharacterInterface>(PlayerPawn);
+				if (PlayerCharacter)
+				{
+					UCameraVolumesCameraComponent* CamComp = PlayerCharacter->GetCameraComponent();
+					CamComp->OverlappingCameraVolumes.Empty();
+				}
+			}
+		}
+	}
 }
 
 void ACameraVolumesCameraManager::SetPerformBlockingCalculations(bool bNewPerformBlockingCalculations)
@@ -94,12 +111,12 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 				if (bCheckCameraVolumes)
 				{
 					// Check if camera component not contains any overlapped camera volumes,
-					// try to get them from actors overlapping pawn
+					// try to get them from actors overlapping character's primitive component
 					// and put into camera component
 					if (CameraComponent->OverlappingCameraVolumes.Num() == 0)
 					{
 						TArray<AActor*> OverlappingActors;
-						PlayerPawn->GetOverlappingActors(OverlappingActors, ACameraVolumeActor::StaticClass());
+						PlayerCharacter->GetCollisionPrimitiveComponent()->GetOverlappingActors(OverlappingActors, ACameraVolumeActor::StaticClass());
 
 						if (OverlappingActors.Num() > 0)
 						{
@@ -118,7 +135,7 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 						{
 							// There are no camera volumes overlapping character at this time,
 							// so we don't need this check until player pawn overlap some camera volume again.
-							bCheckCameraVolumes = false;
+							SetCheckCameraVolumes(false);
 						}
 					}
 					else
@@ -350,7 +367,7 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 				}
 
 				// Camera offset is always relative to camera volume local Y axis
-				float CameraOffset = CameraVolume->bUseCameraRotationAxis ? NewCameraLocation.Size2D() : NewCameraLocation.Y;
+				float CameraOffset;
 
 				if (CameraVolume->bUseCameraRotationAxis)
 				{

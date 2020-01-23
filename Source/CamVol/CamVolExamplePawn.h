@@ -26,9 +26,11 @@ class CAMVOL_API ACamVolExamplePawn : public APawn, public ICameraVolumesCharact
 
 public:
 	ACamVolExamplePawn();
+	virtual void PostInitializeComponents() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual class UCameraVolumesCameraComponent* GetCameraComponent() const override;
+	virtual class UPrimitiveComponent* GetCollisionPrimitiveComponent() const override;
 
 	/** Returns CapsuleComponent subobject **/
 	FORCEINLINE class UCapsuleComponent* GetCapsuleComponent() const { return CapsuleComponent; }

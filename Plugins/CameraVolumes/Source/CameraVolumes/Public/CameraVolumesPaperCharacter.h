@@ -28,4 +28,5 @@ public:
 	ACameraVolumesPaperCharacter();
 	virtual void PostInitializeComponents() override;
 	virtual class UCameraVolumesCameraComponent* GetCameraComponent() const override;
+	virtual class UPrimitiveComponent* GetCollisionPrimitiveComponent() const override;
 };
