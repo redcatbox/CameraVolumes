@@ -39,14 +39,17 @@ void ACameraVolumesCameraManager::SetCheckCameraVolumes(bool bNewCheck)
 	{
 		bCheckCameraVolumes = bNewCheck;
 
-		APawn* OwningPawn = GetOwningPlayerController()->GetPawn();
-		if (OwningPawn)
+		if (!bCheckCameraVolumes)
 		{
-			ICameraVolumesCharacterInterface* PlayerCharacter = Cast<ICameraVolumesCharacterInterface>(PlayerPawn);
-			if (PlayerCharacter)
+			APawn* OwningPawn = GetOwningPlayerController()->GetPawn();
+			if (OwningPawn)
 			{
-				UCameraVolumesCameraComponent* CamComp = PlayerCharacter->GetCameraComponent();
-				CamComp->OverlappingCameraVolumes.Empty();
+				ICameraVolumesCharacterInterface* PlayerCharacter = Cast<ICameraVolumesCharacterInterface>(PlayerPawn);
+				if (PlayerCharacter)
+				{
+					UCameraVolumesCameraComponent* CamComp = PlayerCharacter->GetCameraComponent();
+					CamComp->OverlappingCameraVolumes.Empty();
+				}
 			}
 		}
 	}
@@ -114,7 +117,6 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 					{
 						TArray<AActor*> OverlappingActors;
 						PlayerCharacter->GetCollisionPrimitiveComponent()->GetOverlappingActors(OverlappingActors, ACameraVolumeActor::StaticClass());
-						//PlayerPawn->GetOverlappingActors(OverlappingActors, ACameraVolumeActor::StaticClass());
 
 						if (OverlappingActors.Num() > 0)
 						{
@@ -128,18 +130,23 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 							}
 
 							CameraVolumeCurrent = UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(CameraComponent->OverlappingCameraVolumes, PlayerPawnLocation);
+
+							UE_LOG(LogTemp, Warning, TEXT("OverlappingCameraVolumes.Num() == 0 && OverlappingActors.Num() > 0"));
 						}
 						else
 						{
 							// There are no camera volumes overlapping character at this time,
 							// so we don't need this check until player pawn overlap some camera volume again.
-							bCheckCameraVolumes = false;
-							CameraComponent->OverlappingCameraVolumes.Empty();
+							SetCheckCameraVolumes(false);
+
+							UE_LOG(LogTemp, Warning, TEXT("SetCheckCameraVolumes(false)"));
 						}
 					}
 					else
 					{
 						CameraVolumeCurrent = UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(CameraComponent->OverlappingCameraVolumes, PlayerPawnLocation);
+
+						UE_LOG(LogTemp, Warning, TEXT("CameraComponent"));
 					}
 
 					if (CameraVolumeCurrent)

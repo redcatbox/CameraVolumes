@@ -9,10 +9,6 @@
 
 ACameraVolumesPaperCharacter::ACameraVolumesPaperCharacter()
 {
-	// Bind overlap events
-	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ACameraVolumesPaperCharacter::OnCapsuleComponentBeginOverlapDelegate);
-	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &ACameraVolumesPaperCharacter::OnCapsuleComponentEndOverlapDelegate);
-
 	// Create a camera
 	CameraComponent = CreateDefaultSubobject<UCameraVolumesCameraComponent>(TEXT("Camera"));
 	CameraComponent->bUsePawnControlRotation = false; // We don't want the controller rotating the camera
@@ -27,6 +23,10 @@ ACameraVolumesPaperCharacter::ACameraVolumesPaperCharacter()
 void ACameraVolumesPaperCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
+
+	// Bind overlap events
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ACameraVolumesPaperCharacter::OnCapsuleComponentBeginOverlapDelegate);
+	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &ACameraVolumesPaperCharacter::OnCapsuleComponentEndOverlapDelegate);
 }
 
 void ACameraVolumesPaperCharacter::OnCapsuleComponentBeginOverlapDelegate(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -34,18 +34,21 @@ void ACameraVolumesPaperCharacter::OnCapsuleComponentBeginOverlapDelegate(UPrimi
 	ACameraVolumeActor* CameraVolume = Cast<ACameraVolumeActor>(OtherActor);
 	if (CameraVolume)
 	{
-		GetCameraComponent()->OverlappingCameraVolumes.AddUnique(CameraVolume);
-
-		// Update camera volumes check condition in PlayerCameraManager
-		APlayerController* PC = Cast<APlayerController>(GetController());
-		if (PC)
+		if (GetCameraComponent()->OverlappingCameraVolumes.Num() == 0)
 		{
-			ACameraVolumesCameraManager* CameraVolumePCM = Cast<ACameraVolumesCameraManager>(PC->PlayerCameraManager);
-			if (CameraVolumePCM)
+			// Update camera volumes check condition in PlayerCameraManager
+			APlayerController* PC = Cast<APlayerController>(GetController());
+			if (PC)
 			{
-				CameraVolumePCM->SetCheckCameraVolumes(true);
+				ACameraVolumesCameraManager* CameraVolumePCM = Cast<ACameraVolumesCameraManager>(PC->PlayerCameraManager);
+				if (CameraVolumePCM)
+				{
+					CameraVolumePCM->SetCheckCameraVolumes(true);
+				}
 			}
 		}
+
+		GetCameraComponent()->OverlappingCameraVolumes.AddUnique(CameraVolume);
 	}
 }
 
