@@ -35,7 +35,21 @@ void ACameraVolumesCameraManager::SetUpdateCamera(bool bNewUpdateCamera)
 
 void ACameraVolumesCameraManager::SetCheckCameraVolumes(bool bNewCheck)
 {
-	bCheckCameraVolumes = bNewCheck;
+	if (bCheckCameraVolumes != bNewCheck)
+	{
+		bCheckCameraVolumes = bNewCheck;
+
+		APawn* OwningPawn = GetOwningPlayerController()->GetPawn();
+		if (OwningPawn)
+		{
+			ICameraVolumesCharacterInterface* PlayerCharacter = Cast<ICameraVolumesCharacterInterface>(PlayerPawn);
+			if (PlayerCharacter)
+			{
+				UCameraVolumesCameraComponent* CamComp = PlayerCharacter->GetCameraComponent();
+				CamComp->OverlappingCameraVolumes.Empty();
+			}
+		}
+	}
 }
 
 void ACameraVolumesCameraManager::SetPerformBlockingCalculations(bool bNewPerformBlockingCalculations)
@@ -120,6 +134,7 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 							// There are no camera volumes overlapping character at this time,
 							// so we don't need this check until player pawn overlap some camera volume again.
 							bCheckCameraVolumes = false;
+							CameraComponent->OverlappingCameraVolumes.Empty();
 						}
 					}
 					else
