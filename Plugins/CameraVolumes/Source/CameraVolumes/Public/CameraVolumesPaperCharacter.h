@@ -17,16 +17,17 @@ class CAMERAVOLUMES_API ACameraVolumesPaperCharacter : public APaperCharacter, p
 {
 	GENERATED_BODY()
 
-	/** Camera component */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CameraVolumes, Meta = (AllowPrivateAccess = "true"))
-		class UCameraVolumesCameraComponent* CameraComponent;
-
-	virtual void OnCapsuleComponentBeginOverlapDelegate(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
-	virtual void OnCapsuleComponentEndOverlapDelegate(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
-
 public:
 	ACameraVolumesPaperCharacter();
 	virtual void PostInitializeComponents() override;
 	virtual class UCameraVolumesCameraComponent* GetCameraComponent() const override;
 	virtual class UPrimitiveComponent* GetCollisionPrimitiveComponent() const override;
+
+protected:
+	/** Camera component */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CameraVolumes, Meta = (AllowPrivateAccess = "true"))
+		class UCameraVolumesCameraComponent* CameraComponent;
+
+	virtual void OnCollisionPrimitiveComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
+	virtual void OnCollisionPrimitiveComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
 };
