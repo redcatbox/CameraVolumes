@@ -1,6 +1,11 @@
 //Dmitriy Barannik aka redbox, 2019
 
-// Base interface for characters using camera volumes
+/**
+* Interface for characters using camera volumes.
+* Returns camera component.
+* Returns collision primitive component and it's BeginOverlap and EndOverlap events.
+*/
+
 #pragma once
 
 #include "CameraVolumesCameraComponent.h"
@@ -17,13 +22,6 @@ class CAMERAVOLUMES_API ICameraVolumesCharacterInterface
 {
 	GENERATED_BODY()
 
-protected:
-	UFUNCTION()
-		virtual void OnCapsuleComponentBeginOverlapDelegate(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) = 0;
-
-	UFUNCTION()
-		virtual void OnCapsuleComponentEndOverlapDelegate(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) = 0;
-
 public:
 	/** Returns CameraComponent subobject */
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
@@ -32,4 +30,11 @@ public:
 	/** Returns collision primitive subobject (CapsuleComponent for Characters) */
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual class UPrimitiveComponent* GetCollisionPrimitiveComponent() const = 0;
+
+protected:
+	UFUNCTION()
+		virtual void OnCollisionPrimitiveComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) = 0;
+
+	UFUNCTION()
+		virtual void OnCollisionPrimitiveComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) = 0;
 };

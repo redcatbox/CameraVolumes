@@ -43,8 +43,8 @@ void ACamVolExamplePawn::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	// Bind overlap events
-	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ACamVolExamplePawn::OnCapsuleComponentBeginOverlapDelegate);
-	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &ACamVolExamplePawn::OnCapsuleComponentEndOverlapDelegate);
+	GetCollisionPrimitiveComponent()->OnComponentBeginOverlap.AddDynamic(this, &ACamVolExamplePawn::OnCollisionPrimitiveComponentBeginOverlap);
+	GetCollisionPrimitiveComponent()->OnComponentEndOverlap.AddDynamic(this, &ACamVolExamplePawn::OnCollisionPrimitiveComponentEndOverlap);
 }
 
 void ACamVolExamplePawn::BeginPlay()
@@ -83,7 +83,7 @@ void ACamVolExamplePawn::MoveUp(float Value)
 	AddActorLocalOffset(FVector(0.f, 0.f, 1.f) * Value * 5.f, true);
 }
 
-void ACamVolExamplePawn::OnCapsuleComponentBeginOverlapDelegate(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ACamVolExamplePawn::OnCollisionPrimitiveComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	ACameraVolumeActor* CameraVolume = Cast<ACameraVolumeActor>(OtherActor);
 	if (CameraVolume)
@@ -106,7 +106,7 @@ void ACamVolExamplePawn::OnCapsuleComponentBeginOverlapDelegate(UPrimitiveCompon
 	}
 }
 
-void ACamVolExamplePawn::OnCapsuleComponentEndOverlapDelegate(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void ACamVolExamplePawn::OnCollisionPrimitiveComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	ACameraVolumeActor* CameraVolume = Cast<ACameraVolumeActor>(OtherActor);
 	if (CameraVolume)
