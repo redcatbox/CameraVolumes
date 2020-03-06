@@ -2,7 +2,6 @@
 
 /**
 * Dynamic camera volume actor.
-* Calculates volume extents every tick when activated.
 */
 
 #pragma once
