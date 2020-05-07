@@ -1,7 +1,7 @@
 //Dmitriy Barannik aka redbox, 2019
 
 /**
-* Player character stores default camera parameters and camera component.
+* Player character stores camera component.
 * Player character uses BeginOverlap event of it's capsule collision primitive, to get overlapped camera volume and store it in special array of camera volume actors.
 * Player character uses EndOverlap event of it's capsule collision primitive, to remove camera volume from array of camera volume actors.
 */

@@ -1,8 +1,11 @@
 // Dmitriy Barannik aka redbox, 2019
 
 /**
-* Camera component contains overlapped camera volumes and updates final camera parameters provided by camera manager.
-* Can do camera collision test and relative rotation similar to SpringArm.
+* Camera component that must be used with camera volumes.
+* Contains various camera parameters.
+* Contains overlapped camera volumes
+* Updates final camera parameters provided by camera manager.
+* Can do camera collision test and camera relative rotation similar to SpringArmComponent.
 */
 
 #pragma once

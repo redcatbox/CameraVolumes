@@ -3,7 +3,7 @@
 /**
 * Camera volume actor stores desired camera parameters and volume information.
 * Calculates camera preview, side indicators and volume extents by itself when updated in Editor.
-* This actor and is static in context of this algorithm, but it's parameters can be changed in runtime.
+* This actor is static in context of this algorithm, but it's parameters can be changed during runtime.
 */
 
 #pragma once

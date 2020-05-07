@@ -1,7 +1,8 @@
 //Dmitriy Barannik aka redbox, 2019
 
 /**
-* Player camera manager performs camera calculations according to default camera parameters from player pawn or parameters from camera volumes.
+* Player camera manager performs camera calculations according to camera parameters from camera component or camera volume.
+* Contains OnCameraVolumeChanged delegate.
 */
 
 #pragma once
