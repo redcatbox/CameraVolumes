@@ -127,7 +127,7 @@ protected:
 		float NewCameraFOV_OWFinal;
 
 	UPROPERTY()
-		float bIsCameraStatic;
+		bool bIsCameraStatic;
 
 	UPROPERTY()
 		bool bIsCameraOrthographic;
