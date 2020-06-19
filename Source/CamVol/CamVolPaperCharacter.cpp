@@ -107,13 +107,18 @@ void ACamVolPaperCharacter::UpdateCharacter()
 
 	// Now setup the rotation of the controller based on the direction we are travelling
 	const FVector PlayerVelocity = GetVelocity();	
-	float TravelDirection = PlayerVelocity.X;
+	const float TravelDirection = PlayerVelocity.X;
+
 	// Set the rotation so that the character faces his direction of travel.
 	if (Controller)
 	{
 		if (TravelDirection > 0.f)
+		{
 			Controller->SetControlRotation(FRotator(0.f, 0.f, 0.f));
+		}
 		else if (TravelDirection < 0.f)
+		{
 			Controller->SetControlRotation(FRotator(0.f, 180.f, 0.f));
+		}
 	}
 }

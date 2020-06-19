@@ -1,4 +1,4 @@
-//Dmitriy Barannik aka redbox, 2019
+//redbox, 2019
 
 /**
 * Player character derived from PaperCharacter, stores default camera parameters and camera component.
@@ -25,7 +25,7 @@ public:
 
 protected:
 	/** Camera component */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CameraVolumes, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CameraVolumes", Meta = (AllowPrivateAccess = "true"))
 		class UCameraVolumesCameraComponent* CameraComponent;
 
 	virtual void OnCollisionPrimitiveComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;

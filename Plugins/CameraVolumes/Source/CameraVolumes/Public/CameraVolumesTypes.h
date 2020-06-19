@@ -1,4 +1,4 @@
-//Dmitriy Barannik aka redbox, 2019
+//redbox, 2019
 
 #pragma once
 #include "CameraVolumesTypes.generated.h"
@@ -46,13 +46,13 @@ struct FSideInfo
 {
 	GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadOnly, Category = VolumeSides)
+	UPROPERTY(BlueprintReadOnly, Category = "VolumeSides")
 		ESide Side;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = VolumeSides)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VolumeSides")
 		ESideType SideType;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = VolumeSides)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VolumeSides")
 		ESideTransitionType SideTransitionType;
 
 	FSideInfo()

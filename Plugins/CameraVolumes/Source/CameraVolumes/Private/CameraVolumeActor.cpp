@@ -1,7 +1,9 @@
-//Dmitriy Barannik aka redbox, 2019
+//redbox, 2019
 
 #include "CameraVolumeActor.h"
 #include "CameraVolumesFunctionLibrary.h"
+#include "UObject/ConstructorHelpers.h"
+#include "Materials/MaterialInterface.h"
 
 ACameraVolumeActor::ACameraVolumeActor()
 {
@@ -85,10 +87,10 @@ ACameraVolumeActor::ACameraVolumeActor()
 	BottomSide.Side = ESide::ES_Bottom;
 
 #if WITH_EDITOR
-	CreateSidesIndicators();
+	ACameraVolumeActor::CreateSidesIndicators();
 #endif
 
-	UpdateVolume();
+	ACameraVolumeActor::UpdateVolume();
 }
 
 void ACameraVolumeActor::UpdateVolume()
@@ -170,7 +172,7 @@ void ACameraVolumeActor::UpdateVolume()
 
 #if WITH_EDITOR
 	UpdateSidesIndicators();
-	this->Modify();
+	Modify();
 #endif
 }
 
@@ -227,7 +229,7 @@ FSideInfo ACameraVolumeActor::GetNearestVolumeSideInfo(FVector& PlayerPawnLocati
 {
 	ESide NearestSide = ESide::ES_Front;
 	TMap<ESide, float> Sides;
-	FVector PlayerPawnLocationTransformed = GetActorTransform().InverseTransformPositionNoScale(PlayerPawnLocation);
+	const FVector PlayerPawnLocationTransformed = GetActorTransform().InverseTransformPositionNoScale(PlayerPawnLocation);
 
 	if (bUse6DOFVolume)
 	{
@@ -258,26 +260,19 @@ FSideInfo ACameraVolumeActor::GetNearestVolumeSideInfo(FVector& PlayerPawnLocati
 	{
 	case ESide::ES_Front:
 		return FrontSide;
-		break;
 	case ESide::ES_Back:
 		return BackSide;
-		break;
 	case ESide::ES_Right:
 		return RightSide;
-		break;
 	case ESide::ES_Left:
 		return LeftSide;
-		break;
 	case ESide::ES_Top:
 		return TopSide;
-		break;
 	case ESide::ES_Bottom:
 		return BottomSide;
-		break;
 	default:
 		UE_LOG(LogTemp, Warning, TEXT("Unknown side type! Using SideInfo(Front, Open, Normal)"));
 		return FSideInfo();
-		break;
 	}
 }
 
@@ -290,12 +285,11 @@ void ACameraVolumeActor::CreateSidesIndicators()
 	*	SideInfo [1-18]
 	*/
 	Text_Indicators.SetNum(19);
-	FName ComponentName;
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> TextMaterialObj(TEXT("/CameraVolumes/Materials/UnlitText.UnlitText"));
 
 	for (uint8 i = 0; i < 19; i++)
 	{
-		ComponentName = *(FString(TEXT("TextRenderComponent")) + FString::FromInt(i));
+		const FName ComponentName = *(FString(TEXT("TextRenderComponent")) + FString::FromInt(i));
 		Text_Indicators[i] = CreateDefaultSubobject<UTextRenderComponent>(ComponentName);
 		Text_Indicators[i]->SetupAttachment(RootComponent);
 		Text_Indicators[i]->bHiddenInGame = true;

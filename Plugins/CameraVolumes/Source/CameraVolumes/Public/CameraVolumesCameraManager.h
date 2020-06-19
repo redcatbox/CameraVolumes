@@ -1,4 +1,4 @@
-//Dmitriy Barannik aka redbox, 2019
+//redbox, 2019
 
 /**
 * Player camera manager performs camera calculations according to camera parameters from camera component or camera volume.
@@ -7,9 +7,7 @@
 
 #pragma once
 
-#include "Engine/Engine.h"
 #include "Camera/PlayerCameraManager.h"
-#include "CameraVolumeDynamicActor.h"
 #include "CameraVolumesFunctionLibrary.h"
 #include "CameraVolumesCameraManager.generated.h"
 
@@ -34,44 +32,48 @@ public:
 		virtual void CalcNewCameraParams(ACameraVolumeActor* CameraVolume, float DeltaTime);
 
 	/** Should perform camera updates? */
-	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
+	UPROPERTY(BlueprintReadOnly, Category = "CameraVolumes")
 		bool bUpdateCamera;
 
 	/** Set perform camera updates. */
-	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
+	UFUNCTION(BlueprintCallable, Category = "CameraVolumes")
 		virtual void SetUpdateCamera(bool bNewUpdateCamera);
 
 	/** Should check for camera volumes? */
-	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
+	UPROPERTY(BlueprintReadOnly, Category = "CameraVolumes")
 		bool bCheckCameraVolumes;
 
 	/** Set check for camera volumes. Used by Player Character according to overlapping camera volumes. */
-	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
+	UFUNCTION(BlueprintCallable, Category = "CameraVolumes")
 		virtual void SetCheckCameraVolumes(bool bNewCheck);
 
 	/** Should perform camera blocking calculations? */
-	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = CameraVolumes)
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "CameraVolumes")
 		bool bPerformBlockingCalculations;
 
 	/** Set perform camera blocking calculations */
-	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
+	UFUNCTION(BlueprintCallable, Category = "CameraVolumes")
 		virtual void SetPerformBlockingCalculations(bool bNewPerformBlockingCalculations);
 
 	/** Calculate screen world extent at depth */
-	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-		virtual FVector CalculateScreenWorldExtentAtDepth(float Depth);
+	UFUNCTION(BlueprintCallable, Category = "CameraVolumes")
+		virtual FVector2D CalculateScreenWorldExtentAtDepth(float Depth);
 
 	/** OnCameraVolumeChanged event signature */
-	UPROPERTY(BlueprintAssignable, Category = CameraVolumes)
+	UPROPERTY(BlueprintAssignable, Category = "CameraVolumes")
 		FCameraVolumeChangedSignature OnCameraVolumeChanged;
 
 	/** Get new calculated camera location. */
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CameraVolumes")
 		virtual FVector GetNewCameraLocation() { return NewCameraLocation; }
 
 	/** Get new calculated camera rotation. */
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CameraVolumes")
 		virtual FRotator GetNewCameraRotation() { return NewCameraRotation.Rotator(); }
+
+	/** Is provided world location in dead zone? */
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CameraVolumes")
+		virtual bool IsInDeadZone(FVector WorldLocationToCheck);
 
 protected:
 	UPROPERTY()
@@ -89,7 +91,7 @@ protected:
 	UPROPERTY()
 		class UCameraVolumesCameraComponent* CameraComponent;
 
-	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
+	UPROPERTY(BlueprintReadOnly, Category = "CameraVolumes")
 		class ACameraVolumeActor* CameraVolumeCurrent;
 
 	UPROPERTY()
@@ -146,9 +148,6 @@ protected:
 
 	UPROPERTY()
 		bool bBlockingCalculations;
-
-	UFUNCTION()
-		virtual void SelectPerformBlockingCalculations(bool bCameraVolumePerformCameraBlocking);
 
 	UPROPERTY()
 		bool bBroadcastOnCameraVolumeChanged;
