@@ -244,59 +244,73 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 		}
 		else
 		{
-			if (CameraVolume->bUseCameraRotationAxis)
+			if (CameraComponent->bUseDeadZone)
 			{
-				NewCameraLocation = CameraVolume->bOverrideCameraLocation
-					? CameraVolume->CameraLocation
-					: CameraComponent->DefaultCameraLocation;
-
-				const FVector DirToAxis = PlayerPawnLocationTransformed.GetSafeNormal2D();
-				const FQuat RotToAxis = FRotationMatrix::MakeFromX(DirToAxis).ToQuat();
-				NewCameraLocation = RotToAxis.RotateVector(NewCameraLocation) + FVector(0.f, 0.f, PlayerPawnLocationTransformed.Z);
-
-				if (!CameraVolume->bCameraLocationRelativeToVolume && CameraVolume->bOverrideCameraLocation)
+				if (IsInDeadZone(CameraComponent->DeadZoneFocalPoint))
 				{
-					NewCameraLocation += FVector(PlayerPawnLocationTransformed.X, PlayerPawnLocationTransformed.Y, 0.f);
+
 				}
+				else
+				{
 
-				NewCameraFocalPoint = PlayerPawnLocationTransformed;				
-				NewCameraFocalPoint += CameraVolume->bOverrideCameraRotation
-					? RotToAxis.RotateVector(CameraVolume->CameraFocalPoint)
-					: RotToAxis.RotateVector(CameraComponent->DefaultCameraFocalPoint);
-
-				const float NewCameraRoll = CameraVolume->bOverrideCameraRotation
-					? CameraVolume->CameraRoll
-					: CameraComponent->DefaultCameraRoll;
-
-				NewCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(NewCameraLocation, NewCameraFocalPoint, NewCameraRoll);
+				}
 			}
 			else
 			{
-				NewCameraLocation = PlayerPawnLocationTransformed;
-				NewCameraFocalPoint = PlayerPawnLocationTransformed;
-
-				NewCameraLocation += CameraVolume->bOverrideCameraLocation
-					? CameraVolume->CameraLocation
-					: CameraComponent->DefaultCameraLocation;
-
-				NewCameraFocalPoint += CameraVolume->bOverrideCameraRotation
-					? CameraVolume->CameraFocalPoint
-					: CameraComponent->DefaultCameraFocalPoint;
-
-				if (CameraVolume->bOverrideCameraRotation)
+				if (CameraVolume->bUseCameraRotationAxis)
 				{
-					NewCameraRotation = CameraVolume->CameraRotation;
+					NewCameraLocation = CameraVolume->bOverrideCameraLocation
+						? CameraVolume->CameraLocation
+						: CameraComponent->DefaultCameraLocation;
+
+					const FVector DirToAxis = PlayerPawnLocationTransformed.GetSafeNormal2D();
+					const FQuat RotToAxis = FRotationMatrix::MakeFromX(DirToAxis).ToQuat();
+					NewCameraLocation = RotToAxis.RotateVector(NewCameraLocation) + FVector(0.f, 0.f, PlayerPawnLocationTransformed.Z);
+
+					if (!CameraVolume->bCameraLocationRelativeToVolume && CameraVolume->bOverrideCameraLocation)
+					{
+						NewCameraLocation += FVector(PlayerPawnLocationTransformed.X, PlayerPawnLocationTransformed.Y, 0.f);
+					}
+
+					NewCameraFocalPoint = PlayerPawnLocationTransformed;
+					NewCameraFocalPoint += CameraVolume->bOverrideCameraRotation
+						? RotToAxis.RotateVector(CameraVolume->CameraFocalPoint)
+						: RotToAxis.RotateVector(CameraComponent->DefaultCameraFocalPoint);
+
+					const float NewCameraRoll = CameraVolume->bOverrideCameraRotation
+						? CameraVolume->CameraRoll
+						: CameraComponent->DefaultCameraRoll;
+
+					NewCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(NewCameraLocation, NewCameraFocalPoint, NewCameraRoll);
 				}
-
-				if (CameraVolume->bCameraLocationRelativeToVolume)
+				else
 				{
-					NewCameraLocation.Y = CameraVolume->bOverrideCameraLocation
-						? CameraVolume->CameraLocation.Y
-						: CameraComponent->DefaultCameraLocation.Y;
+					NewCameraLocation = PlayerPawnLocationTransformed;
+					NewCameraFocalPoint = PlayerPawnLocationTransformed;
 
-					NewCameraFocalPoint.Y = CameraVolume->bOverrideCameraRotation
-						? CameraVolume->CameraFocalPoint.Y
-						: CameraComponent->DefaultCameraFocalPoint.Y;
+					NewCameraLocation += CameraVolume->bOverrideCameraLocation
+						? CameraVolume->CameraLocation
+						: CameraComponent->DefaultCameraLocation;
+
+					NewCameraFocalPoint += CameraVolume->bOverrideCameraRotation
+						? CameraVolume->CameraFocalPoint
+						: CameraComponent->DefaultCameraFocalPoint;
+
+					if (CameraVolume->bOverrideCameraRotation)
+					{
+						NewCameraRotation = CameraVolume->CameraRotation;
+					}
+
+					if (CameraVolume->bCameraLocationRelativeToVolume)
+					{
+						NewCameraLocation.Y = CameraVolume->bOverrideCameraLocation
+							? CameraVolume->CameraLocation.Y
+							: CameraComponent->DefaultCameraLocation.Y;
+
+						NewCameraFocalPoint.Y = CameraVolume->bOverrideCameraRotation
+							? CameraVolume->CameraFocalPoint.Y
+							: CameraComponent->DefaultCameraFocalPoint.Y;
+					}
 				}
 			}
 
@@ -537,7 +551,7 @@ bool ACameraVolumesCameraManager::IsInDeadZone(FVector WorldLocationToCheck)
 
 				DrawDebugBox(GetWorld(), FVector(NewCameraLocationFinal.X, 0.f, NewCameraLocationFinal.Z), Ext, FColor::Yellow, false, 0, 0, 2);
 
-				return ((ScreenLocation >= DeadZoneMin) && (ScreenLocation <= DeadZoneMax));
+				return ScreenLocation >= DeadZoneMin && ScreenLocation <= DeadZoneMax;
 			}
 		}
 	}

@@ -81,7 +81,7 @@ protected:
 
 	UPROPERTY()
 		bool bUsePlayerPawnControlRotation;
-
+	
 	UPROPERTY()
 		FVector PlayerPawnLocation;
 
