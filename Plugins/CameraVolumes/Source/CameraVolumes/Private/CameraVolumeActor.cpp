@@ -489,7 +489,7 @@ void ACameraVolumeActor::EditorApplyScale(const FVector& DeltaScale, const FVect
 {
 	Super::EditorApplyScale(DeltaScale, PivotLocation, bAltDown, bShiftDown, bCtrlDown);
 
-	FVector CurrentScale = VolumeExtent / VolumeExtentDefault;
+	const FVector CurrentScale = VolumeExtent / VolumeExtentDefault;
 	FVector ScaleToApply;
 
 	if (AActor::bUsePercentageBasedScaling)

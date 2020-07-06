@@ -35,7 +35,8 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 	bUseDeadZone = false;
 	DeadZoneExtent = FVector2D::ZeroVector;
 	DeadZoneOffset = FVector2D::ZeroVector;
-	DeadZoneFocalPoint = FVector::ZeroVector;
+	bOverrideDeadZoneFocalPoint = false;
+	OverridenDeadZoneFocalPoint = FVector::ZeroVector;
 
 	// Camera collision
 	bDoCollisionTest = false;

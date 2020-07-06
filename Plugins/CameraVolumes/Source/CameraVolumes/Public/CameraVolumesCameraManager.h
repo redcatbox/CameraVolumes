@@ -32,47 +32,47 @@ public:
 		virtual void CalcNewCameraParams(ACameraVolumeActor* CameraVolume, float DeltaTime);
 
 	/** Should perform camera updates? */
-	UPROPERTY(BlueprintReadOnly, Category = "CameraVolumes")
+	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
 		bool bUpdateCamera;
 
 	/** Set perform camera updates. */
-	UFUNCTION(BlueprintCallable, Category = "CameraVolumes")
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual void SetUpdateCamera(bool bNewUpdateCamera);
 
 	/** Should check for camera volumes? */
-	UPROPERTY(BlueprintReadOnly, Category = "CameraVolumes")
+	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
 		bool bCheckCameraVolumes;
 
 	/** Set check for camera volumes. Used by Player Character according to overlapping camera volumes. */
-	UFUNCTION(BlueprintCallable, Category = "CameraVolumes")
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual void SetCheckCameraVolumes(bool bNewCheck);
 
 	/** Should perform camera blocking calculations? */
-	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "CameraVolumes")
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = CameraVolumes)
 		bool bPerformBlockingCalculations;
 
 	/** Set perform camera blocking calculations */
-	UFUNCTION(BlueprintCallable, Category = "CameraVolumes")
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual void SetPerformBlockingCalculations(bool bNewPerformBlockingCalculations);
 
 	/** Calculate screen world extent at depth */
-	UFUNCTION(BlueprintCallable, Category = "CameraVolumes")
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual FVector2D CalculateScreenWorldExtentAtDepth(float Depth);
 
 	/** OnCameraVolumeChanged event signature */
-	UPROPERTY(BlueprintAssignable, Category = "CameraVolumes")
+	UPROPERTY(BlueprintAssignable, Category = CameraVolumes)
 		FCameraVolumeChangedSignature OnCameraVolumeChanged;
 
 	/** Get new calculated camera location. */
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CameraVolumes")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
 		virtual FVector GetNewCameraLocation() { return NewCameraLocation; }
 
 	/** Get new calculated camera rotation. */
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CameraVolumes")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
 		virtual FRotator GetNewCameraRotation() { return NewCameraRotation.Rotator(); }
 
 	/** Is provided world location in dead zone? */
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "CameraVolumes")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
 		virtual bool IsInDeadZone(FVector WorldLocationToCheck);
 
 protected:
@@ -91,7 +91,7 @@ protected:
 	UPROPERTY()
 		class UCameraVolumesCameraComponent* CameraComponent;
 
-	UPROPERTY(BlueprintReadOnly, Category = "CameraVolumes")
+	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
 		class ACameraVolumeActor* CameraVolumeCurrent;
 
 	UPROPERTY()

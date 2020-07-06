@@ -24,11 +24,11 @@ class CAMERAVOLUMES_API ICameraVolumesCharacterInterface
 
 public:
 	/** Returns CameraComponent subobject */
-	UFUNCTION(BlueprintCallable, Category = "CameraVolumes")
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual class UCameraVolumesCameraComponent* GetCameraComponent() const = 0;
 
 	/** Returns collision primitive subobject (CapsuleComponent for Characters) */
-	UFUNCTION(BlueprintCallable, Category = "CameraVolumes")
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual class UPrimitiveComponent* GetCollisionPrimitiveComponent() const = 0;
 
 protected:
