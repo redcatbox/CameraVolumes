@@ -1,6 +1,7 @@
 //redbox, 2019
 
 #pragma once
+
 #include "CameraVolumesTypes.generated.h"
 
 // Camera mobility

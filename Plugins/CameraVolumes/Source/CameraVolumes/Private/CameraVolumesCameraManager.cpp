@@ -311,6 +311,8 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 				if (IsInDeadZone(DeadZoneFocalPoint))
 				{
 					UE_LOG(LogTemp, Log, TEXT("in dead zone"));
+
+					
 				}
 				else
 				{
