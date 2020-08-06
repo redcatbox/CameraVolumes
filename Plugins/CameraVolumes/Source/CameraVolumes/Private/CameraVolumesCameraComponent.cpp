@@ -74,7 +74,7 @@ void UCameraVolumesCameraComponent::UpdateCameraComponent()
 	SetRelativeLocationAndRotation(DefaultCameraLocation, DefaultCameraRotation);
 }
 
-void UCameraVolumesCameraComponent::UpdateCamera(FVector& CameraLocation, FVector& CameraFocalPoint, FQuat& CameraRotation, float CameraFOV, bool bIsCameraStatic)
+void UCameraVolumesCameraComponent::UpdateCamera(FVector& CameraLocation, FVector& CameraFocalPoint, FQuat& CameraRotation, float CameraFOV_OW, bool bIsCameraStatic)
 {
 	if (bUpdateCamera)
 	{
@@ -92,13 +92,14 @@ void UCameraVolumesCameraComponent::UpdateCamera(FVector& CameraLocation, FVecto
 
 		SetWorldLocationAndRotation(CameraLocation, CameraRotation);
 
+
 		if (bIsCameraOrthographic)
 		{
-			SetOrthoWidth(CameraFOV);
+			SetOrthoWidth(CameraFOV_OW);
 		}
 		else
 		{
-			SetFieldOfView(CameraFOV);
+			SetFieldOfView(CameraFOV_OW);
 		}
 	}
 }

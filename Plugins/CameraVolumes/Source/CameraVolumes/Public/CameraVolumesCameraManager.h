@@ -20,7 +20,7 @@ class CAMERAVOLUMES_API ACameraVolumesCameraManager : public APlayerCameraManage
 	GENERATED_BODY()
 
 public:
-	ACameraVolumesCameraManager();
+	ACameraVolumesCameraManager(const FObjectInitializer& ObjectInitializer);
 	virtual void UpdateCamera(float DeltaTime) override;
 
 	/** Set transition according to side info */

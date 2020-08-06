@@ -5,9 +5,9 @@
 #include "CameraVolumeDynamicActor.h"
 #include "Engine/Engine.h"
 #include "GameFramework/PlayerController.h"
-#include "DrawDebugHelpers.h"
 
-ACameraVolumesCameraManager::ACameraVolumesCameraManager()
+ACameraVolumesCameraManager::ACameraVolumesCameraManager(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	bUpdateCamera = true;
 	bCheckCameraVolumes = true;
@@ -171,7 +171,18 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 					CalcNewCameraParams(nullptr, DeltaTime);
 				}
 
+				// Update camera component
 				CameraComponent->UpdateCamera(NewCameraLocationFinal, NewCameraFocalPoint, NewCameraRotationFinal, NewCameraFOV_OWFinal, bIsCameraStatic);
+
+				// Update camera manager
+				if (bIsCameraOrthographic)
+				{
+					DefaultOrthoWidth = NewCameraFOV_OWFinal;
+				}
+				else
+				{
+					DefaultFOV = NewCameraFOV_OWFinal;
+				}
 			}
 		}
 	}
@@ -214,7 +225,7 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 		}
 
 		// Get screen (or at least player camera) aspect ratio for further calculations
-		const float PlayerCamFOVTangens = FMath::Tan(FMath::DegreesToRadians(NewCameraFOV_OW * 0.5f));
+		const float CamFOVTangens = FMath::Tan(FMath::DegreesToRadians(NewCameraFOV_OW * 0.5f));
 		float ScreenAspectRatio = CameraComponent->AspectRatio;
 
 		if (GEngine->GameViewport->Viewport)
@@ -311,8 +322,6 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 				if (IsInDeadZone(DeadZoneFocalPoint))
 				{
 					UE_LOG(LogTemp, Log, TEXT("in dead zone"));
-
-					
 				}
 				else
 				{
@@ -335,7 +344,7 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 				if (!CameraVolume->bUseZeroDepthExtent || !bIsCameraOrthographic)
 				{
 					FVector DeltaExtent;
-					DeltaExtent.X = FMath::Abs((NewCamVolMaxCorrected.Y) * PlayerCamFOVTangens);
+					DeltaExtent.X = FMath::Abs((NewCamVolMaxCorrected.Y) * CamFOVTangens);
 					DeltaExtent = FVector(DeltaExtent.X, 0.f, DeltaExtent.X / ScreenAspectRatio);
 					NewCamVolExtentCorrected += DeltaExtent;
 					NewCamVolMinCorrected -= DeltaExtent;
@@ -347,7 +356,7 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 					? NewCameraLocation.Size2D()
 					: NewCameraLocation.Y;
 
-				// Calculate new camera offset and screen world extent at depth (CameraOffset)
+				// Calculate new camera offset and screen world extent at depth of CameraOffset
 				FVector ScreenExtent;
 
 				if (bIsCameraOrthographic)
@@ -365,8 +374,7 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 						CameraOffset = FMath::Clamp(
 							CameraOffset,
 							CameraOffset,
-							NewCamVolExtentCorrected.Z * ScreenAspectRatio / PlayerCamFOVTangens
-						);
+							NewCamVolExtentCorrected.Z * ScreenAspectRatio / CamFOVTangens);
 					}
 					else
 					{
@@ -374,16 +382,14 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 							? FMath::Clamp(
 								CameraOffset,
 								CameraOffset,
-								NewCamVolExtentCorrected.Z * ScreenAspectRatio / PlayerCamFOVTangens
-							)
+								NewCamVolExtentCorrected.Z * ScreenAspectRatio / CamFOVTangens)
 							: FMath::Clamp(
 								CameraOffset,
 								CameraOffset,
-								NewCamVolExtentCorrected.X / PlayerCamFOVTangens
-							);
+								NewCamVolExtentCorrected.X / CamFOVTangens);
 					}
 
-					ScreenExtent.X = FMath::Abs(CameraOffset * PlayerCamFOVTangens);
+					ScreenExtent.X = FMath::Abs(CameraOffset * CamFOVTangens);
 				}
 
 				ScreenExtent = FVector(ScreenExtent.X, 0.f, ScreenExtent.X / ScreenAspectRatio);
@@ -395,13 +401,11 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 					? FVector(
 						NewCameraLocation.GetSafeNormal2D().X * CameraOffset,
 						NewCameraLocation.GetSafeNormal2D().Y * CameraOffset,
-						FMath::Clamp(NewCameraLocation.Z, ScreenMin.Z, ScreenMax.Z)
-					)
+						FMath::Clamp(NewCameraLocation.Z, ScreenMin.Z, ScreenMax.Z))
 					: FVector(
 						FMath::Clamp(NewCameraLocation.X, ScreenMin.X, ScreenMax.X),
 						CameraOffset,
-						FMath::Clamp(NewCameraLocation.Z, ScreenMin.Z, ScreenMax.Z)
-					);
+						FMath::Clamp(NewCameraLocation.Z, ScreenMin.Z, ScreenMax.Z));
 			}
 		}
 

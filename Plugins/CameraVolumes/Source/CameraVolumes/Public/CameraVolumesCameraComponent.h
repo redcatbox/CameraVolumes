@@ -186,7 +186,7 @@ public:
 
 	/** Updates camera by camera manager */
 	UFUNCTION()
-		virtual void UpdateCamera(FVector& CameraLocation, FVector& CameraFocalPoint, FQuat& CameraRotation, float CameraFOV, bool bIsCameraStatic);
+		virtual void UpdateCamera(FVector& CameraLocation, FVector& CameraFocalPoint, FQuat& CameraRotation, float CameraFOV_OW, bool bIsCameraStatic);
 
 	/** Get is camera uses orthographic projection mode */
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
