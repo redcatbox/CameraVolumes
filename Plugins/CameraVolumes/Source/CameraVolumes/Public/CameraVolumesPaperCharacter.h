@@ -1,4 +1,4 @@
-//Dmitriy Barannik aka redbox, 2019
+//redbox, 2019
 
 /**
 * Player character derived from PaperCharacter, stores default camera parameters and camera component.

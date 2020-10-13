@@ -1,4 +1,4 @@
-//Dmitriy Barannik aka redbox, 2019
+//redbox, 2019
 
 /**
 * Camera volume actor stores desired camera parameters and volume information.
@@ -10,8 +10,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "UObject/ConstructorHelpers.h"
-#include "Materials/MaterialInterface.h"
 #include "Components/BillboardComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
@@ -174,7 +172,7 @@ public:
 		bool bOverrideCameraFieldOfView;
 
 	/** New camera FOV. For perspective cameras. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (EditCondition = "bOverrideCameraFieldOfView", UIMin = "5.0", UIMax = "170", ClampMin = "0.001", ClampMax = "360.0", Units = deg))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (EditCondition = "bOverrideCameraFieldOfView", UIMin = "5", UIMax = "170", ClampMin = "0.001", ClampMax = "360", Units = deg))
 		float CameraFieldOfView;
 
 	/** Should override camera OrthoWidth? For orthographic cameras. */
@@ -195,7 +193,7 @@ public:
 		bool bUseCameraRotationAxis;
 
 	/** Speed of smooth camera transition */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = VolumeSides, Meta = (ClampMin = "0.01", ClampMax = "10.0", UIMin = "0.01", UIMax = "10.0"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = VolumeSides, Meta = (ClampMin = "0.01", ClampMax = "10", UIMin = "0.01", UIMax = "10"))
 		float CameraSmoothTransitionSpeed;
 
 	/** Right side info */

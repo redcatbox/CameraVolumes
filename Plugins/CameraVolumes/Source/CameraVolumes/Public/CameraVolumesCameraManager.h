@@ -1,4 +1,4 @@
-//Dmitriy Barannik aka redbox, 2019
+//redbox, 2019
 
 /**
 * Player camera manager performs camera calculations according to camera parameters from camera component or camera volume.
@@ -7,9 +7,7 @@
 
 #pragma once
 
-#include "Engine/Engine.h"
 #include "Camera/PlayerCameraManager.h"
-#include "CameraVolumeDynamicActor.h"
 #include "CameraVolumesFunctionLibrary.h"
 #include "CameraVolumesCameraManager.generated.h"
 
@@ -22,7 +20,7 @@ class CAMERAVOLUMES_API ACameraVolumesCameraManager : public APlayerCameraManage
 	GENERATED_BODY()
 
 public:
-	ACameraVolumesCameraManager();
+	ACameraVolumesCameraManager(const FObjectInitializer& ObjectInitializer);
 	virtual void UpdateCamera(float DeltaTime) override;
 
 	/** Set transition according to side info */
@@ -59,7 +57,7 @@ public:
 
 	/** Calculate screen world extent at depth */
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-		virtual FVector CalculateScreenWorldExtentAtDepth(float Depth);
+		virtual FVector2D CalculateScreenWorldExtentAtDepth(float Depth);
 
 	/** OnCameraVolumeChanged event signature */
 	UPROPERTY(BlueprintAssignable, Category = CameraVolumes)
@@ -72,6 +70,10 @@ public:
 	/** Get new calculated camera rotation. */
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
 		virtual FRotator GetNewCameraRotation() { return NewCameraRotation.Rotator(); }
+
+	///** Is provided world location in dead zone? */
+	//UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
+	//	virtual bool IsInDeadZone(FVector WorldLocationToCheck);
 
 protected:
 	UPROPERTY()
@@ -127,7 +129,7 @@ protected:
 		float NewCameraFOV_OWFinal;
 
 	UPROPERTY()
-		float bIsCameraStatic;
+		bool bIsCameraStatic;
 
 	UPROPERTY()
 		bool bIsCameraOrthographic;
@@ -146,9 +148,6 @@ protected:
 
 	UPROPERTY()
 		bool bBlockingCalculations;
-
-	UFUNCTION()
-		virtual void SelectPerformBlockingCalculations(bool bCameraVolumePerformCameraBlocking);
 
 	UPROPERTY()
 		bool bBroadcastOnCameraVolumeChanged;

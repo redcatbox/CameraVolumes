@@ -1,4 +1,4 @@
-// Dmitriy Barannik aka redbox, 2019
+// redbox, 2019
 
 #include "CameraVolumesCameraComponent.h"
 #include "CameraVolumesFunctionLibrary.h"
@@ -12,7 +12,7 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 	DefaultCameraFieldOfView = 90.f;
 	DefaultCameraOrthoWidth = 512.f;
 	bIsCameraOrthographic = false;
-	UpdateCameraComponent();
+	UCameraVolumesCameraComponent::UpdateCameraComponent();
 
 	// Camera lag
 	bEnableCameraLocationLag = false;
@@ -30,6 +30,13 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 	AdditionalCameraRotation = FRotator::ZeroRotator;
 	AdditionalCameraFOV = 0.f;
 	AdditionalCameraOrthoWidth = 0.f;
+
+	// Dead zone
+	//bUseDeadZone = false;
+	//DeadZoneExtent = FVector2D::ZeroVector;
+	//DeadZoneOffset = FVector2D::ZeroVector;
+	//bOverrideDeadZoneFocalPoint = false;
+	//OverridenDeadZoneFocalPoint = FVector::ZeroVector;
 
 	// Camera collision
 	bDoCollisionTest = false;
@@ -57,13 +64,17 @@ void UCameraVolumesCameraComponent::UpdateCameraComponent()
 		bIsCameraOrthographic = false;
 		SetFieldOfView(DefaultCameraFieldOfView);
 		break;
+	default:
+		bIsCameraOrthographic = false;
+		SetFieldOfView(DefaultCameraFieldOfView);
+		break;
 	}
 
 	DefaultCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(DefaultCameraLocation, DefaultCameraFocalPoint, DefaultCameraRoll);
 	SetRelativeLocationAndRotation(DefaultCameraLocation, DefaultCameraRotation);
 }
 
-void UCameraVolumesCameraComponent::UpdateCamera(FVector& CameraLocation, FVector& CameraFocalPoint, FQuat& CameraRotation, float CameraFOV, bool bIsCameraStatic)
+void UCameraVolumesCameraComponent::UpdateCamera(FVector& CameraLocation, FVector& CameraFocalPoint, FQuat& CameraRotation, float CameraFOV_OW, bool bIsCameraStatic)
 {
 	if (bUpdateCamera)
 	{
@@ -81,13 +92,14 @@ void UCameraVolumesCameraComponent::UpdateCamera(FVector& CameraLocation, FVecto
 
 		SetWorldLocationAndRotation(CameraLocation, CameraRotation);
 
+
 		if (bIsCameraOrthographic)
 		{
-			SetOrthoWidth(CameraFOV);
+			SetOrthoWidth(CameraFOV_OW);
 		}
 		else
 		{
-			SetFieldOfView(CameraFOV);
+			SetFieldOfView(CameraFOV_OW);
 		}
 	}
 }

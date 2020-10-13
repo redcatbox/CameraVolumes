@@ -19,13 +19,12 @@ public:
  	/** Called for front to back input */
  	void MoveForward(float Val);
  
-	/** Handle touch inputs. */
+	/** Handle touch inputs */
 	void TouchStarted(const ETouchIndex::Type FingerIndex, const FVector Location);
 
-	/** Handle touch stop event. */
+	/** Handle touch stop event */
 	void TouchStopped(const ETouchIndex::Type FingerIndex, const FVector Location);
 
-	// APawn interface
+	/** Setup input */
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
-	// End of APawn interface
 };

@@ -1,4 +1,4 @@
-//Dmitriy Barannik aka redbox, 2019
+//redbox, 2019
 
 #include "CameraVolumesPaperCharacter.h"
 #include "Components/CapsuleComponent.h"

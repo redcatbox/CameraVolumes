@@ -1,4 +1,4 @@
-//Dmitriy Barannik aka redbox, 2019
+//redbox, 2019
 
 /**
 * Player character stores camera component.
@@ -8,7 +8,6 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "CameraVolumesCharacterInterface.h"
 #include "CameraVolumesCharacter.generated.h"

@@ -1,8 +1,6 @@
-//Dmitriy Barannik aka redbox, 2019
+//redbox, 2019
 
-/**
-* Dynamic camera volume actor.
-*/
+// Dynamic camera volume actor
 
 #pragma once
 

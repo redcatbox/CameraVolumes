@@ -1,4 +1,3 @@
-// Dmitriy Barannik aka redbox, 2019
 
 #include "CamVolExamplePawn.h"
 #include "Components/InputComponent.h"
