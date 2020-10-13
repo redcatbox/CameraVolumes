@@ -313,22 +313,24 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 				}
 			}
 
-			if (CameraComponent->bUseDeadZone)
-			{
-				const FVector DeadZoneFocalPoint = CameraComponent->bOverrideDeadZoneFocalPoint
-					? CameraComponent->OverridenDeadZoneFocalPoint
-					: PlayerPawnLocation;
+			
+			//if (CameraComponent->bUseDeadZone)
+			//{
+			//	const FVector DeadZoneFocalPoint = CameraComponent->bOverrideDeadZoneFocalPoint
+			//		? CameraComponent->OverridenDeadZoneFocalPoint
+			//		: PlayerPawnLocation;
 
-				if (IsInDeadZone(DeadZoneFocalPoint))
-				{
-					UE_LOG(LogTemp, Log, TEXT("in dead zone"));
-				}
-				else
-				{
-					UE_LOG(LogTemp, Log, TEXT("not in dead zone"));
-				}
-			}
+			//	if (IsInDeadZone(DeadZoneFocalPoint))
+			//	{
+			//		UE_LOG(LogTemp, Log, TEXT("in dead zone"));
+			//	}
+			//	else
+			//	{
+			//		UE_LOG(LogTemp, Log, TEXT("not in dead zone"));
+			//	}
+			//}
 
+			
 			// Calculate camera blocking like it oriented to volume Front side
 			bBlockingCalculations = bPerformBlockingCalculations
 				? CameraVolumeCurrent->bPerformCameraBlocking
@@ -556,29 +558,29 @@ void ACameraVolumesCameraManager::SetTransitionBySideInfo(ACameraVolumeActor* Ca
 	}
 }
 
-bool ACameraVolumesCameraManager::IsInDeadZone(FVector WorldLocationToCheck)
-{
-	if (GetOwningPlayerController())
-	{
-		if (GEngine->GameViewport->Viewport && CameraComponent)
-		{
-			FVector2D ScreenLocation;
-			GetOwningPlayerController()->ProjectWorldLocationToScreen(WorldLocationToCheck, ScreenLocation);
-
-			const FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
-			const FVector2D ScreenCenter = ViewportSize / 2;
-			const FVector2D DeadZoneScreenOffset = ViewportSize * CameraComponent->DeadZoneOffset / 100.f;
-			const FVector2D DeadZoneScreenExtent = ViewportSize * CameraComponent->DeadZoneExtent / 200.f;
-			const FVector2D DeadZoneScreenCenter = ScreenCenter + DeadZoneScreenOffset;
-			const FVector2D DeadZoneScreenMin = DeadZoneScreenCenter - DeadZoneScreenExtent;
-			const FVector2D DeadZoneScreenMax = DeadZoneScreenCenter + DeadZoneScreenExtent;
-
-			return (ScreenLocation >= DeadZoneScreenMin) && (ScreenLocation <= DeadZoneScreenMax);
-		}
-	}
-
-	return false;
-}
+//bool ACameraVolumesCameraManager::IsInDeadZone(FVector WorldLocationToCheck)
+//{
+//	if (GetOwningPlayerController())
+//	{
+//		if (GEngine->GameViewport->Viewport && CameraComponent)
+//		{
+//			FVector2D ScreenLocation;
+//			GetOwningPlayerController()->ProjectWorldLocationToScreen(WorldLocationToCheck, ScreenLocation);
+//
+//			const FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
+//			const FVector2D ScreenCenter = ViewportSize / 2;
+//			const FVector2D DeadZoneScreenOffset = ViewportSize * CameraComponent->DeadZoneOffset / 100.f;
+//			const FVector2D DeadZoneScreenExtent = ViewportSize * CameraComponent->DeadZoneExtent / 200.f;
+//			const FVector2D DeadZoneScreenCenter = ScreenCenter + DeadZoneScreenOffset;
+//			const FVector2D DeadZoneScreenMin = DeadZoneScreenCenter - DeadZoneScreenExtent;
+//			const FVector2D DeadZoneScreenMax = DeadZoneScreenCenter + DeadZoneScreenExtent;
+//
+//			return (ScreenLocation >= DeadZoneScreenMin) && (ScreenLocation <= DeadZoneScreenMax);
+//		}
+//	}
+//
+//	return false;
+//}
 
 FVector2D ACameraVolumesCameraManager::CalculateScreenWorldExtentAtDepth(float Depth)
 {
@@ -588,17 +590,14 @@ FVector2D ACameraVolumesCameraManager::CalculateScreenWorldExtentAtDepth(float D
 	if (CameraComponent)
 	{
 		ScreenAspectRatio = CameraComponent->AspectRatio;
-		float CameraFOV_OW;
 
 		if (CameraComponent->GetIsCameraOrthographic())
 		{
-			CameraFOV_OW = CameraComponent->OrthoWidth;
-			ScreenExtentResult.X = CameraFOV_OW * 0.5f;
+			ScreenExtentResult.X = DefaultOrthoWidth * 0.5f;
 		}
 		else
 		{
-			CameraFOV_OW = CameraComponent->FieldOfView;
-			ScreenExtentResult.X = FMath::Abs(Depth * FMath::Tan(FMath::DegreesToRadians(CameraFOV_OW * 0.5f)));
+			ScreenExtentResult.X = FMath::Abs(Depth * FMath::Tan(FMath::DegreesToRadians(DefaultFOV * 0.5f)));
 		}
 	}
 

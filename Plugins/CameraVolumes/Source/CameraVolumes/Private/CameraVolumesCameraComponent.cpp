@@ -32,11 +32,11 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 	AdditionalCameraOrthoWidth = 0.f;
 
 	// Dead zone
-	bUseDeadZone = false;
-	DeadZoneExtent = FVector2D::ZeroVector;
-	DeadZoneOffset = FVector2D::ZeroVector;
-	bOverrideDeadZoneFocalPoint = false;
-	OverridenDeadZoneFocalPoint = FVector::ZeroVector;
+	//bUseDeadZone = false;
+	//DeadZoneExtent = FVector2D::ZeroVector;
+	//DeadZoneOffset = FVector2D::ZeroVector;
+	//bOverrideDeadZoneFocalPoint = false;
+	//OverridenDeadZoneFocalPoint = FVector::ZeroVector;
 
 	// Camera collision
 	bDoCollisionTest = false;

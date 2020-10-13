@@ -71,9 +71,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
 		virtual FRotator GetNewCameraRotation() { return NewCameraRotation.Rotator(); }
 
-	/** Is provided world location in dead zone? */
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
-		virtual bool IsInDeadZone(FVector WorldLocationToCheck);
+	///** Is provided world location in dead zone? */
+	//UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
+	//	virtual bool IsInDeadZone(FVector WorldLocationToCheck);
 
 protected:
 	UPROPERTY()
@@ -81,7 +81,7 @@ protected:
 
 	UPROPERTY()
 		bool bUsePlayerPawnControlRotation;
-	
+
 	UPROPERTY()
 		FVector PlayerPawnLocation;
 
