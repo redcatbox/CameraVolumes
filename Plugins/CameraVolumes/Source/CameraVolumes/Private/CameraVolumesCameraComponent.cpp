@@ -32,11 +32,11 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 	AdditionalCameraOrthoWidth = 0.f;
 
 	// Dead zone
-	//bUseDeadZone = false;
-	//DeadZoneExtent = FVector2D::ZeroVector;
-	//DeadZoneOffset = FVector2D::ZeroVector;
-	//bOverrideDeadZoneFocalPoint = false;
-	//OverridenDeadZoneFocalPoint = FVector::ZeroVector;
+	bUseDeadZone = false;
+	DeadZoneExtent = FVector2D::ZeroVector;
+	DeadZoneOffset = FVector2D::ZeroVector;
+	bOverrideDeadZoneFocalPoint = false;
+	OverridenDeadZoneFocalPoint = FVector::ZeroVector;
 
 	// Camera collision
 	bDoCollisionTest = false;
@@ -92,7 +92,6 @@ void UCameraVolumesCameraComponent::UpdateCamera(FVector& CameraLocation, FVecto
 
 		SetWorldLocationAndRotation(CameraLocation, CameraRotation);
 
-
 		if (bIsCameraOrthographic)
 		{
 			SetOrthoWidth(CameraFOV_OW);
@@ -109,7 +108,7 @@ void UCameraVolumesCameraComponent::UpdateCamera(FVector& CameraLocation, FVecto
 void UCameraVolumesCameraComponent::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
-	FName PropertyName = (PropertyChangedEvent.Property != NULL) ? PropertyChangedEvent.Property->GetFName() : NAME_None;
+	const FName PropertyName = PropertyChangedEvent.Property ? PropertyChangedEvent.Property->GetFName() : NAME_None;
 	if (PropertyName == TEXT("ProjectionMode")
 		|| TEXT("DefaultCameraLocation")
 		|| TEXT("DefaultCameraFocalPoint")

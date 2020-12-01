@@ -456,7 +456,7 @@ void ACameraVolumeActor::UpdateSidesIndicators()
 void ACameraVolumeActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
-	FName PropertyName = (PropertyChangedEvent.Property != NULL) ? PropertyChangedEvent.Property->GetFName() : NAME_None;
+	const FName PropertyName = PropertyChangedEvent.Property ? PropertyChangedEvent.Property->GetFName() : NAME_None;
 	if (PropertyName == TEXT("Priority") || TEXT("VolumeExtent")
 		|| TEXT("bUseZeroDepthExtent") || TEXT("bUse6DOFVolume")
 		|| TEXT("bDisableMainBoxCollision")
