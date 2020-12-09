@@ -136,11 +136,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone", Meta = (EditCondition = "bUseDeadZone"))
 		bool bOverrideDeadZoneFocalPoint;
 	
-<<<<<<< HEAD
 	/** World-space location to check is in dead zone */
-=======
-	/** World-space location to check is on dead zone */
->>>>>>> 9c7dbd003188a63426648c40cc10cd71c9923f3e
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone", Meta = (EditCondition = "bUseDeadZone && bOverrideDeadZoneFocalPoint"))
 		FVector OverridenDeadZoneFocalPoint;
 //Dead zone

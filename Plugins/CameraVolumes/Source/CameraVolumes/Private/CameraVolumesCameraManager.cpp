@@ -560,11 +560,7 @@ bool ACameraVolumesCameraManager::IsInDeadZone(FVector WorldLocationToCheck)
 {
 	if (APlayerController* PC = GetOwningPlayerController())
 	{
-<<<<<<< HEAD
 		if (GEngine && GEngine->GameViewport && GEngine->GameViewport->Viewport && CameraComponent)
-=======
-		if (GEngine->GameViewport->Viewport && CameraComponent)
->>>>>>> 9c7dbd003188a63426648c40cc10cd71c9923f3e
 		{
 			FVector2D ScreenLocation;
 			PC->ProjectWorldLocationToScreen(WorldLocationToCheck, ScreenLocation);
