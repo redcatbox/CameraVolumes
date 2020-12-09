@@ -116,30 +116,30 @@ public:
 //Additional parameters
 
 
-////Dead zone
-//	/**	Should use screen-space dead zone?
-//	 *	Player pawn location is used as focal point to check is in dead zone or not.
-//	 *	It is possible to override focal point with bOverrideDeadZoneFocalPoint and OverridenDeadZoneFocalPoint.
-//	 */
-//	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone")
-//		bool bUseDeadZone;
-//
-//	/** Dead zone extent (in screen percentage) */
-//	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone", Meta = (EditCondition = "bUseDeadZone"))
-//		FVector2D DeadZoneExtent;
-//
-//	/** Dead zone offset from the center of the screen (in screen percentage) */
-//	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone", Meta = (EditCondition = "bUseDeadZone"))
-//		FVector2D DeadZoneOffset;
-//
-//	/** Should manually override dead zone focal point? */
-//	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone", Meta = (EditCondition = "bUseDeadZone"))
-//		bool bOverrideDeadZoneFocalPoint;
-//	
-//	/** World-space location to check is on dead zone */
-//	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone", Meta = (EditCondition = "bUseDeadZone && bOverrideDeadZoneFocalPoint"))
-//		FVector OverridenDeadZoneFocalPoint;
-////Dead zone
+//Dead zone
+	/**	Should use screen-space dead zone?
+	 *	Player pawn location is used as focal point to check is in dead zone or not.
+	 *	It is possible to override focal point with bOverrideDeadZoneFocalPoint and OverridenDeadZoneFocalPoint.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone")
+		bool bUseDeadZone;
+
+	/** Dead zone extent (in screen percentage) */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone", Meta = (EditCondition = "bUseDeadZone"))
+		FVector2D DeadZoneExtent;
+
+	/** Dead zone offset from the center of the screen (in screen percentage) */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone", Meta = (EditCondition = "bUseDeadZone"))
+		FVector2D DeadZoneOffset;
+
+	/** Should manually override dead zone focal point? */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone", Meta = (EditCondition = "bUseDeadZone"))
+		bool bOverrideDeadZoneFocalPoint;
+	
+	/** World-space location to check is in dead zone */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone", Meta = (EditCondition = "bUseDeadZone && bOverrideDeadZoneFocalPoint"))
+		FVector OverridenDeadZoneFocalPoint;
+//Dead zone
 
 
 //Camera collision
@@ -197,7 +197,6 @@ public:
 		virtual void UpdateCameraComponent();
 
 #if WITH_EDITOR
-	//Override PostEditChangeProperty
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
 

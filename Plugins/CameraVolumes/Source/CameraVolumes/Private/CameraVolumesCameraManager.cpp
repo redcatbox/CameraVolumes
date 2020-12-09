@@ -206,7 +206,7 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 	NewCameraFOV_OW = bIsCameraOrthographic
 		? CameraComponent->DefaultCameraOrthoWidth
 		: CameraComponent->DefaultCameraFieldOfView;
-
+	
 	if (CameraVolume)
 	{
 		if (bIsCameraOrthographic)
@@ -313,24 +313,6 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 				}
 			}
 
-			
-			//if (CameraComponent->bUseDeadZone)
-			//{
-			//	const FVector DeadZoneFocalPoint = CameraComponent->bOverrideDeadZoneFocalPoint
-			//		? CameraComponent->OverridenDeadZoneFocalPoint
-			//		: PlayerPawnLocation;
-
-			//	if (IsInDeadZone(DeadZoneFocalPoint))
-			//	{
-			//		UE_LOG(LogTemp, Log, TEXT("in dead zone"));
-			//	}
-			//	else
-			//	{
-			//		UE_LOG(LogTemp, Log, TEXT("not in dead zone"));
-			//	}
-			//}
-
-			
 			// Calculate camera blocking like it oriented to volume Front side
 			bBlockingCalculations = bPerformBlockingCalculations
 				? CameraVolumeCurrent->bPerformCameraBlocking
@@ -511,6 +493,22 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 	NewCameraRotationFinal = NewCameraRotation;
 	NewCameraFOV_OWFinal = NewCameraFOV_OW;
 
+	if (CameraComponent->bUseDeadZone)
+	{
+		const FVector DeadZoneFocalPoint = CameraComponent->bOverrideDeadZoneFocalPoint
+			? CameraComponent->OverridenDeadZoneFocalPoint
+			: PlayerPawnLocation;
+
+		if (IsInDeadZone(DeadZoneFocalPoint))
+		{
+			CameraComponent->bUpdateCamera = false;
+		}
+		else
+		{
+			CameraComponent->bUpdateCamera = true;
+		}
+	}
+	
 	if (CameraComponent->bUseAdditionalCameraParams)
 	{
 		NewCameraLocationFinal += CameraComponent->AdditionalCameraLocation;
@@ -558,29 +556,29 @@ void ACameraVolumesCameraManager::SetTransitionBySideInfo(ACameraVolumeActor* Ca
 	}
 }
 
-//bool ACameraVolumesCameraManager::IsInDeadZone(FVector WorldLocationToCheck)
-//{
-//	if (GetOwningPlayerController())
-//	{
-//		if (GEngine->GameViewport->Viewport && CameraComponent)
-//		{
-//			FVector2D ScreenLocation;
-//			GetOwningPlayerController()->ProjectWorldLocationToScreen(WorldLocationToCheck, ScreenLocation);
-//
-//			const FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
-//			const FVector2D ScreenCenter = ViewportSize / 2;
-//			const FVector2D DeadZoneScreenOffset = ViewportSize * CameraComponent->DeadZoneOffset / 100.f;
-//			const FVector2D DeadZoneScreenExtent = ViewportSize * CameraComponent->DeadZoneExtent / 200.f;
-//			const FVector2D DeadZoneScreenCenter = ScreenCenter + DeadZoneScreenOffset;
-//			const FVector2D DeadZoneScreenMin = DeadZoneScreenCenter - DeadZoneScreenExtent;
-//			const FVector2D DeadZoneScreenMax = DeadZoneScreenCenter + DeadZoneScreenExtent;
-//
-//			return (ScreenLocation >= DeadZoneScreenMin) && (ScreenLocation <= DeadZoneScreenMax);
-//		}
-//	}
-//
-//	return false;
-//}
+bool ACameraVolumesCameraManager::IsInDeadZone(FVector WorldLocationToCheck)
+{
+	if (APlayerController* PC = GetOwningPlayerController())
+	{
+		if (GEngine && GEngine->GameViewport && GEngine->GameViewport->Viewport && CameraComponent)
+		{
+			FVector2D ScreenLocation;
+			PC->ProjectWorldLocationToScreen(WorldLocationToCheck, ScreenLocation);
+
+			const FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
+			const FVector2D ScreenCenter = ViewportSize / 2;
+			const FVector2D DeadZoneScreenOffset = ViewportSize * CameraComponent->DeadZoneOffset / 100.f;
+			const FVector2D DeadZoneScreenExtent = ViewportSize * CameraComponent->DeadZoneExtent / 200.f;
+			const FVector2D DeadZoneScreenCenter = ScreenCenter + DeadZoneScreenOffset;
+			const FVector2D DeadZoneScreenMin = DeadZoneScreenCenter - DeadZoneScreenExtent;
+			const FVector2D DeadZoneScreenMax = DeadZoneScreenCenter + DeadZoneScreenExtent;
+
+			return (ScreenLocation >= DeadZoneScreenMin) && (ScreenLocation <= DeadZoneScreenMax);
+		}
+	}
+
+	return false;
+}
 
 FVector2D ACameraVolumesCameraManager::CalculateScreenWorldExtentAtDepth(float Depth)
 {
@@ -591,14 +589,9 @@ FVector2D ACameraVolumesCameraManager::CalculateScreenWorldExtentAtDepth(float D
 	{
 		ScreenAspectRatio = CameraComponent->AspectRatio;
 
-		if (CameraComponent->GetIsCameraOrthographic())
-		{
-			ScreenExtentResult.X = DefaultOrthoWidth * 0.5f;
-		}
-		else
-		{
-			ScreenExtentResult.X = FMath::Abs(Depth * FMath::Tan(FMath::DegreesToRadians(DefaultFOV * 0.5f)));
-		}
+		ScreenExtentResult.X = CameraComponent->GetIsCameraOrthographic()
+			? DefaultOrthoWidth * 0.5f
+			: ScreenExtentResult.X = FMath::Abs(Depth * FMath::Tan(FMath::DegreesToRadians(DefaultFOV * 0.5f)));
 	}
 
 	if (GEngine->GameViewport->Viewport)
