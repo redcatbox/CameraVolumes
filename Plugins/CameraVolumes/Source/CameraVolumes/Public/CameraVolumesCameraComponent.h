@@ -3,7 +3,7 @@
 /**
 * Camera component that must be used with camera volumes.
 * Contains various camera parameters.
-* Contains overlapped camera volumes
+* Contains overlapped camera volumes.
 * Updates final camera parameters provided by camera manager.
 * Can do camera collision test and camera relative rotation similar to SpringArmComponent.
 */
