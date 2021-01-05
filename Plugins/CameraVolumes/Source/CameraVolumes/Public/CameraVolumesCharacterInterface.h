@@ -1,10 +1,10 @@
-//redbox, 2019
+//redbox, 2021
 
 /**
-* Interface for characters using camera volumes.
-* Returns camera component.
-* Returns collision primitive component and it's BeginOverlap and EndOverlap events.
-*/
+ * Interface for characters using camera volumes.
+ * Returns camera component.
+ * Returns collision primitive component and it's BeginOverlap and EndOverlap events.
+ */
 
 #pragma once
 

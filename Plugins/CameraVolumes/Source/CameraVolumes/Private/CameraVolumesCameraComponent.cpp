@@ -1,4 +1,4 @@
-// redbox, 2019
+// redbox, 2021
 
 #include "CameraVolumesCameraComponent.h"
 #include "CameraVolumesFunctionLibrary.h"
@@ -40,7 +40,7 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 
 	// Camera collision
 	bDoCollisionTest = false;
-	ProbeSize = 12.0f;
+	ProbeSize = 12.f;
 	ProbeChannel = ECC_Camera;
 
 	// Camera rotation

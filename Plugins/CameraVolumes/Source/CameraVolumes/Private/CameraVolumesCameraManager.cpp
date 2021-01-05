@@ -1,4 +1,4 @@
-//redbox, 2019
+//redbox, 2021
 
 #include "CameraVolumesCameraManager.h"
 #include "CameraVolumesCharacterInterface.h"
@@ -489,26 +489,30 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 		}
 	}
 
-	NewCameraLocationFinal = NewCameraLocation;
-	NewCameraRotationFinal = NewCameraRotation;
-	NewCameraFOV_OWFinal = NewCameraFOV_OW;
 
+	// Dead zone
 	if (CameraComponent->bUseDeadZone)
 	{
 		const FVector DeadZoneFocalPoint = CameraComponent->bOverrideDeadZoneFocalPoint
 			? CameraComponent->OverridenDeadZoneFocalPoint
 			: PlayerPawnLocation;
 
+		FVector DeadZoneWorldCenter = FVector::ZeroVector;
+
 		if (IsInDeadZone(DeadZoneFocalPoint))
 		{
-			CameraComponent->bUpdateCamera = false;
-		}
-		else
-		{
-			CameraComponent->bUpdateCamera = true;
+			DeadZoneWorldCenter = OldCameraLocation;
 		}
 	}
-	
+	else
+	{
+		NewCameraLocationFinal = NewCameraLocation;
+		NewCameraRotationFinal = NewCameraRotation;
+		NewCameraFOV_OWFinal = NewCameraFOV_OW;
+	}
+
+
+	// Additional camera params
 	if (CameraComponent->bUseAdditionalCameraParams)
 	{
 		NewCameraLocationFinal += CameraComponent->AdditionalCameraLocation;

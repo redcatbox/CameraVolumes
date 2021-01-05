@@ -1,10 +1,10 @@
-//redbox, 2019
+//redbox, 2021
 
 /**
-* Player character stores camera component.
-* Player character uses BeginOverlap event of it's capsule collision primitive, to get overlapped camera volume and store it in special array of camera volume actors.
-* Player character uses EndOverlap event of it's capsule collision primitive, to remove camera volume from array of camera volume actors.
-*/
+ * Player character stores Camera component.
+ * Player character uses BeginOverlap event of it's capsule collision primitive, to get overlapped camera volume and store it in special array of camera volume actors.
+ * Player character uses EndOverlap event of it's capsule collision primitive, to remove camera volume from array of camera volume actors.
+ */
 
 #pragma once
 
@@ -25,7 +25,7 @@ public:
 
 protected:
 	/** Camera component */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CameraVolumes, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CameraVolumes)
 		class UCameraVolumesCameraComponent* CameraComponent;
 
 	virtual void OnCollisionPrimitiveComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;

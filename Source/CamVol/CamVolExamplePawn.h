@@ -1,8 +1,8 @@
 
 /**
-* Example pawn support.
-* Unlike Character, Pawn doesn't have collision primitive to process BeginOverlap and EndOverlap events, so it should be added.
-*/
+ * Example pawn support.
+ * Unlike Character, Pawn doesn't have collision primitive to process BeginOverlap and EndOverlap events, so it should be added.
+ */
 
 #pragma once
 

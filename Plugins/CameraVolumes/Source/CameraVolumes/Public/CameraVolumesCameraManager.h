@@ -1,9 +1,9 @@
-//redbox, 2019
+//redbox, 2021
 
 /**
-* Player camera manager performs camera calculations according to camera parameters from camera component or camera volume.
-* Contains OnCameraVolumeChanged delegate.
-*/
+ * Player camera manager performs camera calculations according to camera parameters from camera component or camera volume.
+ * Contains OnCameraVolumeChanged delegate.
+ */
 
 #pragma once
 

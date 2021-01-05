@@ -1,4 +1,4 @@
-//redbox, 2019
+//redbox, 2021
 
 #include "CameraVolumesPaperCharacter.h"
 #include "Components/CapsuleComponent.h"

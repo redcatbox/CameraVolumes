@@ -1,4 +1,4 @@
-//redbox, 2019
+//redbox, 2021
 
 #include "CameraVolumeActor.h"
 #include "CameraVolumesFunctionLibrary.h"
@@ -7,7 +7,6 @@
 
 ACameraVolumeActor::ACameraVolumeActor()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
 	// Default root
