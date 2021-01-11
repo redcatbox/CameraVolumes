@@ -24,6 +24,7 @@ public:
 	UCameraVolumesCameraComponent();
 
 //Default parameters
+public:
 	/** Default camera RELATIVE location */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CameraSettings | DefaultParameters")
 		FVector DefaultCameraLocation;
@@ -94,6 +95,7 @@ public:
 
 
 //Additional parameters
+public:
 	/** Should camera use additional (WORLD-SPACE) parameters? */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | AdditionalParameters")
 		bool bUseAdditionalCameraParams;
@@ -117,6 +119,7 @@ public:
 
 
 //Dead zone
+public:
 	/**	Should use screen-space dead zone?
 	 *	Player pawn location is used as focal point to check is in dead zone or not.
 	 *	It is possible to override focal point with bOverrideDeadZoneFocalPoint and OverridenDeadZoneFocalPoint.
@@ -132,17 +135,25 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone", Meta = (EditCondition = "bUseDeadZone"))
 		FVector2D DeadZoneOffset;
 
-	/** Should manually override dead zone focal point? */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone", Meta = (EditCondition = "bUseDeadZone"))
+	/** Override dead zone focal point in this frame */
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
+		virtual void SetDeadZoneFocalPoint(FVector DeadZoneFocalPoint);
+
+protected:
+	UPROPERTY()
 		bool bOverrideDeadZoneFocalPoint;
-	
-	/** World-space location to check is in dead zone */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone", Meta = (EditCondition = "bUseDeadZone && bOverrideDeadZoneFocalPoint"))
+
+	UPROPERTY()
 		FVector OverridenDeadZoneFocalPoint;
+
+public:
+	bool GetOverrideDeadZoneFocalPoint() const;
+	FVector GetOverridenDeadZoneFocalPoint() const;
 //Dead zone
 
 
 //Camera collision
+public:
 	/** If true, do a collision test using ProbeChannel and ProbeSize to prevent camera clipping into level. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraCollision")
 		bool bDoCollisionTest;
@@ -158,6 +169,7 @@ public:
 
 
 //Camera rotation
+public:
 	/** Should use pawn control rotation when it's possible? */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraRotation")
 		bool bUsePawnControlRotationCV;
@@ -175,32 +187,34 @@ public:
 		bool bInheritRollCV;
 //Camera rotation
 
+public:
+	/** Overlapping camera volumes */
+	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
+		TArray<ACameraVolumeActor*> OverlappingCameraVolumes;
+
 
 	/** Should update camera parameters? */
 	UPROPERTY(BlueprintReadWrite, Category = CameraVolumes)
 		bool bUpdateCamera;
 
-	/** Overlapping camera volumes */
-	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
-		TArray<ACameraVolumeActor*> OverlappingCameraVolumes;
-
 	/** Updates camera by camera manager */
 	UFUNCTION()
 		virtual void UpdateCamera(FVector& CameraLocation, FVector& CameraFocalPoint, FQuat& CameraRotation, float CameraFOV_OW, bool bIsCameraStatic);
-
-	/** Get is camera uses orthographic projection mode */
-	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-		virtual bool GetIsCameraOrthographic() { return bIsCameraOrthographic; }
 
 	/** Update camera component parameters */
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual void UpdateCameraComponent();
 
-#if WITH_EDITOR
-	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
-#endif
-
 protected:
 	UPROPERTY()
 		bool bIsCameraOrthographic;
+
+public:
+	/** Get is camera uses orthographic projection mode */
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
+		virtual bool GetIsCameraOrthographic() const;
+
+#if WITH_EDITOR
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
 };

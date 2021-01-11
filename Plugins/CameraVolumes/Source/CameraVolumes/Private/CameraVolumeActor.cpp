@@ -3,6 +3,10 @@
 #include "CameraVolumeActor.h"
 #include "CameraVolumesFunctionLibrary.h"
 #include "UObject/ConstructorHelpers.h"
+#include "Components/BillboardComponent.h"
+#include "Camera/CameraComponent.h"
+#include "Components/BoxComponent.h"
+#include "Components/TextRenderComponent.h"
 #include "Materials/MaterialInterface.h"
 
 ACameraVolumeActor::ACameraVolumeActor()
@@ -40,7 +44,8 @@ ACameraVolumeActor::ACameraVolumeActor()
 
 	// Default values
 	Priority = 0;
-	VolumeExtent = VolumeExtentDefault;
+
+	VolumeExtentDefault = FVector(500.f);
 
 	bUseZeroDepthExtentEditCond = true;
 	bUseZeroDepthExtent = false;
@@ -74,6 +79,8 @@ ACameraVolumeActor::ACameraVolumeActor()
 	bUseCameraRotationAxisEditCond = true;
 	bUseCameraRotationAxis = false;
 
+	OpenEdgeOffset = 10000.f;
+
 #if WITH_EDITORONLY_DATA
 	TextSize = 50.f;
 #endif
@@ -89,7 +96,29 @@ ACameraVolumeActor::ACameraVolumeActor()
 	ACameraVolumeActor::CreateSidesIndicators();
 #endif
 
+	LoadConfig();
+	VolumeExtent = VolumeExtentDefault;
 	ACameraVolumeActor::UpdateVolume();
+}
+
+float ACameraVolumeActor::GetCamVolAspectRatio() const
+{
+	return CamVolAspectRatio;
+}
+
+FVector ACameraVolumeActor::GetCamVolMinCorrected() const
+{
+	return CamVolMinCorrected;
+}
+
+FVector ACameraVolumeActor::GetCamVolMaxCorrected() const
+{
+	return CamVolMaxCorrected;
+}
+
+FVector ACameraVolumeActor::GetCamVolExtentCorrected() const
+{
+	return CamVolExtentCorrected;
 }
 
 void ACameraVolumeActor::UpdateVolume()
@@ -534,6 +563,11 @@ void ACameraVolumeActor::SetCameraMobility(ECameraMobility NewCameraMobility)
 {
 	CameraMobility = NewCameraMobility;
 	UpdateVolume();
+}
+
+bool ACameraVolumeActor::GetIsCameraStatic() const
+{
+	return bIsCameraStatic;
 }
 
 void ACameraVolumeActor::SetOverrideCameraLocation(bool bNewOverrideCameraLocation)

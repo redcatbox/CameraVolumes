@@ -10,10 +10,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Components/BillboardComponent.h"
-#include "Camera/CameraComponent.h"
-#include "Components/BoxComponent.h"
-#include "Components/TextRenderComponent.h"
 #include "CameraVolumesTypes.h"
 #include "CameraVolumeActor.generated.h"
 
@@ -25,8 +21,9 @@ class CAMERAVOLUMES_API ACameraVolumeActor : public AActor
 public:
 	ACameraVolumeActor();
 
+
+//Components
 protected:
-	//Components
 	UPROPERTY()
 		class USceneComponent* DefaultSceneRoot;
 
@@ -40,13 +37,23 @@ protected:
 	UPROPERTY()
 		class UCameraComponent* CameraComponent;
 #endif
+//Components
 
+
+// Priority
 public:
-	//Parameters
 	/** Priority of camera volume in case of few overlapped volumes */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Volume, Meta = (ClampMin = "-100", ClampMax = "100", UIMin = "-100", UIMax = "100"))
 		int32 Priority;
+// Priority
 
+
+// Volume extent
+protected:
+	UPROPERTY(Config)
+		FVector VolumeExtentDefault;
+
+public:
 	/** Volume extent */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Volume, Meta = (MakeEditWidget = true))
 		FVector VolumeExtent;
@@ -54,7 +61,10 @@ public:
 	/** Set new VolumeExtent */
 	UFUNCTION(BlueprintCallable, Category = Volume)
 		virtual void SetVolumeExtent(FVector NewVolumeExtent);
+// Volume extent
 
+
+// Depth extent
 protected:
 	UPROPERTY()
 		bool bUseZeroDepthExtentEditCond;
@@ -67,7 +77,11 @@ public:
 	/** Set new bUseZeroDepthExtent */
 	UFUNCTION(BlueprintCallable, Category = Volume)
 		virtual void SetUseZeroDepthExtent(bool bNewUseZeroDepthExtent);
+// Depth extent
 
+
+// 6 DOF volume
+public:
 	/** Should process all 6 volume sides? */
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = Volume)
 		bool bUse6DOFVolume;
@@ -75,7 +89,10 @@ public:
 	/** Set new bUse6DOFVolume */
 	UFUNCTION(BlueprintCallable, Category = Volume)
 		virtual void SetUse6DOFVolume(bool bNewUse6DOFVolume);
+// 6 DOF volume
 
+
+// Camera blocking
 protected:
 	UPROPERTY()
 		bool bPerformCameraBlockingEditCond;
@@ -84,7 +101,11 @@ public:
 	/** Should perform camera blocking calculations in this volume? */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Volume, Meta = (EditCondition = "bPerformCameraBlockingEditCond"))
 		bool bPerformCameraBlocking;
+// Camera blocking
 
+
+// Main box collision
+public:
 	/** Should disable collision for main box primitive? */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Volume)
 		bool bDisableMainBoxCollision;
@@ -92,13 +113,20 @@ public:
 	/** Disable main box collision */
 	UFUNCTION(BlueprintCallable, Category = Volume)
 		virtual void SetDisableMainBoxCollision(bool bNewDisableMainBoxCollision);
+// Main box collision
 
+
+// camera projection mode
+public:
 #if WITH_EDITORONLY_DATA
 	/** Camera projection mode (For camera frustrum preview only!) */
 	UPROPERTY(Config, EditAnywhere, BlueprintReadWrite, Category = Camera)
 		TEnumAsByte<ECameraProjectionMode::Type> CameraProjectionMode;
 #endif
+// camera projection mode
 
+
+// Camera mobility
 	/** Camera mobility */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera)
 		ECameraMobility CameraMobility;
@@ -112,10 +140,14 @@ protected:
 		bool bIsCameraStatic;
 
 public:
-	/** Returns is volume uses static camera settings */
+	/** Returns is volume uses static camera mobility */
 	UFUNCTION(BlueprintCallable, Category = Camera)
-		bool GetIsCameraStatic() const { return bIsCameraStatic; }
+		bool GetIsCameraStatic() const;
+// Camera mobility
 
+
+// Camera location
+public:
 	/** Should override camera location? */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera)
 		bool bOverrideCameraLocation;
@@ -135,7 +167,11 @@ public:
 	/** Should camera location be relative to volume? */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
 		bool bCameraLocationRelativeToVolume;
+// Camera location
 
+
+// Camera rotation
+public:
 	/** Should override camera focal point? */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera)
 		bool bOverrideCameraRotation;
@@ -166,7 +202,11 @@ public:
 
 	UPROPERTY()
 		FQuat CameraRotation;
+// Camera rotation
 
+
+// Camera FOV/OrthoWidth
+public:
 	/** Should override camera FOV? For perspective cameras. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
 		bool bOverrideCameraFieldOfView;
@@ -182,7 +222,10 @@ public:
 	/** New camera OrthoWidth. For orthographic cameras. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (EditCondition = "bOverrideCameraOrthoWidth"))
 		float CameraOrthoWidth;
+// Camera FOV/OrthoWidth
 
+
+// Camera rotation axis
 protected:
 	UPROPERTY()
 		bool bUseCameraRotationAxisEditCond;
@@ -195,7 +238,27 @@ public:
 	/** Speed of smooth camera transition */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = VolumeSides, Meta = (ClampMin = "0.01", ClampMax = "10", UIMin = "0.01", UIMax = "10"))
 		float CameraSmoothTransitionSpeed;
+// Camera rotation axis
 
+
+// Dead zone
+public:
+	/** Should override dead zone settings? */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DeadZone)
+		bool bOverrideDeadZoneSettings;
+
+	/** Dead zone extent (in screen percentage) */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DeadZone, Meta = (EditCondition = "bOverrideDeadZoneSettings"))
+		FVector2D DeadZoneExtent;
+
+	/** Dead zone offset from the center of the screen (in screen percentage) */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DeadZone, Meta = (EditCondition = "bOverrideDeadZoneSettings"))
+		FVector2D DeadZoneOffset;
+// Dead zone
+
+
+// Sides info
+public:
 	/** Right side info */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = VolumeSides, Meta = (ShowOnlyInnerProperties))
 		FSideInfo RightSide;
@@ -243,8 +306,12 @@ public:
 	/** Set new BackSide info */
 	UFUNCTION(BlueprintCallable, Category = VolumeSides)
 		virtual void SetBackSide(FSideInfo NewBackSide);
+// Sides info
 
+
+// In-editor all sides setters
 #if WITH_EDITOR
+public:
 	/** Set all open */
 	UFUNCTION(CallInEditor, Category = VolumeSides)
 		virtual void SetAllOpen();
@@ -265,7 +332,10 @@ public:
 	UFUNCTION(CallInEditor, Category = VolumeSides)
 		virtual void SetAllCut();
 #endif
+// In-editor all sides setters
 
+
+protected:
 	UPROPERTY()
 		float CamVolAspectRatio;
 
@@ -277,6 +347,13 @@ public:
 
 	UPROPERTY()
 		FVector CamVolExtentCorrected;
+
+public:
+	float GetCamVolAspectRatio() const;
+	FVector GetCamVolMinCorrected() const;
+	FVector GetCamVolMaxCorrected() const;
+	FVector GetCamVolExtentCorrected() const;
+
 
 	/** Use this to update volume after made changes in editor, if they are not applied automatically */
 	UFUNCTION(CallInEditor, Category = Volume)
@@ -292,9 +369,7 @@ public:
 
 protected:
 	UPROPERTY(Config)
-		float OpenEdgeOffset = 10000.f;
-
-	const FVector VolumeExtentDefault = FVector(500.f, 500.f, 500.f);
+		float OpenEdgeOffset;
 
 #if WITH_EDITOR
 	UFUNCTION()
@@ -307,7 +382,7 @@ protected:
 #if WITH_EDITORONLY_DATA
 	//Sides indicators
 	UPROPERTY()
-		TArray<UTextRenderComponent*> Text_Indicators;
+		TArray<class UTextRenderComponent*> Text_Indicators;
 
 public:
 	/** Text size of sides indicators. */
@@ -315,17 +390,17 @@ public:
 		float TextSize;
 
 protected:
-	const FText Text_Front = FText::FromString("FRONT");
-	const FText Text_Back = FText::FromString("BACK");
-	const FText Text_Right = FText::FromString("RIGHT");
-	const FText Text_Left = FText::FromString("LEFT");
-	const FText Text_Top = FText::FromString("TOP");
-	const FText Text_Bottom = FText::FromString("BOTTOM");
-	const FText Text_Open = FText::FromString("OPEN");
-	const FText Text_Closed = FText::FromString("CLOSED");
-	const FText Text_Normal = FText::FromString("NORMAL");
-	const FText Text_Smooth = FText::FromString("SMOOTH");
-	const FText Text_Cut = FText::FromString("CUT");
+	const FText Text_Front	= FText::FromString("FRONT");
+	const FText Text_Back	= FText::FromString("BACK");
+	const FText Text_Right	= FText::FromString("RIGHT");
+	const FText Text_Left	= FText::FromString("LEFT");
+	const FText Text_Top	= FText::FromString("TOP");
+	const FText Text_Bottom	= FText::FromString("BOTTOM");
+	const FText Text_Open	= FText::FromString("OPEN");
+	const FText Text_Closed	= FText::FromString("CLOSED");
+	const FText Text_Normal	= FText::FromString("NORMAL");
+	const FText Text_Smooth	= FText::FromString("SMOOTH");
+	const FText Text_Cut	= FText::FromString("CUT");
 #endif
 
 public:

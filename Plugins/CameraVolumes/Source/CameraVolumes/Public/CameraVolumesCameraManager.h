@@ -65,11 +65,11 @@ public:
 
 	/** Get new calculated camera location. */
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
-		virtual FVector GetNewCameraLocation() { return NewCameraLocation; }
+		virtual FVector GetNewCameraLocation() { return CameraLocationNew; }
 
 	/** Get new calculated camera rotation. */
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
-		virtual FRotator GetNewCameraRotation() { return NewCameraRotation.Rotator(); }
+		virtual FRotator GetNewCameraRotation() { return CameraRotationNew.Rotator(); }
 
 	/** Is location in dead zone? */
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
@@ -98,35 +98,41 @@ protected:
 		class ACameraVolumeActor* CameraVolumePrevious;
 
 	UPROPERTY()
-		FVector OldCameraLocation;
+		FVector CameraLocationOld;
 
 	UPROPERTY()
-		FVector NewCameraLocation;
+		FVector CameraLocationNew;
 
 	UPROPERTY()
-		FVector NewCameraLocationFinal;
+		FVector CameraLocationFinalNew;
 
 	UPROPERTY()
-		FVector NewCameraFocalPoint;
+		FVector CameraFocalPointNew;
 
 	UPROPERTY()
-		FQuat OldCameraRotation;
+		FQuat CameraRotationOld;
 
 	UPROPERTY()
-		FQuat NewCameraRotation;
+		FQuat CameraRotationNew;
 
 	UPROPERTY()
-		FQuat NewCameraRotationFinal;
+		FQuat CameraRotationFinalNew;
 
 	UPROPERTY()
-		float OldCameraFOV_OW;
+		float CameraFOVOWOld;
 
 	/** Used as FOV or OrthoWidth depending on bIsCameraOrthographic */
 	UPROPERTY()
-		float NewCameraFOV_OW;
+		float CameraFOVOWNew;
 
 	UPROPERTY()
-		float NewCameraFOV_OWFinal;
+		float CameraFOVOWFinalNew;
+
+	UPROPERTY()
+		FVector DeadZoneWorldCenterOld;
+
+	UPROPERTY()
+		FVector DeadZoneWorldCenterNew;
 
 	UPROPERTY()
 		bool bIsCameraStatic;

@@ -52,28 +52,6 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 	bUpdateCamera = true;
 }
 
-void UCameraVolumesCameraComponent::UpdateCameraComponent()
-{
-	switch (ProjectionMode)
-	{
-	case ECameraProjectionMode::Orthographic:
-		bIsCameraOrthographic = true;
-		SetOrthoWidth(DefaultCameraOrthoWidth);
-		break;
-	case ECameraProjectionMode::Perspective:
-		bIsCameraOrthographic = false;
-		SetFieldOfView(DefaultCameraFieldOfView);
-		break;
-	default:
-		bIsCameraOrthographic = false;
-		SetFieldOfView(DefaultCameraFieldOfView);
-		break;
-	}
-
-	DefaultCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(DefaultCameraLocation, DefaultCameraFocalPoint, DefaultCameraRoll);
-	SetRelativeLocationAndRotation(DefaultCameraLocation, DefaultCameraRotation);
-}
-
 void UCameraVolumesCameraComponent::UpdateCamera(FVector& CameraLocation, FVector& CameraFocalPoint, FQuat& CameraRotation, float CameraFOV_OW, bool bIsCameraStatic)
 {
 	if (bUpdateCamera)
@@ -101,6 +79,33 @@ void UCameraVolumesCameraComponent::UpdateCamera(FVector& CameraLocation, FVecto
 			SetFieldOfView(CameraFOV_OW);
 		}
 	}
+}
+
+void UCameraVolumesCameraComponent::UpdateCameraComponent()
+{
+	switch (ProjectionMode)
+	{
+	case ECameraProjectionMode::Orthographic:
+		bIsCameraOrthographic = true;
+		SetOrthoWidth(DefaultCameraOrthoWidth);
+		break;
+	case ECameraProjectionMode::Perspective:
+		bIsCameraOrthographic = false;
+		SetFieldOfView(DefaultCameraFieldOfView);
+		break;
+	default:
+		bIsCameraOrthographic = false;
+		SetFieldOfView(DefaultCameraFieldOfView);
+		break;
+	}
+
+	DefaultCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(DefaultCameraLocation, DefaultCameraFocalPoint, DefaultCameraRoll);
+	SetRelativeLocationAndRotation(DefaultCameraLocation, DefaultCameraRotation);
+}
+
+bool UCameraVolumesCameraComponent::GetIsCameraOrthographic() const
+{
+	return bIsCameraOrthographic;
 }
 
 //Update with changed property
@@ -138,4 +143,20 @@ void UCameraVolumesCameraComponent::SetDefaultCameraRoll(float NewDefaultCameraR
 {
 	DefaultCameraRoll = NewDefaultCameraRoll;
 	DefaultCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(DefaultCameraLocation, DefaultCameraFocalPoint, DefaultCameraRoll);
+}
+
+void UCameraVolumesCameraComponent::SetDeadZoneFocalPoint(FVector NewDeadZoneFocalPoint)
+{
+	bOverrideDeadZoneFocalPoint = true;
+	OverridenDeadZoneFocalPoint = NewDeadZoneFocalPoint;
+}
+
+bool UCameraVolumesCameraComponent::GetOverrideDeadZoneFocalPoint() const
+{
+	return bOverrideDeadZoneFocalPoint;
+}
+
+FVector UCameraVolumesCameraComponent::GetOverridenDeadZoneFocalPoint() const
+{
+	return OverridenDeadZoneFocalPoint;
 }
