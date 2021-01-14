@@ -23,6 +23,10 @@ ACameraVolumesCameraManager::ACameraVolumesCameraManager(const FObjectInitialize
 	CameraRotationNew = FQuat();
 	CameraFOVOWOld = 90.f;
 	CameraFOVOWNew = 90.f;
+	bCameraComponentUseDeadZone = false;
+	bCameraVolumeOverrideDeadZone = false;
+	DeadZoneExtent = FVector2D();
+	DeadZoneOffset = FVector2D();
 	DeadZoneWorldCenterOld = FVector::ZeroVector;
 	DeadZoneWorldCenterNew = FVector::ZeroVector;
 	bIsCameraStatic = false;
@@ -44,7 +48,6 @@ void ACameraVolumesCameraManager::SetCheckCameraVolumes(bool bNewCheck)
 	if (bCheckCameraVolumes != bNewCheck)
 	{
 		bCheckCameraVolumes = bNewCheck;
-
 		if (!bCheckCameraVolumes)
 		{
 			APawn* OwningPawn = GetOwningPlayerController()->GetPawn();
@@ -209,8 +212,10 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 	CameraFOVOWNew = bIsCameraOrthographic
 		? CameraComponent->DefaultCameraOrthoWidth
 		: CameraComponent->DefaultCameraFieldOfView;
+	bCameraComponentUseDeadZone = false;
+	bCameraVolumeOverrideDeadZone = false;
 	DeadZoneWorldCenterNew = DeadZoneWorldCenterOld;
-	
+
 	if (CameraVolume)
 	{
 		if (bIsCameraOrthographic)
@@ -243,8 +248,8 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 
 		// Location and Rotation
 		const FVector PlayerPawnLocationTransformed = CameraVolume->GetActorTransform().InverseTransformPositionNoScale(PlayerPawnLocation);
-		bIsCameraStatic = CameraVolume->GetIsCameraStatic();
 
+		bIsCameraStatic = CameraVolume->GetIsCameraStatic();
 		if (bIsCameraStatic)
 		{
 			CameraLocationNew = CameraVolume->CameraLocation;
@@ -403,6 +408,14 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 		CameraRotationNew = CameraVolume->GetActorTransform().TransformRotation(CameraRotationNew);
 
 		bUsePlayerPawnControlRotation = false;
+
+		// Get dead zone params
+		bCameraVolumeOverrideDeadZone = CameraVolume->bOverrideDeadZoneSettings;
+		if (bCameraVolumeOverrideDeadZone)
+		{
+			DeadZoneExtent = CameraVolume->DeadZoneExtent;
+			DeadZoneOffset = CameraVolume->DeadZoneOffset;
+		}
 	}
 	else if (CameraComponent->bUsePawnControlRotationCV)
 	{
@@ -494,8 +507,20 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 	}
 
 	// Dead zone
-	if (CameraComponent->bUseDeadZone)
+	if (!bCameraVolumeOverrideDeadZone)
 	{
+		bCameraComponentUseDeadZone = CameraComponent->bUseDeadZone;
+		if (bCameraComponentUseDeadZone)
+		{
+			DeadZoneExtent = CameraComponent->DeadZoneExtent;
+			DeadZoneOffset = CameraComponent->DeadZoneOffset;
+		}
+	}
+
+	if (bCameraComponentUseDeadZone || bCameraVolumeOverrideDeadZone)
+	{
+		CameraComponent->UpdateDeadZonePreview(DeadZoneExtent, DeadZoneOffset);
+		
 		const FVector DeadZoneFocalPoint = CameraComponent->GetOverrideDeadZoneFocalPoint()
 			? CameraComponent->GetOverridenDeadZoneFocalPoint()
 			: PlayerPawnLocation;
@@ -601,7 +626,7 @@ FVector2D ACameraVolumesCameraManager::CalculateScreenWorldExtentAtDepth(float D
 			: ScreenExtentResult.X = FMath::Abs(Depth * FMath::Tan(FMath::DegreesToRadians(DefaultFOV * 0.5f)));
 	}
 
-	if (GEngine->GameViewport->Viewport)
+	if (GEngine && GEngine->GameViewport && GEngine->GameViewport->Viewport)
 	{
 		const FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 		if (ViewportSize.Y != 0)

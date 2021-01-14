@@ -1,10 +1,10 @@
 //redbox, 2021
 
 #include "CameraVolumeActor.h"
+#include "CameraVolumesCameraComponent.h"
 #include "CameraVolumesFunctionLibrary.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Components/BillboardComponent.h"
-#include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "Materials/MaterialInterface.h"
@@ -24,15 +24,10 @@ ACameraVolumeActor::ACameraVolumeActor()
 	BillboardComponent = CreateDefaultSubobject<UBillboardComponent>(TEXT("BillboardComponent"));
 	BillboardComponent->SetupAttachment(RootComponent);
 	BillboardComponent->bHiddenInGame = true;
-	static ConstructorHelpers::FObjectFinder<UTexture2D> TextureObj(TEXT("/CameraVolumes/Icons/CameraVolume"));
-	if (TextureObj.Object)
-	{
-		BillboardComponent->Sprite = TextureObj.Object;
-	}
 
-	// CameraComponent
-	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
-	CameraComponent->SetupAttachment(RootComponent);
+	// CameraPreview
+	CameraPreview = CreateDefaultSubobject<UCameraVolumesCameraComponent>(TEXT("CameraPreview"));
+	CameraPreview->SetupAttachment(RootComponent);
 #endif
 
 	// BoxComponent
@@ -44,8 +39,6 @@ ACameraVolumeActor::ACameraVolumeActor()
 
 	// Default values
 	Priority = 0;
-
-	VolumeExtentDefault = FVector(500.f);
 
 	bUseZeroDepthExtentEditCond = true;
 	bUseZeroDepthExtent = false;
@@ -76,10 +69,12 @@ ACameraVolumeActor::ACameraVolumeActor()
 
 	CameraSmoothTransitionSpeed = 1.f;
 
+	bOverrideDeadZoneSettings = false;
+	DeadZoneExtent = FVector2D::ZeroVector;
+	DeadZoneOffset = FVector2D::ZeroVector;
+
 	bUseCameraRotationAxisEditCond = true;
 	bUseCameraRotationAxis = false;
-
-	OpenEdgeOffset = 10000.f;
 
 #if WITH_EDITORONLY_DATA
 	TextSize = 50.f;
@@ -96,8 +91,25 @@ ACameraVolumeActor::ACameraVolumeActor()
 	ACameraVolumeActor::CreateSidesIndicators();
 #endif
 
+	OpenEdgeOffset = 10000.f;
+	VolumeExtentDefault = FVector(500.f);
+
+#if WITH_EDITORONLY_DATA
+	BillboardIconPath = TEXT("/CameraVolumes/Icons/CameraVolume");
+#endif
+
 	LoadConfig();
+	
 	VolumeExtent = VolumeExtentDefault;
+
+#if WITH_EDITORONLY_DATA
+	static ConstructorHelpers::FObjectFinder<UTexture2D> TextureObj(*BillboardIconPath);
+	if (TextureObj.Object)
+	{
+		BillboardComponent->Sprite = TextureObj.Object;
+	}
+#endif
+
 	ACameraVolumeActor::UpdateVolume();
 }
 
@@ -191,11 +203,18 @@ void ACameraVolumeActor::UpdateVolume()
 	}
 
 #if WITH_EDITORONLY_DATA
-	CameraComponent->SetRelativeLocationAndRotation(CameraLocation, CameraRotation);
-	CameraComponent->FieldOfView = CameraFieldOfView;
-	CameraComponent->OrthoWidth = CameraOrthoWidth;
-	CameraComponent->ProjectionMode = CameraProjectionMode;
-	CameraComponent->RefreshVisualRepresentation();
+	CameraPreview->FieldOfView = CameraFieldOfView;
+	CameraPreview->OrthoWidth = CameraOrthoWidth;
+	CameraPreview->ProjectionMode = CameraProjectionMode;
+
+	CameraPreview->bUseDeadZone = bOverrideDeadZoneSettings;
+	CameraPreview->bPreviewDeadZone = bOverrideDeadZoneSettings;
+	CameraPreview->DeadZoneExtent = DeadZoneExtent;
+	CameraPreview->DeadZoneOffset = DeadZoneOffset;
+
+	CameraPreview->SetRelativeLocationAndRotation(CameraLocation, CameraRotation);
+
+	CameraPreview->UpdateCameraComponent();
 #endif
 
 #if WITH_EDITOR
@@ -495,7 +514,8 @@ void ACameraVolumeActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyC
 		|| TEXT("bOverrideCameraOrthoWidth") || TEXT("CameraOrthoWidth")
 		|| TEXT("FrontSide") || TEXT("BackSide") || TEXT("RightSide") || TEXT("LeftSide") || TEXT("TopSide") || TEXT("BottomSide")
 		|| TEXT("TextSize")
-		|| TEXT("bUseCameraRotationAxis"))
+		|| TEXT("bUseCameraRotationAxis")
+		|| TEXT("bOverrideDeadZoneSettings") || TEXT("DeadZoneExtent") || TEXT("DeadZoneOffset"))
 	{
 		UpdateVolume();
 	}

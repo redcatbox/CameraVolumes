@@ -12,7 +12,6 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 	DefaultCameraFieldOfView = 90.f;
 	DefaultCameraOrthoWidth = 512.f;
 	bIsCameraOrthographic = false;
-	UCameraVolumesCameraComponent::UpdateCameraComponent();
 
 	// Camera lag
 	bEnableCameraLocationLag = false;
@@ -35,6 +34,7 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 	bUseDeadZone = false;
 	DeadZoneExtent = FVector2D::ZeroVector;
 	DeadZoneOffset = FVector2D::ZeroVector;
+	bPreviewDeadZone = false;
 	bOverrideDeadZoneFocalPoint = false;
 	OverridenDeadZoneFocalPoint = FVector::ZeroVector;
 
@@ -50,6 +50,15 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 	bInheritRollCV = true;
 
 	bUpdateCamera = true;
+
+	DeadZonePreviewMaterialPath = TEXT("/CameraVolumes/Materials/DeadZonePreview");
+
+	LoadConfig();
+
+	static ConstructorHelpers::FObjectFinder<UMaterialInterface> MaterialObj(*DeadZonePreviewMaterialPath);
+	DeadZonePreviewMaterial = MaterialObj.Object;
+
+	UCameraVolumesCameraComponent::UpdateCameraComponent();
 }
 
 void UCameraVolumesCameraComponent::UpdateCamera(FVector& CameraLocation, FVector& CameraFocalPoint, FQuat& CameraRotation, float CameraFOV_OW, bool bIsCameraStatic)
@@ -101,6 +110,12 @@ void UCameraVolumesCameraComponent::UpdateCameraComponent()
 
 	DefaultCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(DefaultCameraLocation, DefaultCameraFocalPoint, DefaultCameraRoll);
 	SetRelativeLocationAndRotation(DefaultCameraLocation, DefaultCameraRotation);
+	
+	UpdateDeadZonePreview(DeadZoneExtent, DeadZoneOffset);
+
+#if WITH_EDITORONLY_DATA
+	RefreshVisualRepresentation();
+#endif
 }
 
 bool UCameraVolumesCameraComponent::GetIsCameraOrthographic() const
@@ -118,8 +133,8 @@ void UCameraVolumesCameraComponent::PostEditChangeProperty(FPropertyChangedEvent
 		|| TEXT("DefaultCameraLocation")
 		|| TEXT("DefaultCameraFocalPoint")
 		|| TEXT("DefaultCameraRoll")
-		|| TEXT("DefaultCameraFieldOfView")
-		|| TEXT("DefaultCameraOrthoWidth"))
+		|| TEXT("DefaultCameraFieldOfView") || TEXT("DefaultCameraOrthoWidth")
+		|| TEXT("bUseDeadZone") || TEXT("DeadZoneExtent") || TEXT("DeadZoneOffset") || TEXT("bPreviewDeadZone"))
 	{
 		UpdateCameraComponent();
 	}
@@ -159,4 +174,29 @@ bool UCameraVolumesCameraComponent::GetOverrideDeadZoneFocalPoint() const
 FVector UCameraVolumesCameraComponent::GetOverridenDeadZoneFocalPoint() const
 {
 	return OverridenDeadZoneFocalPoint;
+}
+
+void UCameraVolumesCameraComponent::UpdateDeadZonePreview(FVector2D& NewDeadZoneExtent, FVector2D& NewDeadZoneOffset)
+{
+	if (bUseDeadZone && bPreviewDeadZone)
+	{
+		if (!DeadZonePreviewMID)
+		{
+			DeadZonePreviewMID = UMaterialInstanceDynamic::Create(DeadZonePreviewMaterial, this);
+			AddOrUpdateBlendable(DeadZonePreviewMID, 1.f);
+		}
+
+		if (DeadZonePreviewMID)
+		{
+			DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Size_X")), NewDeadZoneExtent.X);
+			DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Size_Y")), NewDeadZoneExtent.Y);
+			DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Offset_X")), NewDeadZoneOffset.X);
+			DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Offset_Y")), NewDeadZoneOffset.Y);
+		}
+	}
+	else
+	{
+		RemoveBlendable(DeadZonePreviewMID);
+		DeadZonePreviewMID = nullptr;
+	}
 }

@@ -15,7 +15,7 @@
 #include "CameraVolumeActor.h"
 #include "CameraVolumesCameraComponent.generated.h"
 
-UCLASS(AutoExpandCategories = (CameraSettings, "CameraSettings | DefaultParameters", "CameraSettings | AdditionalParameters", "CameraSettings | DeadZone", "CameraSettings | CameraCollision", "CameraSettings | CameraRotation"))
+UCLASS(Config = CameraVolumes, AutoExpandCategories = (CameraSettings, "CameraSettings | DefaultParameters", "CameraSettings | AdditionalParameters", "CameraSettings | DeadZone", "CameraSettings | CameraCollision", "CameraSettings | CameraRotation"))
 class CAMERAVOLUMES_API UCameraVolumesCameraComponent : public UCameraComponent
 {
 	GENERATED_BODY()
@@ -120,10 +120,7 @@ public:
 
 //Dead zone
 public:
-	/**	Should use screen-space dead zone?
-	 *	Player pawn location is used as focal point to check is in dead zone or not.
-	 *	It is possible to override focal point with bOverrideDeadZoneFocalPoint and OverridenDeadZoneFocalPoint.
-	 */
+	/**	Should use screen-space dead zone to control camera movement? */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone")
 		bool bUseDeadZone;
 
@@ -135,6 +132,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone", Meta = (EditCondition = "bUseDeadZone"))
 		FVector2D DeadZoneOffset;
 
+	/** Draw dead zone preview in game */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone", Meta = (EditCondition = "bUseDeadZone"))
+		bool bPreviewDeadZone;
+	
 	/** Override dead zone focal point in this frame */
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual void SetDeadZoneFocalPoint(FVector DeadZoneFocalPoint);
@@ -146,9 +147,20 @@ protected:
 	UPROPERTY()
 		FVector OverridenDeadZoneFocalPoint;
 
+private:
+	UPROPERTY(Config)
+		FString DeadZonePreviewMaterialPath;
+
+	UPROPERTY()
+		UMaterialInterface* DeadZonePreviewMaterial;
+
+	UPROPERTY()
+		UMaterialInstanceDynamic* DeadZonePreviewMID;
+
 public:
 	bool GetOverrideDeadZoneFocalPoint() const;
 	FVector GetOverridenDeadZoneFocalPoint() const;
+	void UpdateDeadZonePreview(FVector2D& NewDeadZoneExtent, FVector2D& NewDeadZoneOffset);
 //Dead zone
 
 

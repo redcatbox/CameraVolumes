@@ -13,7 +13,7 @@
 #include "CameraVolumesTypes.h"
 #include "CameraVolumeActor.generated.h"
 
-UCLASS(Config = CameraVolumes, AutoExpandCategories = (Camera, Volume, VolumeSides))
+UCLASS(Config = CameraVolumes, AutoExpandCategories = (Camera, Volume, VolumeSides, DeadZone))
 class CAMERAVOLUMES_API ACameraVolumeActor : public AActor
 {
 	GENERATED_BODY()
@@ -34,8 +34,11 @@ protected:
 	UPROPERTY()
 		class UBillboardComponent* BillboardComponent;
 
+	UPROPERTY(Config)
+		FString BillboardIconPath;
+
 	UPROPERTY()
-		class UCameraComponent* CameraComponent;
+		class UCameraVolumesCameraComponent* CameraPreview;
 #endif
 //Components
 
@@ -50,6 +53,9 @@ public:
 
 // Volume extent
 protected:
+	UPROPERTY(Config)
+		float OpenEdgeOffset;
+
 	UPROPERTY(Config)
 		FVector VolumeExtentDefault;
 
@@ -241,22 +247,6 @@ public:
 // Camera rotation axis
 
 
-// Dead zone
-public:
-	/** Should override dead zone settings? */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DeadZone)
-		bool bOverrideDeadZoneSettings;
-
-	/** Dead zone extent (in screen percentage) */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DeadZone, Meta = (EditCondition = "bOverrideDeadZoneSettings"))
-		FVector2D DeadZoneExtent;
-
-	/** Dead zone offset from the center of the screen (in screen percentage) */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DeadZone, Meta = (EditCondition = "bOverrideDeadZoneSettings"))
-		FVector2D DeadZoneOffset;
-// Dead zone
-
-
 // Sides info
 public:
 	/** Right side info */
@@ -335,42 +325,8 @@ public:
 // In-editor all sides setters
 
 
+//Text indicators
 protected:
-	UPROPERTY()
-		float CamVolAspectRatio;
-
-	UPROPERTY()
-		FVector CamVolMinCorrected;
-
-	UPROPERTY()
-		FVector CamVolMaxCorrected;
-
-	UPROPERTY()
-		FVector CamVolExtentCorrected;
-
-public:
-	float GetCamVolAspectRatio() const;
-	FVector GetCamVolMinCorrected() const;
-	FVector GetCamVolMaxCorrected() const;
-	FVector GetCamVolExtentCorrected() const;
-
-
-	/** Use this to update volume after made changes in editor, if they are not applied automatically */
-	UFUNCTION(CallInEditor, Category = Volume)
-		virtual void UpdateVolume();
-
-	/** Calculate volume extents */
-	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-		virtual void CalculateVolumeExtents();
-
-	/** Get side info for the volume side nearest to player location */
-	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-		virtual FSideInfo GetNearestVolumeSideInfo(FVector& PlayerPawnLocation);
-
-protected:
-	UPROPERTY(Config)
-		float OpenEdgeOffset;
-
 #if WITH_EDITOR
 	UFUNCTION()
 		virtual void CreateSidesIndicators();
@@ -380,7 +336,6 @@ protected:
 #endif
 
 #if WITH_EDITORONLY_DATA
-	//Sides indicators
 	UPROPERTY()
 		TArray<class UTextRenderComponent*> Text_Indicators;
 
@@ -402,6 +357,55 @@ protected:
 	const FText Text_Smooth	= FText::FromString("SMOOTH");
 	const FText Text_Cut	= FText::FromString("CUT");
 #endif
+//Text indicators
+
+
+// Dead zone
+public:
+	/** Should override dead zone settings? */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DeadZone)
+		bool bOverrideDeadZoneSettings;
+
+	/** Dead zone extent (in screen percentage) */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DeadZone, Meta = (EditCondition = "bOverrideDeadZoneSettings"))
+		FVector2D DeadZoneExtent;
+
+	/** Dead zone offset from the center of the screen (in screen percentage) */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DeadZone, Meta = (EditCondition = "bOverrideDeadZoneSettings"))
+		FVector2D DeadZoneOffset;
+// Dead zone
+
+
+protected:
+	UPROPERTY()
+		float CamVolAspectRatio;
+
+	UPROPERTY()
+		FVector CamVolMinCorrected;
+
+	UPROPERTY()
+		FVector CamVolMaxCorrected;
+
+	UPROPERTY()
+		FVector CamVolExtentCorrected;
+
+public:
+	float GetCamVolAspectRatio() const;
+	FVector GetCamVolMinCorrected() const;
+	FVector GetCamVolMaxCorrected() const;
+	FVector GetCamVolExtentCorrected() const;
+
+	/** Use this to update volume after made changes in editor, if they are not applied automatically */
+	UFUNCTION(CallInEditor, Category = Volume)
+		virtual void UpdateVolume();
+
+	/** Calculate volume extents */
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
+		virtual void CalculateVolumeExtents();
+
+	/** Get side info for the volume side nearest to player location */
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
+		virtual FSideInfo GetNearestVolumeSideInfo(FVector& PlayerPawnLocation);
 
 public:
 #if WITH_EDITOR
