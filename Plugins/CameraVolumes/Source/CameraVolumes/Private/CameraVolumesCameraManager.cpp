@@ -25,8 +25,8 @@ ACameraVolumesCameraManager::ACameraVolumesCameraManager(const FObjectInitialize
 	CameraFOVOWNew = 90.f;
 	bCameraComponentUseDeadZone = false;
 	bCameraVolumeOverrideDeadZone = false;
-	DeadZoneExtent = FVector2D();
-	DeadZoneOffset = FVector2D();
+	DeadZoneExtent = FVector2D::ZeroVector;
+	DeadZoneOffset = FVector2D::ZeroVector;
 	DeadZoneWorldCenterOld = FVector::ZeroVector;
 	DeadZoneWorldCenterNew = FVector::ZeroVector;
 	bIsCameraStatic = false;
@@ -180,6 +180,10 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 				// Update camera component
 				CameraComponent->UpdateCamera(CameraLocationFinalNew, CameraFocalPointNew, CameraRotationFinalNew, CameraFOVOWFinalNew, bIsCameraStatic);
 
+#if WITH_EDITOR
+				CameraComponent->UpdateDeadZonePreview(DeadZoneExtent, DeadZoneOffset);
+#endif
+
 				// Update camera manager
 				if (bIsCameraOrthographic)
 				{
@@ -214,6 +218,8 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 		: CameraComponent->DefaultCameraFieldOfView;
 	bCameraComponentUseDeadZone = false;
 	bCameraVolumeOverrideDeadZone = false;
+	DeadZoneExtent = FVector2D::ZeroVector;
+	DeadZoneOffset = FVector2D::ZeroVector;
 	DeadZoneWorldCenterNew = DeadZoneWorldCenterOld;
 
 	if (CameraVolume)
@@ -409,12 +415,35 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 
 		bUsePlayerPawnControlRotation = false;
 
-		// Get dead zone params
+		// Dead zone
 		bCameraVolumeOverrideDeadZone = CameraVolume->bOverrideDeadZoneSettings;
 		if (bCameraVolumeOverrideDeadZone)
 		{
 			DeadZoneExtent = CameraVolume->DeadZoneExtent;
 			DeadZoneOffset = CameraVolume->DeadZoneOffset;
+		}
+
+		if (!bCameraVolumeOverrideDeadZone)
+		{
+			bCameraComponentUseDeadZone = CameraComponent->bUseDeadZone;
+			if (bCameraComponentUseDeadZone)
+			{
+				DeadZoneExtent = CameraComponent->DeadZoneExtent;
+				DeadZoneOffset = CameraComponent->DeadZoneOffset;
+			}
+		}
+
+		if (bCameraComponentUseDeadZone || bCameraVolumeOverrideDeadZone)
+		{
+			const FVector DeadZoneFocalPoint = CameraComponent->GetOverrideDeadZoneFocalPoint()
+				? CameraComponent->GetOverridenDeadZoneFocalPoint()
+				: CameraFocalPointNew;
+
+			if (IsInDeadZone(DeadZoneFocalPoint))
+			{
+				CameraLocationNew.Y = CameraLocationOld.Y;
+				CameraLocationNew.Z = CameraLocationOld.Z;
+			}
 		}
 	}
 	else if (CameraComponent->bUsePawnControlRotationCV)
@@ -506,39 +535,9 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 		}
 	}
 
-	// Dead zone
-	if (!bCameraVolumeOverrideDeadZone)
-	{
-		bCameraComponentUseDeadZone = CameraComponent->bUseDeadZone;
-		if (bCameraComponentUseDeadZone)
-		{
-			DeadZoneExtent = CameraComponent->DeadZoneExtent;
-			DeadZoneOffset = CameraComponent->DeadZoneOffset;
-		}
-	}
-
-	if (bCameraComponentUseDeadZone || bCameraVolumeOverrideDeadZone)
-	{
-		CameraComponent->UpdateDeadZonePreview(DeadZoneExtent, DeadZoneOffset);
-		
-		const FVector DeadZoneFocalPoint = CameraComponent->GetOverrideDeadZoneFocalPoint()
-			? CameraComponent->GetOverridenDeadZoneFocalPoint()
-			: PlayerPawnLocation;
-
-		if (IsInDeadZone(DeadZoneFocalPoint))
-		{
-		}
-
-		CameraLocationFinalNew = CameraLocationNew;
-		CameraRotationFinalNew = CameraRotationNew;
-		CameraFOVOWFinalNew = CameraFOVOWNew;
-	}
-	else
-	{
-		CameraLocationFinalNew = CameraLocationNew;
-		CameraRotationFinalNew = CameraRotationNew;
-		CameraFOVOWFinalNew = CameraFOVOWNew;
-	}
+	CameraLocationFinalNew = CameraLocationNew;
+	CameraRotationFinalNew = CameraRotationNew;
+	CameraFOVOWFinalNew = CameraFOVOWNew;
 
 	// Additional camera params
 	if (CameraComponent->bUseAdditionalCameraParams)
@@ -598,10 +597,9 @@ bool ACameraVolumesCameraManager::IsInDeadZone(FVector WorldLocationToCheck)
 			PC->ProjectWorldLocationToScreen(WorldLocationToCheck, ScreenLocation);
 
 			const FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
-			const FVector2D ScreenCenter = ViewportSize / 2;
-			const FVector2D DeadZoneScreenOffset = ViewportSize * CameraComponent->DeadZoneOffset / 100.f;
 			const FVector2D DeadZoneScreenExtent = ViewportSize * CameraComponent->DeadZoneExtent / 200.f;
-			const FVector2D DeadZoneScreenCenter = ScreenCenter + DeadZoneScreenOffset;
+			const FVector2D DeadZoneScreenOffset = ViewportSize * CameraComponent->DeadZoneOffset / 100.f;
+			const FVector2D DeadZoneScreenCenter = ViewportSize / 2.f + DeadZoneScreenOffset;
 			const FVector2D DeadZoneScreenMin = DeadZoneScreenCenter - DeadZoneScreenExtent;
 			const FVector2D DeadZoneScreenMax = DeadZoneScreenCenter + DeadZoneScreenExtent;
 

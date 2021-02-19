@@ -34,9 +34,12 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 	bUseDeadZone = false;
 	DeadZoneExtent = FVector2D::ZeroVector;
 	DeadZoneOffset = FVector2D::ZeroVector;
-	bPreviewDeadZone = false;
 	bOverrideDeadZoneFocalPoint = false;
 	OverridenDeadZoneFocalPoint = FVector::ZeroVector;
+#if WITH_EDITORONLY_DATA
+	bPreviewDeadZone = false;
+	DeadZonePreviewMaterialPath = TEXT("/CameraVolumes/Materials/DeadZonePreview");
+#endif
 
 	// Camera collision
 	bDoCollisionTest = false;
@@ -51,12 +54,12 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 
 	bUpdateCamera = true;
 
-	DeadZonePreviewMaterialPath = TEXT("/CameraVolumes/Materials/DeadZonePreview");
-
 	LoadConfig();
 
+#if WITH_EDITORONLY_DATA
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> MaterialObj(*DeadZonePreviewMaterialPath);
 	DeadZonePreviewMaterial = MaterialObj.Object;
+#endif
 
 	UCameraVolumesCameraComponent::UpdateCameraComponent();
 }
@@ -110,8 +113,10 @@ void UCameraVolumesCameraComponent::UpdateCameraComponent()
 
 	DefaultCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(DefaultCameraLocation, DefaultCameraFocalPoint, DefaultCameraRoll);
 	SetRelativeLocationAndRotation(DefaultCameraLocation, DefaultCameraRotation);
-	
+
+#if WITH_EDITOR
 	UpdateDeadZonePreview(DeadZoneExtent, DeadZoneOffset);
+#endif
 
 #if WITH_EDITORONLY_DATA
 	RefreshVisualRepresentation();
@@ -176,9 +181,10 @@ FVector UCameraVolumesCameraComponent::GetOverridenDeadZoneFocalPoint() const
 	return OverridenDeadZoneFocalPoint;
 }
 
+#if WITH_EDITOR
 void UCameraVolumesCameraComponent::UpdateDeadZonePreview(FVector2D& NewDeadZoneExtent, FVector2D& NewDeadZoneOffset)
 {
-	if (bUseDeadZone && bPreviewDeadZone)
+	if (bPreviewDeadZone)
 	{
 		if (!DeadZonePreviewMID)
 		{
@@ -186,13 +192,10 @@ void UCameraVolumesCameraComponent::UpdateDeadZonePreview(FVector2D& NewDeadZone
 			AddOrUpdateBlendable(DeadZonePreviewMID, 1.f);
 		}
 
-		if (DeadZonePreviewMID)
-		{
-			DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Size_X")), NewDeadZoneExtent.X);
-			DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Size_Y")), NewDeadZoneExtent.Y);
-			DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Offset_X")), NewDeadZoneOffset.X);
-			DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Offset_Y")), NewDeadZoneOffset.Y);
-		}
+		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Size_X")), NewDeadZoneExtent.X);
+		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Size_Y")), NewDeadZoneExtent.Y);
+		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Offset_X")), NewDeadZoneOffset.X);
+		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Offset_Y")), NewDeadZoneOffset.Y);
 	}
 	else
 	{
@@ -200,3 +203,4 @@ void UCameraVolumesCameraComponent::UpdateDeadZonePreview(FVector2D& NewDeadZone
 		DeadZonePreviewMID = nullptr;
 	}
 }
+#endif

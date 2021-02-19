@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "CameraVolumesCharacterInterface.h"
 #include "CameraVolumesCharacter.generated.h"

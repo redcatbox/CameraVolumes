@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "CoreMinimal.h"
 #include "CameraVolumesCameraComponent.h"
 #include "Components/PrimitiveComponent.h"
 #include "CameraVolumesCharacterInterface.generated.h"

@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "CoreMinimal.h"
 #include "CameraVolumesTypes.generated.h"
 
 // Camera mobility

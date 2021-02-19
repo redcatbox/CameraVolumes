@@ -120,7 +120,7 @@ public:
 
 //Dead zone
 public:
-	/**	Should use screen-space dead zone to control camera movement? */
+	/**	Should use screen-space dead zone to toggle camera movement? */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone")
 		bool bUseDeadZone;
 
@@ -132,10 +132,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone", Meta = (EditCondition = "bUseDeadZone"))
 		FVector2D DeadZoneOffset;
 
-	/** Draw dead zone preview in game */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone", Meta = (EditCondition = "bUseDeadZone"))
-		bool bPreviewDeadZone;
-	
 	/** Override dead zone focal point in this frame */
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual void SetDeadZoneFocalPoint(FVector DeadZoneFocalPoint);
@@ -147,6 +143,12 @@ protected:
 	UPROPERTY()
 		FVector OverridenDeadZoneFocalPoint;
 
+#if WITH_EDITORONLY_DATA
+public:
+	/** Should preview dead zone (editor only)? */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone")
+		bool bPreviewDeadZone;
+
 private:
 	UPROPERTY(Config)
 		FString DeadZonePreviewMaterialPath;
@@ -156,11 +158,15 @@ private:
 
 	UPROPERTY()
 		UMaterialInstanceDynamic* DeadZonePreviewMID;
+#endif
 
 public:
 	bool GetOverrideDeadZoneFocalPoint() const;
 	FVector GetOverridenDeadZoneFocalPoint() const;
+
+#if WITH_EDITOR
 	void UpdateDeadZonePreview(FVector2D& NewDeadZoneExtent, FVector2D& NewDeadZoneOffset);
+#endif
 //Dead zone
 
 

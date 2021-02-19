@@ -208,12 +208,11 @@ void ACameraVolumeActor::UpdateVolume()
 	CameraPreview->ProjectionMode = CameraProjectionMode;
 
 	CameraPreview->bUseDeadZone = bOverrideDeadZoneSettings;
-	CameraPreview->bPreviewDeadZone = bOverrideDeadZoneSettings;
 	CameraPreview->DeadZoneExtent = DeadZoneExtent;
 	CameraPreview->DeadZoneOffset = DeadZoneOffset;
+	CameraPreview->bPreviewDeadZone = bOverrideDeadZoneSettings;
 
 	CameraPreview->SetRelativeLocationAndRotation(CameraLocation, CameraRotation);
-
 	CameraPreview->UpdateCameraComponent();
 #endif
 
@@ -537,16 +536,15 @@ void ACameraVolumeActor::EditorApplyScale(const FVector& DeltaScale, const FVect
 {
 	Super::EditorApplyScale(DeltaScale, PivotLocation, bAltDown, bShiftDown, bCtrlDown);
 
-	const FVector CurrentScale = VolumeExtent / VolumeExtentDefault;
-	FVector ScaleToApply;
+	FVector ScaleToApply = VolumeExtent / VolumeExtentDefault;
 
-	if (AActor::bUsePercentageBasedScaling)
+	if (bUsePercentageBasedScaling)
 	{
-		ScaleToApply = CurrentScale * (FVector::OneVector + DeltaScale);
+		ScaleToApply *= FVector::OneVector + DeltaScale;
 	}
 	else
 	{
-		ScaleToApply = CurrentScale + DeltaScale;
+		ScaleToApply += DeltaScale;
 	}
 
 	VolumeExtent = VolumeExtentDefault * ScaleToApply;

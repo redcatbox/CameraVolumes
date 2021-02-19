@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include "CoreMinimal.h"
 #include "Camera/PlayerCameraManager.h"
 #include "CameraVolumesFunctionLibrary.h"
 #include "CameraVolumesCameraManager.generated.h"
