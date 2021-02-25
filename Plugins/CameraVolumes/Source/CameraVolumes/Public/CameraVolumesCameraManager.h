@@ -130,12 +130,6 @@ protected:
 		float CameraFOVOWFinalNew;
 
 	UPROPERTY()
-		bool bCameraComponentUseDeadZone;
-
-	UPROPERTY()
-		bool bCameraVolumeOverrideDeadZone;
-
-	UPROPERTY()
 		FVector2D DeadZoneExtent;
 
 	UPROPERTY()

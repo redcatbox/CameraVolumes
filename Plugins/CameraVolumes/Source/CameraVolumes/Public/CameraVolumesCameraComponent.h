@@ -132,17 +132,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone", Meta = (EditCondition = "bUseDeadZone"))
 		FVector2D DeadZoneOffset;
 
-	/** Override dead zone focal point in this frame */
-	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-		virtual void SetDeadZoneFocalPoint(FVector DeadZoneFocalPoint);
-
-protected:
-	UPROPERTY()
-		bool bOverrideDeadZoneFocalPoint;
-
-	UPROPERTY()
-		FVector OverridenDeadZoneFocalPoint;
-
 #if WITH_EDITORONLY_DATA
 public:
 	/** Should preview dead zone (editor only)? */
@@ -161,9 +150,6 @@ private:
 #endif
 
 public:
-	bool GetOverrideDeadZoneFocalPoint() const;
-	FVector GetOverridenDeadZoneFocalPoint() const;
-
 #if WITH_EDITOR
 	void UpdateDeadZonePreview(FVector2D& NewDeadZoneExtent, FVector2D& NewDeadZoneOffset);
 #endif

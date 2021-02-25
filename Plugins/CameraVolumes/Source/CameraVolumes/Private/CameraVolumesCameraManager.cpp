@@ -23,8 +23,6 @@ ACameraVolumesCameraManager::ACameraVolumesCameraManager(const FObjectInitialize
 	CameraRotationNew = FQuat();
 	CameraFOVOWOld = 90.f;
 	CameraFOVOWNew = 90.f;
-	bCameraComponentUseDeadZone = false;
-	bCameraVolumeOverrideDeadZone = false;
 	DeadZoneExtent = FVector2D::ZeroVector;
 	DeadZoneOffset = FVector2D::ZeroVector;
 	DeadZoneWorldCenterOld = FVector::ZeroVector;
@@ -216,8 +214,6 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 	CameraFOVOWNew = bIsCameraOrthographic
 		? CameraComponent->DefaultCameraOrthoWidth
 		: CameraComponent->DefaultCameraFieldOfView;
-	bCameraComponentUseDeadZone = false;
-	bCameraVolumeOverrideDeadZone = false;
 	DeadZoneExtent = FVector2D::ZeroVector;
 	DeadZoneOffset = FVector2D::ZeroVector;
 	DeadZoneWorldCenterNew = DeadZoneWorldCenterOld;
@@ -416,30 +412,26 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 		bUsePlayerPawnControlRotation = false;
 
 		// Dead zone
-		bCameraVolumeOverrideDeadZone = CameraVolume->bOverrideDeadZoneSettings;
-		if (bCameraVolumeOverrideDeadZone)
+		bool bUseDeadZone = false;
+		if (CameraVolume->bOverrideDeadZoneSettings)
 		{
 			DeadZoneExtent = CameraVolume->DeadZoneExtent;
 			DeadZoneOffset = CameraVolume->DeadZoneOffset;
+			bUseDeadZone = true;
 		}
-
-		if (!bCameraVolumeOverrideDeadZone)
+		else
 		{
-			bCameraComponentUseDeadZone = CameraComponent->bUseDeadZone;
-			if (bCameraComponentUseDeadZone)
+			if (CameraComponent->bUseDeadZone)
 			{
 				DeadZoneExtent = CameraComponent->DeadZoneExtent;
 				DeadZoneOffset = CameraComponent->DeadZoneOffset;
+				bUseDeadZone = true;
 			}
 		}
 
-		if (bCameraComponentUseDeadZone || bCameraVolumeOverrideDeadZone)
+		if (bUseDeadZone)
 		{
-			const FVector DeadZoneFocalPoint = CameraComponent->GetOverrideDeadZoneFocalPoint()
-				? CameraComponent->GetOverridenDeadZoneFocalPoint()
-				: CameraFocalPointNew;
-
-			if (IsInDeadZone(DeadZoneFocalPoint))
+			if (IsInDeadZone(CameraFocalPointNew))
 			{
 				CameraLocationNew.Y = CameraLocationOld.Y;
 				CameraLocationNew.Z = CameraLocationOld.Z;

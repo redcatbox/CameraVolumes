@@ -34,8 +34,6 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 	bUseDeadZone = false;
 	DeadZoneExtent = FVector2D::ZeroVector;
 	DeadZoneOffset = FVector2D::ZeroVector;
-	bOverrideDeadZoneFocalPoint = false;
-	OverridenDeadZoneFocalPoint = FVector::ZeroVector;
 #if WITH_EDITORONLY_DATA
 	bPreviewDeadZone = false;
 	DeadZonePreviewMaterialPath = TEXT("/CameraVolumes/Materials/DeadZonePreview");
@@ -163,22 +161,6 @@ void UCameraVolumesCameraComponent::SetDefaultCameraRoll(float NewDefaultCameraR
 {
 	DefaultCameraRoll = NewDefaultCameraRoll;
 	DefaultCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(DefaultCameraLocation, DefaultCameraFocalPoint, DefaultCameraRoll);
-}
-
-void UCameraVolumesCameraComponent::SetDeadZoneFocalPoint(FVector NewDeadZoneFocalPoint)
-{
-	bOverrideDeadZoneFocalPoint = true;
-	OverridenDeadZoneFocalPoint = NewDeadZoneFocalPoint;
-}
-
-bool UCameraVolumesCameraComponent::GetOverrideDeadZoneFocalPoint() const
-{
-	return bOverrideDeadZoneFocalPoint;
-}
-
-FVector UCameraVolumesCameraComponent::GetOverridenDeadZoneFocalPoint() const
-{
-	return OverridenDeadZoneFocalPoint;
 }
 
 #if WITH_EDITOR
