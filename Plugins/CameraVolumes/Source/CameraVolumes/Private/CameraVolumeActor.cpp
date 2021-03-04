@@ -203,20 +203,21 @@ void ACameraVolumeActor::UpdateVolume()
 	}
 
 #if WITH_EDITORONLY_DATA
-	CameraPreview->FieldOfView = CameraFieldOfView;
-	CameraPreview->OrthoWidth = CameraOrthoWidth;
 	CameraPreview->ProjectionMode = CameraProjectionMode;
+	CameraPreview->DefaultCameraFieldOfView = CameraFieldOfView;
+	CameraPreview->DefaultCameraOrthoWidth = CameraOrthoWidth;
+	CameraPreview->DefaultCameraLocation = CameraLocation;
+	CameraPreview->DefaultCameraFocalPoint = CameraFocalPoint;
+	CameraPreview->DefaultCameraRoll = CameraRoll;
 
 	CameraPreview->bUseDeadZone = bOverrideDeadZoneSettings;
 	CameraPreview->DeadZoneExtent = DeadZoneExtent;
 	CameraPreview->DeadZoneOffset = DeadZoneOffset;
 	CameraPreview->bPreviewDeadZone = bOverrideDeadZoneSettings;
-
-	CameraPreview->SetRelativeLocationAndRotation(CameraLocation, CameraRotation);
-	CameraPreview->UpdateCameraComponent();
 #endif
 
 #if WITH_EDITOR
+	CameraPreview->UpdateCameraComponent();
 	UpdateSidesIndicators();
 	Modify();
 #endif

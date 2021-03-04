@@ -43,16 +43,16 @@ ACamVolPaperCharacter::ACamVolPaperCharacter()
 	bReplicates = true;
 
 	// Orthographic camera
-	GetCameraComponent()->ProjectionMode = ECameraProjectionMode::Orthographic;
-	GetCameraComponent()->OrthoWidth = 2048.f;
+	ACamVolPaperCharacter::GetCameraComponent()->ProjectionMode = ECameraProjectionMode::Orthographic;
+	ACamVolPaperCharacter::GetCameraComponent()->OrthoWidth = 2048.f;
 
 	// Camera lag
-	GetCameraComponent()->bEnableCameraLocationLag = true;
-	GetCameraComponent()->CameraLocationLagSpeed = 5.f;
-	GetCameraComponent()->bEnableCameraRotationLag = true;
-	GetCameraComponent()->CameraRotationLagSpeed = 5.f;
-	GetCameraComponent()->bEnableCameraOrthoWidthInterp = true;
-	GetCameraComponent()->CameraOrthoWidthInterpSpeed = 5.f;
+	ACamVolPaperCharacter::GetCameraComponent()->bEnableCameraLocationLag = true;
+	ACamVolPaperCharacter::GetCameraComponent()->CameraLocationLagSpeed = 5.f;
+	ACamVolPaperCharacter::GetCameraComponent()->bEnableCameraRotationLag = true;
+	ACamVolPaperCharacter::GetCameraComponent()->CameraRotationLagSpeed = 5.f;
+	ACamVolPaperCharacter::GetCameraComponent()->bEnableCameraOrthoWidthInterp = true;
+	ACamVolPaperCharacter::GetCameraComponent()->CameraOrthoWidthInterpSpeed = 5.f;
 }
 
 // Animation

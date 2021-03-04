@@ -99,10 +99,6 @@ void UCameraVolumesCameraComponent::UpdateCameraComponent()
 		bIsCameraOrthographic = true;
 		SetOrthoWidth(DefaultCameraOrthoWidth);
 		break;
-	case ECameraProjectionMode::Perspective:
-		bIsCameraOrthographic = false;
-		SetFieldOfView(DefaultCameraFieldOfView);
-		break;
 	default:
 		bIsCameraOrthographic = false;
 		SetFieldOfView(DefaultCameraFieldOfView);
@@ -181,8 +177,11 @@ void UCameraVolumesCameraComponent::UpdateDeadZonePreview(FVector2D& NewDeadZone
 	}
 	else
 	{
-		RemoveBlendable(DeadZonePreviewMID);
-		DeadZonePreviewMID = nullptr;
+		if (DeadZonePreviewMID)
+		{
+			RemoveBlendable(DeadZonePreviewMID);
+			DeadZonePreviewMID = nullptr;
+		}
 	}
 }
 #endif

@@ -31,12 +31,12 @@ ACamVolCharacter::ACamVolCharacter()
 	GetCharacterMovement()->MaxFlySpeed = 600.f;
 
 	// Camera lag
-	GetCameraComponent()->bEnableCameraLocationLag = true;
-	GetCameraComponent()->CameraLocationLagSpeed = 5.f;
-	GetCameraComponent()->bEnableCameraRotationLag = true;
-	GetCameraComponent()->CameraRotationLagSpeed = 5.f;
-	GetCameraComponent()->bEnableCameraFOVInterp = true;
-	GetCameraComponent()->CameraFOVInterpSpeed = 5.f;
+	ACamVolCharacter::GetCameraComponent()->bEnableCameraLocationLag = true;
+	ACamVolCharacter::GetCameraComponent()->CameraLocationLagSpeed = 5.f;
+	ACamVolCharacter::GetCameraComponent()->bEnableCameraRotationLag = true;
+	ACamVolCharacter::GetCameraComponent()->CameraRotationLagSpeed = 5.f;
+	ACamVolCharacter::GetCameraComponent()->bEnableCameraFOVInterp = true;
+	ACamVolCharacter::GetCameraComponent()->CameraFOVInterpSpeed = 5.f;
 }
 
 // Input
