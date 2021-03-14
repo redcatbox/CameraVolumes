@@ -472,10 +472,15 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 	// Dead zone
 	if (bUseDeadZone)
 	{
-		DrawDebugSphere(GetWorld(), PlayerPawnLocation, 25.f, 4, FColor::Cyan, false, -1, 0, 2.5f);
+		DrawDebugSphere(GetWorld(), PlayerPawnLocation, 25.f, 8, FColor::Cyan, false, -1, 0, 2.5f);
 		if (IsInDeadZone(PlayerPawnLocation))
 		{
 			CameraLocationNew = CameraLocationOld;
+			CameraRotationNew = CameraRotationOld;
+		}
+		else
+		{
+			CameraLocationNew = CameraLocationOld + (PlayerPawnLocation - PlayerPawnLocationOld);
 			CameraRotationNew = CameraRotationOld;
 		}
 	}
