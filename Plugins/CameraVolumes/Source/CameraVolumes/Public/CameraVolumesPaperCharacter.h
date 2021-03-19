@@ -1,4 +1,4 @@
-//redbox, 2021
+// redbox, 2021
 
 /**
  * Player character derived from PaperCharacter, stores default camera parameters and camera component.
@@ -25,7 +25,7 @@ public:
 	virtual class UPrimitiveComponent* GetCollisionPrimitiveComponent() const override;
 
 protected:
-	/** Camera component */
+	// Camera component
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CameraVolumes)
 		class UCameraVolumesCameraComponent* CameraComponent;
 

@@ -16,11 +16,15 @@ ACamVolCharacter::ACamVolCharacter()
 
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletalMeshObj(TEXT("/Game/Mannequin/Character/Mesh/SK_Mannequin"));
 	if (SkeletalMeshObj.Object)
+	{
 		GetMesh()->SetSkeletalMesh(SkeletalMeshObj.Object, true);
+	}
 
 	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimClass(TEXT("/Game/Mannequin/Animations/ThirdPerson_AnimBP"));
 	if (AnimClass.Class)
+	{
 		GetMesh()->AnimClass = AnimClass.Class;
+	}
 
 	// Configure character movement
 	GetCharacterMovement()->GravityScale = 2.f;

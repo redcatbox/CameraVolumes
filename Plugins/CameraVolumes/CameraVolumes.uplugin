@@ -23,11 +23,6 @@
 				"Win32",
 				"Android"
 			]
-		},
-		{
-			"Name": "CameraVolumesEditor",
-			"Type": "Editor",
-			"LoadingPhase": "Default"
 		}
 	],
 	"Plugins": [

@@ -1,4 +1,3 @@
-// Copyright 1998-2019 Epic Games, Inc. All Rights Reserved.
 
 using UnrealBuildTool;
 
@@ -10,12 +9,12 @@ public class CamVol : ModuleRules
 
 		PublicDependencyModuleNames.AddRange(
 			new string[] { 
-			"Core", 
-			"CoreUObject", 
-			"Engine", 
-			"InputCore", 
-			"CameraVolumes",
-            "Paper2D"
+				"Core", 
+				"CoreUObject", 
+				"Engine", 
+				"InputCore", 
+				"CameraVolumes",
+				"Paper2D"
 			}
 		);
 	}

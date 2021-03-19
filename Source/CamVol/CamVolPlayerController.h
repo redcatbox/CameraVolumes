@@ -8,7 +8,7 @@ UCLASS()
 class ACamVolPlayerController : public APlayerController
 {
 	GENERATED_BODY()
-	
+
 public:
 	ACamVolPlayerController();
 };

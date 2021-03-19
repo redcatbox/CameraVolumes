@@ -12,19 +12,19 @@ class ACamVolCharacter : public ACameraVolumesCharacter
 public:
 	ACamVolCharacter();
 
- protected:
- 	/** Called for side to side input */
- 	void MoveRight(float Val);
- 
- 	/** Called for front to back input */
- 	void MoveForward(float Val);
- 
-	/** Handle touch inputs */
+protected:
+	// Called for side to side input
+	void MoveRight(float Val);
+
+	// Called for front to back input
+	void MoveForward(float Val);
+
+	// Handle touch inputs
 	void TouchStarted(const ETouchIndex::Type FingerIndex, const FVector Location);
 
-	/** Handle touch stop event */
+	// Handle touch stop event
 	void TouchStopped(const ETouchIndex::Type FingerIndex, const FVector Location);
 
-	/** Setup input */
+	// Setup input
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 };

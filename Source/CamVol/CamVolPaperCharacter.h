@@ -6,15 +6,14 @@
 #include "PaperFlipbookComponent.h"
 #include "CamVolPaperCharacter.generated.h"
 
-UCLASS(Config=Game)
+UCLASS(Config = Game)
 class ACamVolPaperCharacter : public ACameraVolumesPaperCharacter
 {
 	GENERATED_BODY()
 
-	virtual void Tick(float DeltaSeconds) override;
-
 public:
 	ACamVolPaperCharacter();
+	virtual void Tick(float DeltaSeconds) override;
 
 protected:
 	// The animation to play while running around
@@ -25,16 +24,16 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
 		class UPaperFlipbook* IdleAnimation;
 
-	/** Called to choose the correct animation to play based on the character's movement state */
+	// Called to choose the correct animation to play based on the character's movement state
 	void UpdateAnimation();
 
-	/** Called for side to side input */
+	// Called for side to side input
 	void MoveRight(float Value);
 
-	/** Handle touch inputs. */
+	// Handle touch inputs.
 	void TouchStarted(const ETouchIndex::Type FingerIndex, const FVector Location);
 
-	/** Handle touch stop event. */
+	// Handle touch stop event.
 	void TouchStopped(const ETouchIndex::Type FingerIndex, const FVector Location);
 
 	// APawn interface

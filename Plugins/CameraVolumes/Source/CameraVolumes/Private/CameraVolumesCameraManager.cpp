@@ -1,4 +1,4 @@
-//redbox, 2021
+// redbox, 2021
 
 #include "CameraVolumesCameraManager.h"
 #include "CameraVolumesCharacterInterface.h"
@@ -423,7 +423,29 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 						FMath::Clamp(CameraLocationNew.Z, ScreenMin.Z, ScreenMax.Z));
 			}
 		}
-		
+
+		// Dead zone
+		if (bUseDeadZone)
+		{
+			if (IsInDeadZone(PlayerPawnLocation))
+			{
+				if (bNeedsSmoothTransition || bNeedsCutTransition)
+				{
+
+				}
+				else
+				{
+					CameraLocationNew = CameraLocationOld;
+					CameraRotationNew = CameraRotationOld;
+				}
+			}
+			else
+			{
+				CameraLocationNew = CameraLocationOld + (PlayerPawnLocation - PlayerPawnLocationOld);
+				CameraRotationNew = CameraRotationOld;
+			}
+		}
+
 		// Final world-space values
 		CameraLocationNew = CameraVolume->GetActorTransform().TransformPositionNoScale(CameraLocationNew);
 		CameraFocalPointNew = CameraVolume->GetActorTransform().TransformPositionNoScale(CameraFocalPointNew);
@@ -467,22 +489,6 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 		CameraLocationNew = CameraFocalPointNew + CameraRotationNew.RotateVector(CameraComponent->DefaultCameraLocation - CameraComponent->DefaultCameraFocalPoint);
 
 		bUsePlayerPawnControlRotation = true;
-	}
-
-	// Dead zone
-	if (bUseDeadZone)
-	{
-		DrawDebugSphere(GetWorld(), PlayerPawnLocation, 25.f, 8, FColor::Cyan, false, -1, 0, 2.5f);
-		if (IsInDeadZone(PlayerPawnLocation))
-		{
-			CameraLocationNew = CameraLocationOld;
-			CameraRotationNew = CameraRotationOld;
-		}
-		else
-		{
-			CameraLocationNew = CameraLocationOld + (PlayerPawnLocation - PlayerPawnLocationOld);
-			CameraRotationNew = CameraRotationOld;
-		}
 	}
 	
 	// Transitions and interpolation

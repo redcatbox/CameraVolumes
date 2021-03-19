@@ -1,4 +1,4 @@
-//redbox, 2021
+// redbox, 2021
 
 /**
  * Interface for characters using camera volumes.
@@ -24,11 +24,11 @@ class CAMERAVOLUMES_API ICameraVolumesCharacterInterface
 	GENERATED_BODY()
 
 public:
-	/** Returns CameraComponent subobject */
+	// Returns CameraComponent subobject
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual class UCameraVolumesCameraComponent* GetCameraComponent() const = 0;
 
-	/** Returns collision primitive subobject (CapsuleComponent for Characters) */
+	// Returns collision primitive subobject (CapsuleComponent for Characters)
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual class UPrimitiveComponent* GetCollisionPrimitiveComponent() const = 0;
 

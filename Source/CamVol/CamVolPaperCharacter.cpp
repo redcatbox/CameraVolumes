@@ -15,11 +15,15 @@ ACamVolPaperCharacter::ACamVolPaperCharacter()
 	// Flipbooks
 	static ConstructorHelpers::FObjectFinder<UPaperFlipbook> IdleAnimationObj(TEXT("/Game/2DSideScroller/Sprites/IdleAnimation.IdleAnimation"));
 	if (IdleAnimationObj.Object)
+	{
 		IdleAnimation = IdleAnimationObj.Object;
+	}
 
 	static ConstructorHelpers::FObjectFinder<UPaperFlipbook> RunningAnimationObj(TEXT("/Game/2DSideScroller/Sprites/RunningAnimation.RunningAnimation"));
 	if (RunningAnimationObj.Object)
+	{
 		RunningAnimation = RunningAnimationObj.Object;
+	}
 
 	GetSprite()->SetFlipbook(IdleAnimation);
 
@@ -64,13 +68,15 @@ void ACamVolPaperCharacter::UpdateAnimation()
 	// Are we moving or standing still?
 	UPaperFlipbook* DesiredAnimation = (PlayerSpeedSqr > 0.0f) ? RunningAnimation : IdleAnimation;
 	if(GetSprite()->GetFlipbook() != DesiredAnimation)
+	{
 		GetSprite()->SetFlipbook(DesiredAnimation);
+	}
 }
 
 void ACamVolPaperCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	UpdateCharacter();	
+	UpdateCharacter();
 }
 
 // Input

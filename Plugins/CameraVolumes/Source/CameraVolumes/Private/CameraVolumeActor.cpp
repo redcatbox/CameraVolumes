@@ -1,4 +1,4 @@
-//redbox, 2021
+// redbox, 2021
 
 #include "CameraVolumeActor.h"
 #include "CameraVolumesCameraComponent.h"

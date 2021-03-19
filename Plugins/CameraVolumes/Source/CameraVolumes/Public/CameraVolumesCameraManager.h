@@ -1,4 +1,4 @@
-//redbox, 2021
+// redbox, 2021
 
 /**
  * Player camera manager performs camera calculations according to camera parameters from camera component or camera volume.
@@ -12,7 +12,7 @@
 #include "CameraVolumesFunctionLibrary.h"
 #include "CameraVolumesCameraManager.generated.h"
 
-/** Delegate for notification when camera volume is changed */
+// Delegate for notification when camera volume is changed
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FCameraVolumeChangedSignature, ACameraVolumeActor*, CameraVolume, FSideInfo, PassedSideInfo);
 
 UCLASS(Config = CameraVolumes)
@@ -24,55 +24,55 @@ public:
 	ACameraVolumesCameraManager(const FObjectInitializer& ObjectInitializer);
 	virtual void UpdateCamera(float DeltaTime) override;
 
-	/** Set transition according to side info */
+	// Set transition according to side info
 	UFUNCTION()
 		virtual void SetTransitionBySideInfo(ACameraVolumeActor* CameraVolume, FSideInfo SideInfo);
 
-	/** Calculate new camera parameters */
+	// Calculate new camera parameters
 	UFUNCTION()
 		virtual void CalcNewCameraParams(ACameraVolumeActor* CameraVolume, float DeltaTime);
 
-	/** Should perform camera updates? */
+	// Should perform camera updates?
 	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
 		bool bUpdateCamera;
 
-	/** Set perform camera updates. */
+	// Set perform camera updates.
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual void SetUpdateCamera(bool bNewUpdateCamera);
 
-	/** Should check for camera volumes? */
+	// Should check for camera volumes?
 	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
 		bool bCheckCameraVolumes;
 
-	/** Set check for camera volumes. Used by Player Character according to overlapping camera volumes. */
+	// Set check for camera volumes. Used by Player Character according to overlapping camera volumes.
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual void SetCheckCameraVolumes(bool bNewCheck);
 
-	/** Should perform camera blocking calculations? */
-	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = CameraVolumes)
+	// Should perform camera blocking calculations?
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CameraVolumes)
 		bool bPerformBlockingCalculations;
 
-	/** Set perform camera blocking calculations */
+	// Set perform camera blocking calculations
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual void SetPerformBlockingCalculations(bool bNewPerformBlockingCalculations);
 
-	/** Calculate screen world extent at depth */
+	// Calculate screen world extent at depth
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual FVector2D CalculateScreenWorldExtentAtDepth(float Depth);
 
-	/** OnCameraVolumeChanged event signature */
+	// OnCameraVolumeChanged event signature
 	UPROPERTY(BlueprintAssignable, Category = CameraVolumes)
 		FCameraVolumeChangedSignature OnCameraVolumeChanged;
 
-	/** Get new calculated camera location. */
+	// Get new calculated camera location.
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
 		virtual FVector GetNewCameraLocation() { return CameraLocationNew; }
 
-	/** Get new calculated camera rotation. */
+	// Get new calculated camera rotation.
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
 		virtual FRotator GetNewCameraRotation() { return CameraRotationNew.Rotator(); }
 
-	/** Is location in dead zone? */
+	// Is location in dead zone?
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
 		virtual bool IsInDeadZone(FVector WorldLocationToCheck);
 
@@ -122,7 +122,7 @@ protected:
 	UPROPERTY()
 		float CameraFOVOWOld;
 
-	/** Used as FOV or OrthoWidth depending on bIsCameraOrthographic */
+	// Used as FOV or OrthoWidth depending on bIsCameraOrthographic
 	UPROPERTY()
 		float CameraFOVOWNew;
 
