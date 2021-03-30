@@ -24,6 +24,7 @@ ACameraVolumesCameraManager::ACameraVolumesCameraManager(const FObjectInitialize
 	CameraRotationNew = FQuat();
 	CameraFOVOWOld = 90.f;
 	CameraFOVOWNew = 90.f;
+	bFirstPass = true;
 	bUseDeadZone = false;
 	DeadZoneExtent = FVector2D::ZeroVector;
 	DeadZoneOffset = FVector2D::ZeroVector;
@@ -158,23 +159,23 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 							}
 						}
 
-						CalcNewCameraParams(CameraVolumeCurrent, DeltaTime);
+						CalculateCameraParams(CameraVolumeCurrent, DeltaTime);
 					}
 					else if (CameraVolumePrevious) // Do we passed from volume to void?
 					{
 						// Use settings of side we've passed from
 						const FSideInfo PassedSideInfoPrevious = CameraVolumePrevious->GetNearestVolumeSideInfo(PlayerPawnLocation);
 						SetTransitionBySideInfo(CameraVolumePrevious, PassedSideInfoPrevious);
-						CalcNewCameraParams(nullptr, DeltaTime);
+						CalculateCameraParams(nullptr, DeltaTime);
 					}
 					else
 					{
-						CalcNewCameraParams(nullptr, DeltaTime);
+						CalculateCameraParams(nullptr, DeltaTime);
 					}
 				}
 				else
 				{
-					CalcNewCameraParams(nullptr, DeltaTime);
+					CalculateCameraParams(nullptr, DeltaTime);
 				}
 
 				// Update camera component
@@ -201,7 +202,7 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 	Super::UpdateCamera(DeltaTime);
 }
 
-void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* CameraVolume, float DeltaTime)
+void ACameraVolumesCameraManager::CalculateCameraParams(ACameraVolumeActor* CameraVolume, float DeltaTime)
 {
 	//Store previous values and prepare params
 	CameraLocationOld = CameraLocationNew;
@@ -227,7 +228,7 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 		DeadZoneExtent = CameraComponent->DeadZoneExtent;
 		DeadZoneOffset = CameraComponent->DeadZoneOffset;
 	}
-	
+
 	if (CameraVolume)
 	{
 		if (bIsCameraOrthographic)
@@ -268,7 +269,7 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 			DeadZoneExtent = CameraVolume->DeadZoneExtent;
 			DeadZoneOffset = CameraVolume->DeadZoneOffset;
 		}
-		
+
 		bIsCameraStatic = CameraVolume->GetIsCameraStatic();
 		if (bIsCameraStatic)
 		{
@@ -424,34 +425,10 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 			}
 		}
 
-		// Dead zone
-		if (bUseDeadZone)
-		{
-			if (IsInDeadZone(PlayerPawnLocation))
-			{
-				if (bNeedsSmoothTransition || bNeedsCutTransition)
-				{
-
-				}
-				else
-				{
-					CameraLocationNew = CameraLocationOld;
-					CameraRotationNew = CameraRotationOld;
-				}
-			}
-			else
-			{
-				CameraLocationNew = CameraLocationOld + (PlayerPawnLocation - PlayerPawnLocationOld);
-				CameraRotationNew = CameraRotationOld;
-			}
-		}
-
 		// Final world-space values
 		CameraLocationNew = CameraVolume->GetActorTransform().TransformPositionNoScale(CameraLocationNew);
 		CameraFocalPointNew = CameraVolume->GetActorTransform().TransformPositionNoScale(CameraFocalPointNew);
 		CameraRotationNew = CameraVolume->GetActorTransform().TransformRotation(CameraRotationNew);
-
-		bUsePlayerPawnControlRotation = false;
 	}
 	else if (CameraComponent->bUsePawnControlRotationCV)
 	{
@@ -490,8 +467,75 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 
 		bUsePlayerPawnControlRotation = true;
 	}
-	
-	// Transitions and interpolation
+
+	// Dead zone
+	if (bUseDeadZone && !bFirstPass && !bUsePlayerPawnControlRotation)
+	{
+		ProcessDeadZone();
+	}
+
+	// Transitions and interpolations
+	if (!bFirstPass)
+	{
+		CalculateTransitions(DeltaTime);
+	}
+
+	CameraLocationFinalNew = CameraLocationNew;
+	CameraRotationFinalNew = CameraRotationNew;
+	CameraFOVOWFinalNew = CameraFOVOWNew;
+
+	// Additional camera params
+	if (CameraComponent->bUseAdditionalCameraParams && !bFirstPass)
+	{
+		CameraLocationFinalNew += CameraComponent->AdditionalCameraLocation;
+		CameraRotationFinalNew *= CameraComponent->AdditionalCameraRotation.Quaternion();
+		CameraFOVOWFinalNew += bIsCameraOrthographic
+			? CameraComponent->AdditionalCameraOrthoWidth
+			: CameraComponent->AdditionalCameraFOV;
+	}
+
+	bFirstPass = false;
+
+	// Broadcast volume changed event
+	if (bBroadcastOnCameraVolumeChanged)
+	{
+		OnCameraVolumeChanged.Broadcast(BroadcastCameraVolume, BroadcastSideInfo);
+	}
+}
+
+void ACameraVolumesCameraManager::SetTransitionBySideInfo(ACameraVolumeActor* CameraVolume, FSideInfo SideInfo)
+{
+	if (SideInfo.SideTransitionType == ESideTransitionType::ESTT_Smooth)
+	{
+		bNeedsSmoothTransition = true;
+		SmoothTransitionAlpha = 0.f;
+		SmoothTransitionSpeed = CameraVolume->CameraSmoothTransitionSpeed;
+	}
+	else if (SideInfo.SideTransitionType == ESideTransitionType::ESTT_Cut)
+	{
+		bNeedsCutTransition = true;
+		bNeedsSmoothTransition = false;
+		SmoothTransitionAlpha = 0.f;
+	}
+	else
+	{
+		bNeedsSmoothTransition = false;
+		SmoothTransitionAlpha = 0.f;
+		bNeedsCutTransition = false;
+	}
+
+	// Store OnCameraVolumeChanged broadcast params
+	bBroadcastOnCameraVolumeChanged = true;
+
+	if (bBroadcastOnCameraVolumeChanged)
+	{
+		BroadcastCameraVolume = CameraVolume;
+		BroadcastSideInfo = SideInfo;
+	}
+}
+
+void ACameraVolumesCameraManager::CalculateTransitions(float DeltaTime)
+{
 	if (bNeedsSmoothTransition)
 	{
 		SmoothTransitionAlpha += DeltaTime * SmoothTransitionSpeed;
@@ -538,57 +582,6 @@ void ACameraVolumesCameraManager::CalcNewCameraParams(ACameraVolumeActor* Camera
 			CameraFOVOWNew = FMath::FInterpTo(CameraFOVOWOld, CameraFOVOWNew, DeltaTime, CameraComponent->CameraFOVInterpSpeed);
 		}
 	}
-
-	CameraLocationFinalNew = CameraLocationNew;
-	CameraRotationFinalNew = CameraRotationNew;
-	CameraFOVOWFinalNew = CameraFOVOWNew;
-
-	// Additional camera params
-	if (CameraComponent->bUseAdditionalCameraParams)
-	{
-		CameraLocationFinalNew += CameraComponent->AdditionalCameraLocation;
-		CameraRotationFinalNew *= CameraComponent->AdditionalCameraRotation.Quaternion();
-		CameraFOVOWFinalNew += bIsCameraOrthographic
-			? CameraComponent->AdditionalCameraOrthoWidth
-			: CameraComponent->AdditionalCameraFOV;
-	}
-
-	// Broadcast volume changed event
-	if (bBroadcastOnCameraVolumeChanged)
-	{
-		OnCameraVolumeChanged.Broadcast(BroadcastCameraVolume, BroadcastSideInfo);
-	}
-}
-
-void ACameraVolumesCameraManager::SetTransitionBySideInfo(ACameraVolumeActor* CameraVolume, FSideInfo SideInfo)
-{
-	if (SideInfo.SideTransitionType == ESideTransitionType::ESTT_Smooth)
-	{
-		bNeedsSmoothTransition = true;
-		SmoothTransitionAlpha = 0.f;
-		SmoothTransitionSpeed = CameraVolume->CameraSmoothTransitionSpeed;
-	}
-	else if (SideInfo.SideTransitionType == ESideTransitionType::ESTT_Cut)
-	{
-		bNeedsCutTransition = true;
-		bNeedsSmoothTransition = false;
-		SmoothTransitionAlpha = 0.f;
-	}
-	else
-	{
-		bNeedsSmoothTransition = false;
-		SmoothTransitionAlpha = 0.f;
-		bNeedsCutTransition = false;
-	}
-
-	// Store OnCameraVolumeChanged broadcast params
-	bBroadcastOnCameraVolumeChanged = true;
-
-	if (bBroadcastOnCameraVolumeChanged)
-	{
-		BroadcastCameraVolume = CameraVolume;
-		BroadcastSideInfo = SideInfo;
-	}
 }
 
 bool ACameraVolumesCameraManager::IsInDeadZone(FVector WorldLocationToCheck)
@@ -612,6 +605,30 @@ bool ACameraVolumesCameraManager::IsInDeadZone(FVector WorldLocationToCheck)
 	}
 
 	return false;
+}
+
+void ACameraVolumesCameraManager::ProcessDeadZone()
+{
+	if (IsInDeadZone(PlayerPawnLocation))
+	{
+		//CameraComponent->bEnableCameraLocationLag
+		//CameraComponent->bEnableCameraRotationLag
+		
+		//if (bNeedsSmoothTransition || bNeedsCutTransition)
+		//{
+
+		//}
+		//else
+		{
+			CameraLocationNew = CameraLocationOld;
+			CameraRotationNew = CameraRotationOld;
+		}
+	}
+	else
+	{
+		CameraLocationNew = CameraLocationOld + (PlayerPawnLocation - PlayerPawnLocationOld);
+		CameraRotationNew = CameraRotationOld;
+	}
 }
 
 FVector2D ACameraVolumesCameraManager::CalculateScreenWorldExtentAtDepth(float Depth)

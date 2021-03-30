@@ -24,17 +24,31 @@ public:
 	ACameraVolumesCameraManager(const FObjectInitializer& ObjectInitializer);
 	virtual void UpdateCamera(float DeltaTime) override;
 
+protected:
 	// Set transition according to side info
 	UFUNCTION()
 		virtual void SetTransitionBySideInfo(ACameraVolumeActor* CameraVolume, FSideInfo SideInfo);
 
 	// Calculate new camera parameters
 	UFUNCTION()
-		virtual void CalcNewCameraParams(ACameraVolumeActor* CameraVolume, float DeltaTime);
+		virtual void CalculateCameraParams(ACameraVolumeActor* CameraVolume, float DeltaTime);
 
+	// Calculate camera transitions and interpolations
+	UFUNCTION()
+		virtual void CalculateTransitions(float DeltaTime);
+
+	// Process dead zone camera behavior
+	UFUNCTION()
+		virtual void ProcessDeadZone();
+
+public:
 	// Should perform camera updates?
 	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
 		bool bUpdateCamera;
+
+	// OnCameraVolumeChanged event signature
+	UPROPERTY(BlueprintAssignable, Category = CameraVolumes)
+		FCameraVolumeChangedSignature OnCameraVolumeChanged;
 
 	// Set perform camera updates.
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
@@ -60,10 +74,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual FVector2D CalculateScreenWorldExtentAtDepth(float Depth);
 
-	// OnCameraVolumeChanged event signature
-	UPROPERTY(BlueprintAssignable, Category = CameraVolumes)
-		FCameraVolumeChangedSignature OnCameraVolumeChanged;
-
 	// Get new calculated camera location.
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
 		virtual FVector GetNewCameraLocation() { return CameraLocationNew; }
@@ -76,6 +86,10 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
 		virtual bool IsInDeadZone(FVector WorldLocationToCheck);
 
+	// Reset first pass calculations
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
+		virtual void ResetFirstPass() { bFirstPass = true; }
+	
 protected:
 	UPROPERTY()
 		class APawn* PlayerPawn;
@@ -128,6 +142,9 @@ protected:
 
 	UPROPERTY()
 		float CameraFOVOWFinalNew;
+
+	UPROPERTY()
+		bool bFirstPass;
 
 	UPROPERTY()
 		bool bUseDeadZone;
