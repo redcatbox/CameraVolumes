@@ -31,7 +31,7 @@ protected:
 
 	// Calculate new camera parameters
 	UFUNCTION()
-		virtual void CalculateCameraParams(ACameraVolumeActor* CameraVolume, float DeltaTime);
+		virtual void CalculateCameraParams(float DeltaTime);
 
 	// Calculate camera transitions and interpolations
 	UFUNCTION()
@@ -148,6 +148,9 @@ protected:
 
 	UPROPERTY()
 		bool bUseDeadZone;
+
+	UPROPERTY()
+		bool bIsInDeadZone;
 
 	UPROPERTY()
 		FVector2D DeadZoneExtent;

@@ -114,7 +114,6 @@ public:
 		virtual void SetDisableMainBoxCollision(bool bNewDisableMainBoxCollision);
 
 
-	// camera projection mode
 public:
 #if WITH_EDITORONLY_DATA
 	// Camera projection mode (For camera frustrum preview only!)
@@ -122,9 +121,7 @@ public:
 		TEnumAsByte<ECameraProjectionMode::Type> CameraProjectionMode;
 #endif
 
-
 	// Camera mobility
-		// Camera mobility
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera)
 		ECameraMobility CameraMobility;
 
