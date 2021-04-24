@@ -109,7 +109,8 @@ void UCameraVolumesCameraComponent::UpdateCameraComponent()
 	SetRelativeLocationAndRotation(DefaultCameraLocation, DefaultCameraRotation);
 
 #if WITH_EDITOR
-	UpdateDeadZonePreview(DeadZoneExtent, DeadZoneOffset);
+	FDeadZoneTransform DeadZoneTransform(DeadZoneExtent, DeadZoneOffset, DefaultCameraRoll);
+	UpdateDeadZonePreview(DeadZoneTransform);
 #endif
 
 #if WITH_EDITORONLY_DATA
@@ -160,7 +161,7 @@ void UCameraVolumesCameraComponent::SetDefaultCameraRoll(float NewDefaultCameraR
 }
 
 #if WITH_EDITOR
-void UCameraVolumesCameraComponent::UpdateDeadZonePreview(FVector2D& NewDeadZoneExtent, FVector2D& NewDeadZoneOffset)
+void UCameraVolumesCameraComponent::UpdateDeadZonePreview(FDeadZoneTransform& NewDeadZoneTransform)
 {
 	if (bPreviewDeadZone)
 	{
@@ -170,10 +171,11 @@ void UCameraVolumesCameraComponent::UpdateDeadZonePreview(FVector2D& NewDeadZone
 			AddOrUpdateBlendable(DeadZonePreviewMID, 1.f);
 		}
 
-		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Size_X")), NewDeadZoneExtent.X);
-		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Size_Y")), NewDeadZoneExtent.Y);
-		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Offset_X")), NewDeadZoneOffset.X);
-		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Offset_Y")), NewDeadZoneOffset.Y);
+		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Size_X")), NewDeadZoneTransform.DeadZoneExtent.X);
+		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Size_Y")), NewDeadZoneTransform.DeadZoneExtent.Y);
+		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Offset_X")), NewDeadZoneTransform.DeadZoneOffset.X);
+		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Offset_Y")), NewDeadZoneTransform.DeadZoneOffset.Y);
+		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Roll")), NewDeadZoneTransform.DeadZoneRoll);
 	}
 	else
 	{

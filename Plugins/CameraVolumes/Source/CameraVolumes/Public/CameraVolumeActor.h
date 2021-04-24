@@ -42,7 +42,6 @@ protected:
 #endif
 
 
-	// Priority
 public:
 	// Priority of camera volume in case of few overlapped volumes
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Volume, Meta = (ClampMin = "-100", ClampMax = "100", UIMin = "-100", UIMax = "100"))
@@ -188,8 +187,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Camera)
 		virtual void SetCameraRoll(float NewCameraRoll);
 
+protected:
+	UPROPERTY()
+		bool bFocalPointIsPlayerEditCond;
+
+public:
 	// Should camera look at player character?
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (EditCondition = "bIsCameraStatic"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (EditCondition = "bFocalPointIsPlayerEditCond"))
 		bool bFocalPointIsPlayer;
 
 	UPROPERTY()
@@ -306,7 +310,7 @@ public:
 #endif
 
 
-	//Text indicators
+	// Text indicators
 protected:
 #if WITH_EDITOR
 	UFUNCTION()
@@ -321,7 +325,7 @@ protected:
 		TArray<class UTextRenderComponent*> Text_Indicators;
 
 public:
-	/** Text size of sides indicators. */
+	// Text size of sides indicators
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = VolumeSides)
 		float TextSize;
 

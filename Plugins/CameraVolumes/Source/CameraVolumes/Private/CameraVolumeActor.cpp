@@ -59,6 +59,7 @@ ACameraVolumeActor::ACameraVolumeActor()
 	bOverrideCameraRotation = false;
 	CameraFocalPoint = FVector::ZeroVector;
 	CameraRoll = 0.f;
+	bFocalPointIsPlayerEditCond = false;
 	bFocalPointIsPlayer = false;
 
 	bOverrideCameraFieldOfView = false;
@@ -164,18 +165,23 @@ void ACameraVolumeActor::UpdateVolume()
 	{
 	case ECameraMobility::ECM_Movable:
 		bIsCameraStatic = false;
-		bFocalPointIsPlayer = true;
+		bFocalPointIsPlayerEditCond = bUseCameraRotationAxis;
+		if (!bUseCameraRotationAxis)
+		{
+			bFocalPointIsPlayer = true;
+		}
 		bUseCameraRotationAxisEditCond = true;
 		break;
 	case ECameraMobility::ECM_Static:
 		bIsCameraStatic = true;
+		bFocalPointIsPlayerEditCond = true;
 		bOverrideCameraLocation = true;
 		bPerformCameraBlocking = false;
 		bUseCameraRotationAxisEditCond = false;
 		bUseCameraRotationAxis = false;
 		break;
 	}
-
+	
 	if (!bOverrideCameraLocation)
 	{
 		CameraLocation = FVector(0.f, 1000.f, 0.f);

@@ -149,7 +149,7 @@ private:
 
 public:
 #if WITH_EDITOR
-	void UpdateDeadZonePreview(FVector2D& NewDeadZoneExtent, FVector2D& NewDeadZoneOffset);
+	void UpdateDeadZonePreview(FDeadZoneTransform& NewDeadZoneTransform);
 #endif
 
 

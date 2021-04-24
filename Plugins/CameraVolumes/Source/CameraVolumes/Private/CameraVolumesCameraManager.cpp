@@ -26,11 +26,9 @@ ACameraVolumesCameraManager::ACameraVolumesCameraManager(const FObjectInitialize
 	CameraFOVOWNew = 90.f;
 	bFirstPass = true;
 	bUseDeadZone = false;
-	bIsInDeadZone = false;
 	DeadZoneExtent = FVector2D::ZeroVector;
 	DeadZoneOffset = FVector2D::ZeroVector;
-	DeadZoneWorldCenterOld = FVector::ZeroVector;
-	DeadZoneWorldCenterNew = FVector::ZeroVector;
+	bIsInDeadZone = false;
 	bIsCameraStatic = false;
 	bIsCameraOrthographic = false;
 	bNeedsSmoothTransition = false;
@@ -184,7 +182,8 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 
 #if WITH_EDITOR
 				// Dead zone
-				CameraComponent->UpdateDeadZonePreview(DeadZoneExtent, DeadZoneOffset);
+				FDeadZoneTransform DeadZoneTransform(DeadZoneExtent, DeadZoneOffset, -CameraRotationFinalNew.Rotator().Roll);
+				CameraComponent->UpdateDeadZonePreview(DeadZoneTransform);
 #endif
 
 				// Update camera manager
@@ -199,13 +198,13 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 			}
 		}
 	}
-
+	
 	Super::UpdateCamera(DeltaTime);
 }
 
 void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 {
-	//Store previous values and prepare params
+	// Store previous values and prepare params
 	CameraLocationOld = CameraLocationNew;
 	CameraRotationOld = CameraRotationNew;
 	CameraLocationNew = PlayerPawnLocation + CameraComponent->DefaultCameraLocation;
@@ -221,7 +220,6 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 		: CameraComponent->DefaultCameraFieldOfView;
 	bUseDeadZone = false;
 	bIsInDeadZone = false;
-	DeadZoneWorldCenterNew = DeadZoneWorldCenterOld;
 
 	// Dead zone
 	if (CameraComponent->bUseDeadZone)
@@ -285,7 +283,7 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 			else
 			{
 				CameraRotationNew = CameraVolumeCurrent->CameraRotation;
-				// Do not process for fully static camera
+				// Do not process dead zone for fully static camera
 				bUseDeadZone = false;
 			}
 		}
@@ -306,16 +304,26 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 					CameraLocationNew += FVector(PlayerPawnLocationTransformed.X, PlayerPawnLocationTransformed.Y, 0.f);
 				}
 
-				CameraFocalPointNew = PlayerPawnLocationTransformed;
-				CameraFocalPointNew += CameraVolumeCurrent->bOverrideCameraRotation
-					? RotToAxis.RotateVector(CameraVolumeCurrent->CameraFocalPoint)
-					: RotToAxis.RotateVector(CameraComponent->DefaultCameraFocalPoint);
+				if (CameraVolumeCurrent->bFocalPointIsPlayer)
+				{
+					CameraFocalPointNew = PlayerPawnLocationTransformed;
+					CameraFocalPointNew += CameraVolumeCurrent->bOverrideCameraRotation
+						? RotToAxis.RotateVector(CameraVolumeCurrent->CameraFocalPoint)
+						: RotToAxis.RotateVector(CameraComponent->DefaultCameraFocalPoint);
 
-				const float NewCameraRoll = CameraVolumeCurrent->bOverrideCameraRotation
-					? CameraVolumeCurrent->CameraRoll
-					: CameraComponent->DefaultCameraRoll;
-
-				CameraRotationNew = UCameraVolumesFunctionLibrary::CalculateCameraRotation(CameraLocationNew, CameraFocalPointNew, NewCameraRoll);
+					const float NewCameraRoll = CameraVolumeCurrent->bOverrideCameraRotation
+						? CameraVolumeCurrent->CameraRoll
+						: CameraComponent->DefaultCameraRoll;
+					
+					CameraRotationNew = UCameraVolumesFunctionLibrary::CalculateCameraRotation(CameraLocationNew, CameraFocalPointNew, NewCameraRoll);
+				}
+				else
+				{
+					// If CameraVolumeCurrent->bOverrideCameraRotation == false
+					// we have few negative cases here,
+					// but this is expected for current functionality
+					CameraRotationNew = RotToAxis * CameraVolumeCurrent->CameraRotation;
+				}
 			}
 			else
 			{
@@ -474,7 +482,7 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 	// Dead zone
 	if (bUseDeadZone && !bFirstPass && !bUsePlayerPawnControlRotation)
 	{
-		//ProcessDeadZone();
+		ProcessDeadZone();
 	}
 
 	// Transitions and interpolations
@@ -559,15 +567,14 @@ void ACameraVolumesCameraManager::CalculateTransitions(float DeltaTime)
 	}
 	else
 	{
-		if (CameraComponent->bEnableCameraLocationLag && !bUsePlayerPawnControlRotation)
+		if (CameraComponent->bEnableCameraLocationLag && !bUsePlayerPawnControlRotation
+			&& !bUseDeadZone)
 		{
-			//if (!bIsInDeadZone)
-			{
-				CameraLocationNew = FMath::VInterpTo(CameraLocationOld, CameraLocationNew, DeltaTime, CameraComponent->CameraLocationLagSpeed);
-			}
+			CameraLocationNew = FMath::VInterpTo(CameraLocationOld, CameraLocationNew, DeltaTime, CameraComponent->CameraLocationLagSpeed);
 		}
 
-		if (CameraComponent->bEnableCameraRotationLag && !bUsePlayerPawnControlRotation)
+		if (CameraComponent->bEnableCameraRotationLag && !bUsePlayerPawnControlRotation
+			&& !bUseDeadZone)
 		{
 			CameraRotationNew = FMath::QInterpTo(CameraRotationOld, CameraRotationNew, DeltaTime, CameraComponent->CameraRotationLagSpeed);
 		}
@@ -586,22 +593,28 @@ void ACameraVolumesCameraManager::CalculateTransitions(float DeltaTime)
 	}
 }
 
-bool ACameraVolumesCameraManager::IsInDeadZone(FVector WorldLocationToCheck)
+bool ACameraVolumesCameraManager::IsInDeadZone(FVector& InWorldLocation, FDeadZoneTransform& InDeadZoneTransform)
 {
 	if (APlayerController* PC = GetOwningPlayerController())
 	{
 		if (GEngine && GEngine->GameViewport && GEngine->GameViewport->Viewport)
 		{
 			FVector2D ScreenLocation;
-			PC->ProjectWorldLocationToScreen(WorldLocationToCheck, ScreenLocation);
-
+			PC->ProjectWorldLocationToScreen(InWorldLocation, ScreenLocation);
 			const FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
-			const FVector2D DeadZoneScreenExtent = ViewportSize * DeadZoneExtent / 200.f;
-			const FVector2D DeadZoneScreenOffset = ViewportSize * DeadZoneOffset / 100.f;
+			const FVector2D DeadZoneScreenExtent = ViewportSize * InDeadZoneTransform.DeadZoneExtent / 200.f;
+			const FVector2D DeadZoneScreenOffset = ViewportSize * InDeadZoneTransform.DeadZoneOffset / 100.f;
 			const FVector2D DeadZoneScreenCenter = ViewportSize / 2.f + DeadZoneScreenOffset;
 			const FVector2D DeadZoneScreenMin = DeadZoneScreenCenter - DeadZoneScreenExtent;
 			const FVector2D DeadZoneScreenMax = DeadZoneScreenCenter + DeadZoneScreenExtent;
 
+			if (InDeadZoneTransform.DeadZoneRoll != 0)
+			{
+				FVector2D RotatedLocation = ScreenLocation - DeadZoneScreenCenter;
+				RotatedLocation = RotatedLocation.GetRotated(InDeadZoneTransform.DeadZoneRoll);
+				ScreenLocation = RotatedLocation + DeadZoneScreenCenter;
+			}
+			
 			return ScreenLocation >= DeadZoneScreenMin && ScreenLocation <= DeadZoneScreenMax;
 		}
 	}
@@ -609,16 +622,13 @@ bool ACameraVolumesCameraManager::IsInDeadZone(FVector WorldLocationToCheck)
 	return false;
 }
 
+// work in progress...
 void ACameraVolumesCameraManager::ProcessDeadZone()
 {
-	bIsInDeadZone = IsInDeadZone(PlayerPawnLocation);
+	FDeadZoneTransform DeadZoneTransform(DeadZoneExtent, DeadZoneOffset, CameraRotationNew.Rotator().Roll);
+	bIsInDeadZone = IsInDeadZone(PlayerPawnLocation, DeadZoneTransform);
 	if (bIsInDeadZone)
 	{
-		//if (CameraComponent->bEnableCameraLocationLag)
-		//{
-		//	return;
-		//}
-
 		if (!(bNeedsSmoothTransition || bNeedsCutTransition))
 		{
 			CameraLocationNew = CameraLocationOld;
@@ -627,13 +637,26 @@ void ACameraVolumesCameraManager::ProcessDeadZone()
 	}
 	else
 	{
+		//if (CameraComponent->bEnableCameraLocationLag)
+		//{
+		//	CameraLocationNew = CameraLocationOld;
+		//	CameraRotationNew = CameraRotationOld;
+		//}
+
 		// should recalculate if dead zone becomes smaller
 		// should recalculate if camera is relative to volume
-		if (CameraVolumeCurrent)
-		{
-			CameraLocationNew = CameraLocationOld + (PlayerPawnLocation - PlayerPawnLocationOld) * CameraVolumeCurrent->GetActorRightVector() * CameraVolumeCurrent->GetActorUpVector();
-		}
-		else
+		////if (CameraVolumeCurrent)
+		////{
+		////	if (CameraVolumeCurrent->bCameraLocationRelativeToVolume)
+		////	{
+		////		CameraLocationNew = CameraLocationOld + (PlayerPawnLocation - PlayerPawnLocationOld);
+		////	}
+		////	else
+		////	{
+		////		CameraLocationNew = CameraLocationOld + (PlayerPawnLocation - PlayerPawnLocationOld);
+		////	}
+		////}
+		////else
 		{
 			CameraLocationNew = CameraLocationOld + (PlayerPawnLocation - PlayerPawnLocationOld);
 		}
