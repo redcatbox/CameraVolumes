@@ -304,25 +304,25 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 					CameraLocationNew += FVector(PlayerPawnLocationTransformed.X, PlayerPawnLocationTransformed.Y, 0.f);
 				}
 
+				CameraFocalPointNew = CameraVolumeCurrent->bOverrideCameraRotation
+					? RotToAxis.RotateVector(CameraVolumeCurrent->CameraFocalPoint)
+					: RotToAxis.RotateVector(CameraComponent->DefaultCameraFocalPoint);
+
+				const float NewCameraRoll = CameraVolumeCurrent->bOverrideCameraRotation
+					? CameraVolumeCurrent->CameraRoll
+					: CameraComponent->DefaultCameraRoll;
+				
 				if (CameraVolumeCurrent->bFocalPointIsPlayer)
 				{
-					CameraFocalPointNew = PlayerPawnLocationTransformed;
-					CameraFocalPointNew += CameraVolumeCurrent->bOverrideCameraRotation
-						? RotToAxis.RotateVector(CameraVolumeCurrent->CameraFocalPoint)
-						: RotToAxis.RotateVector(CameraComponent->DefaultCameraFocalPoint);
-
-					const float NewCameraRoll = CameraVolumeCurrent->bOverrideCameraRotation
-						? CameraVolumeCurrent->CameraRoll
-						: CameraComponent->DefaultCameraRoll;
-					
+					CameraFocalPointNew += PlayerPawnLocationTransformed;
 					CameraRotationNew = UCameraVolumesFunctionLibrary::CalculateCameraRotation(CameraLocationNew, CameraFocalPointNew, NewCameraRoll);
 				}
 				else
 				{
-					// If CameraVolumeCurrent->bOverrideCameraRotation == false
-					// we have few negative cases here,
-					// but this is expected for current functionality
-					CameraRotationNew = RotToAxis * CameraVolumeCurrent->CameraRotation;
+					CameraRotationNew = CameraVolumeCurrent->bOverrideCameraRotation
+						? RotToAxis * CameraVolumeCurrent->CameraRotation
+						// Focal point will be relative to volume, not character!
+						: UCameraVolumesFunctionLibrary::CalculateCameraRotation(CameraLocationNew, CameraFocalPointNew, NewCameraRoll);
 				}
 			}
 			else
@@ -661,6 +661,8 @@ void ACameraVolumesCameraManager::ProcessDeadZone()
 			CameraLocationNew = CameraLocationOld + (PlayerPawnLocation - PlayerPawnLocationOld);
 		}
 	}
+
+	
 }
 
 FVector2D ACameraVolumesCameraManager::CalculateScreenWorldExtentAtDepth(float Depth)
