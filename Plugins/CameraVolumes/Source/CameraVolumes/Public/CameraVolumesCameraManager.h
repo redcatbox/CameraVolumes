@@ -156,6 +156,9 @@ protected:
 		FVector2D DeadZoneOffset;
 
 	UPROPERTY()
+		float DeadZoneRoll;
+
+	UPROPERTY()
 		bool bIsInDeadZone;
 
 	UPROPERTY()

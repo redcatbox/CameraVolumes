@@ -28,6 +28,7 @@ ACameraVolumesCameraManager::ACameraVolumesCameraManager(const FObjectInitialize
 	bUseDeadZone = false;
 	DeadZoneExtent = FVector2D::ZeroVector;
 	DeadZoneOffset = FVector2D::ZeroVector;
+	DeadZoneRoll = 0.f;
 	bIsInDeadZone = false;
 	bIsCameraStatic = false;
 	bIsCameraOrthographic = false;
@@ -182,7 +183,7 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 
 #if WITH_EDITOR
 				// Dead zone
-				FDeadZoneTransform DeadZoneTransform(DeadZoneExtent, DeadZoneOffset, -CameraRotationFinalNew.Rotator().Roll);
+				FDeadZoneTransform DeadZoneTransform(DeadZoneExtent, DeadZoneOffset, DeadZoneRoll);
 				CameraComponent->UpdateDeadZonePreview(DeadZoneTransform);
 #endif
 
@@ -622,10 +623,15 @@ bool ACameraVolumesCameraManager::IsInDeadZone(FVector& InWorldLocation, FDeadZo
 	return false;
 }
 
-// work in progress...
 void ACameraVolumesCameraManager::ProcessDeadZone()
 {
-	FDeadZoneTransform DeadZoneTransform(DeadZoneExtent, DeadZoneOffset, CameraRotationNew.Rotator().Roll);
+	DeadZoneRoll = -CameraRotationNew.Rotator().Roll;
+	if (CameraVolumeCurrent)
+	{
+		DeadZoneRoll -= CameraVolumeCurrent->GetActorRotation().Pitch;
+	}
+
+	FDeadZoneTransform DeadZoneTransform(DeadZoneExtent, DeadZoneOffset, DeadZoneRoll);
 	bIsInDeadZone = IsInDeadZone(PlayerPawnLocation, DeadZoneTransform);
 	if (bIsInDeadZone)
 	{
@@ -637,32 +643,10 @@ void ACameraVolumesCameraManager::ProcessDeadZone()
 	}
 	else
 	{
-		//if (CameraComponent->bEnableCameraLocationLag)
-		//{
-		//	CameraLocationNew = CameraLocationOld;
-		//	CameraRotationNew = CameraRotationOld;
-		//}
-
-		// should recalculate if dead zone becomes smaller
-		// should recalculate if camera is relative to volume
-		////if (CameraVolumeCurrent)
-		////{
-		////	if (CameraVolumeCurrent->bCameraLocationRelativeToVolume)
-		////	{
-		////		CameraLocationNew = CameraLocationOld + (PlayerPawnLocation - PlayerPawnLocationOld);
-		////	}
-		////	else
-		////	{
-		////		CameraLocationNew = CameraLocationOld + (PlayerPawnLocation - PlayerPawnLocationOld);
-		////	}
-		////}
-		////else
-		{
-			CameraLocationNew = CameraLocationOld + (PlayerPawnLocation - PlayerPawnLocationOld);
-		}
+	// should recalculate if dead zone becomes smaller
+	// should recalculate if camera is relative to volume
+	//	CameraLocationNew = CameraLocationOld + (PlayerPawnLocation - PlayerPawnLocationOld);
 	}
-
-	
 }
 
 FVector2D ACameraVolumesCameraManager::CalculateScreenWorldExtentAtDepth(float Depth)
