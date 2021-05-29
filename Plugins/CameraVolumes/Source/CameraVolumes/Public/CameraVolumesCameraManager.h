@@ -104,6 +104,9 @@ protected:
 		FVector PlayerPawnLocationOld;
 
 	UPROPERTY()
+		FQuat PlayerPawnRotation;
+	
+	UPROPERTY()
 		class UCameraVolumesCameraComponent* CameraComponent;
 
 	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)

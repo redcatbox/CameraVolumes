@@ -15,6 +15,7 @@ ACameraVolumesCameraManager::ACameraVolumesCameraManager(const FObjectInitialize
 	bPerformBlockingCalculations = true;
 	PlayerPawnLocationOld = FVector::ZeroVector;
 	PlayerPawnLocation = FVector::ZeroVector;
+	PlayerPawnRotation = FQuat();
 	CameraVolumePrevious = nullptr;
 	CameraVolumeCurrent = nullptr;
 	CameraLocationOld = FVector::ZeroVector;
@@ -85,6 +86,7 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 				CameraVolumeCurrent = nullptr;
 				PlayerPawnLocationOld = PlayerPawnLocation;
 				PlayerPawnLocation = PlayerPawn->GetActorLocation();
+				PlayerPawnRotation = PlayerPawn->GetActorQuat();
 				CameraComponent = PlayerCharacter->GetCameraComponent();
 
 				if (bCheckCameraVolumes)
@@ -474,7 +476,7 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 		}
 
 		// Final world-space values
-		CameraFocalPointNew = PlayerPawnLocation + PlayerPawn->GetActorQuat().RotateVector(CameraComponent->DefaultCameraFocalPoint);
+		CameraFocalPointNew = PlayerPawnLocation + PlayerPawnRotation.RotateVector(CameraComponent->DefaultCameraFocalPoint);
 		CameraLocationNew = CameraFocalPointNew + CameraRotationNew.RotateVector(CameraComponent->DefaultCameraLocation - CameraComponent->DefaultCameraFocalPoint);
 		
 		bUsePlayerPawnControlRotation = true;
