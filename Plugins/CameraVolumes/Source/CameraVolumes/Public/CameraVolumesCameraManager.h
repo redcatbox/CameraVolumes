@@ -122,6 +122,9 @@ protected:
 		FVector CameraLocationNew;
 
 	UPROPERTY()
+		FVector CameraLocationNewFixed;
+
+	UPROPERTY()
 		FVector CameraLocationFinalNew;
 
 	UPROPERTY()
@@ -174,11 +177,29 @@ protected:
 		bool bNeedsSmoothTransition;
 
 	UPROPERTY()
+		bool bSmoothTransitionInDeadZone;
+
+	UPROPERTY()
+		bool bSmoothTransitionJustStarted;
+
+	UPROPERTY()
 		float SmoothTransitionSpeed;
 
 	UPROPERTY()
 		float SmoothTransitionAlpha;
 
+	UPROPERTY()
+		float SmoothTransitionAlphaEase;
+
+	UPROPERTY()
+		TEnumAsByte<EEasingFunc::Type> SmoothTransitionEasingFunction;
+
+	UPROPERTY()
+		float EasingFunctionBlendExp;
+
+	UPROPERTY()
+		int32 EasingFunctionSteps;
+	
 	UPROPERTY()
 		bool bNeedsCutTransition;
 

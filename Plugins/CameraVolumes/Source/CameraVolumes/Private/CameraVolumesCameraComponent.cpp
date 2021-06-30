@@ -7,45 +7,25 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 {
 	// Camera defaults
 	DefaultCameraLocation = FVector(0.f, 1000.f, 0.f);
-	DefaultCameraFocalPoint = FVector::ZeroVector;
-	DefaultCameraRoll = 0.f;
 	DefaultCameraFieldOfView = 90.f;
 	DefaultCameraOrthoWidth = 512.f;
-	bIsCameraOrthographic = false;
 
 	// Camera lag
-	bEnableCameraLocationLag = false;
 	CameraLocationLagSpeed = 10.0f;
-	bEnableCameraRotationLag = false;
 	CameraRotationLagSpeed = 10.0f;
-	bEnableCameraFOVInterp = false;
 	CameraFOVInterpSpeed = 10.f;
-	bEnableCameraOrthoWidthInterp = false;
 	CameraOrthoWidthInterpSpeed = 10.f;
 
-	// Additional params
-	bUseAdditionalCameraParams = false;
-	AdditionalCameraLocation = FVector::ZeroVector;
-	AdditionalCameraRotation = FRotator::ZeroRotator;
-	AdditionalCameraFOV = 0.f;
-	AdditionalCameraOrthoWidth = 0.f;
-
 	// Dead zone
-	bUseDeadZone = false;
-	DeadZoneExtent = FVector2D::ZeroVector;
-	DeadZoneOffset = FVector2D::ZeroVector;
 #if WITH_EDITORONLY_DATA
-	bPreviewDeadZone = false;
 	DeadZonePreviewMaterialPath = TEXT("/CameraVolumes/Materials/DeadZonePreview");
 #endif
 
 	// Camera collision
-	bDoCollisionTest = false;
 	ProbeSize = 12.f;
 	ProbeChannel = ECC_Camera;
 
 	// Camera rotation
-	bUsePawnControlRotationCV = false;
 	bInheritPitchCV = true;
 	bInheritYawCV = true;
 	bInheritRollCV = true;

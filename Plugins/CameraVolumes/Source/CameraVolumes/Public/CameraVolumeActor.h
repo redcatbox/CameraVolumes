@@ -11,9 +11,10 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "CameraVolumesTypes.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "CameraVolumeActor.generated.h"
 
-UCLASS(Config = CameraVolumes, AutoExpandCategories = (Camera, Volume, VolumeSides, DeadZone))
+UCLASS(Config = CameraVolumes, AutoExpandCategories = (Camera, Volume, VolumeSides, "VolumeSides|SmoothTransition", DeadZone))
 class CAMERAVOLUMES_API ACameraVolumeActor : public AActor
 {
 	GENERATED_BODY()
@@ -230,10 +231,21 @@ public:
 		bool bUseCameraRotationAxis;
 
 	// Speed of smooth camera transition
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = VolumeSides, Meta = (ClampMin = "0.01", ClampMax = "10", UIMin = "0.01", UIMax = "10"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VolumeSides|SmoothTransition", Meta = (ClampMin = "0.01", ClampMax = "10", UIMin = "0.01", UIMax = "10"))
 		float CameraSmoothTransitionSpeed;
 
+	// Smooth camera transition easing function
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VolumeSides|SmoothTransition")
+		TEnumAsByte<EEasingFunc::Type> SmoothTransitionEasingFunction;
 
+	// Easing function exponent
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VolumeSides|SmoothTransition")
+		float EasingFunctionBlendExp;
+
+	// Easing function steps
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VolumeSides|SmoothTransition", Meta = (ClampMin = "1", UIMin = "1"))
+		int32 EasingFunctionSteps;
+	
 	// Sides info
 public:
 	// Right side info

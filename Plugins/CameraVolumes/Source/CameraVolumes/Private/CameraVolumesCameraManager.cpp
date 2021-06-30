@@ -5,7 +5,6 @@
 #include "CameraVolumeDynamicActor.h"
 #include "Engine/Engine.h"
 #include "GameFramework/PlayerController.h"
-#include "DrawDebugHelpers.h"
 
 ACameraVolumesCameraManager::ACameraVolumesCameraManager(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -13,30 +12,9 @@ ACameraVolumesCameraManager::ACameraVolumesCameraManager(const FObjectInitialize
 	bUpdateCamera = true;
 	bCheckCameraVolumes = true;
 	bPerformBlockingCalculations = true;
-	PlayerPawnLocationOld = FVector::ZeroVector;
-	PlayerPawnLocation = FVector::ZeroVector;
-	PlayerPawnRotation = FQuat();
-	CameraVolumePrevious = nullptr;
-	CameraVolumeCurrent = nullptr;
-	CameraLocationOld = FVector::ZeroVector;
-	CameraLocationNew = FVector::ZeroVector;
-	CameraFocalPointNew = FVector::ZeroVector;
-	CameraRotationOld = FQuat();
-	CameraRotationNew = FQuat();
 	CameraFOVOWOld = 90.f;
 	CameraFOVOWNew = 90.f;
 	bFirstPass = true;
-	bUseDeadZone = false;
-	DeadZoneExtent = FVector2D::ZeroVector;
-	DeadZoneOffset = FVector2D::ZeroVector;
-	DeadZoneRoll = 0.f;
-	bIsInDeadZone = false;
-	bIsCameraStatic = false;
-	bIsCameraOrthographic = false;
-	bNeedsSmoothTransition = false;
-	bNeedsCutTransition = false;
-	bBroadcastOnCameraVolumeChanged = false;
-	bUsePlayerPawnControlRotation = false;
 	LoadConfig();
 }
 
@@ -160,25 +138,16 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 								SetTransitionBySideInfo(CameraVolumeCurrent, PassedSideInfoCurrent);
 							}
 						}
-
-						CalculateCameraParams(DeltaTime);
 					}
 					else if (CameraVolumePrevious) // Do we passed from volume to void?
 					{
 						// Use settings of side we've passed from
 						const FSideInfo PassedSideInfoPrevious = CameraVolumePrevious->GetNearestVolumeSideInfo(PlayerPawnLocation);
 						SetTransitionBySideInfo(CameraVolumePrevious, PassedSideInfoPrevious);
-						CalculateCameraParams(DeltaTime);
-					}
-					else
-					{
-						CalculateCameraParams(DeltaTime);
 					}
 				}
-				else
-				{
-					CalculateCameraParams(DeltaTime);
-				}
+				
+				CalculateCameraParams(DeltaTime);
 
 				// Update camera component
 				CameraComponent->UpdateCamera(CameraLocationFinalNew, CameraFocalPointNew, CameraRotationFinalNew, CameraFOVOWFinalNew, bIsCameraStatic);
@@ -208,8 +177,12 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 {
 	// Store previous values and prepare params
-	CameraLocationOld = CameraLocationNew;
-	CameraRotationOld = CameraRotationNew;
+	if (!bNeedsSmoothTransition)
+	{
+		CameraLocationOld = CameraLocationNew;
+		CameraRotationOld = CameraRotationNew;
+	}
+
 	CameraLocationNew = PlayerPawnLocation + CameraComponent->DefaultCameraLocation;
 	CameraRotationNew = CameraComponent->DefaultCameraRotation;
 	CameraFocalPointNew = PlayerPawnLocation + CameraComponent->DefaultCameraFocalPoint;
@@ -480,10 +453,12 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 		CameraLocationNew = CameraFocalPointNew + CameraRotationNew.RotateVector(CameraComponent->DefaultCameraLocation - CameraComponent->DefaultCameraFocalPoint);
 		
 		bUsePlayerPawnControlRotation = true;
+		// Do not process dead zone for camera using control rotation
+		bUseDeadZone = false;
 	}
 
 	// Dead zone
-	if (bUseDeadZone && !bFirstPass && !bUsePlayerPawnControlRotation)
+	if (bUseDeadZone && !bFirstPass)
 	{
 		ProcessDeadZone();
 	}
@@ -519,25 +494,32 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 
 void ACameraVolumesCameraManager::SetTransitionBySideInfo(ACameraVolumeActor* CameraVolume, FSideInfo SideInfo)
 {
+	SmoothTransitionAlpha = 0.f;
+	SmoothTransitionAlphaEase = 0.f;
+	SmoothTransitionEasingFunction = EEasingFunc::SinusoidalInOut;
+	EasingFunctionBlendExp = 2.f;
+	EasingFunctionSteps = 2;
+
 	if (SideInfo.SideTransitionType == ESideTransitionType::ESTT_Smooth)
 	{
 		bNeedsSmoothTransition = true;
-		SmoothTransitionAlpha = 0.f;
+		bSmoothTransitionJustStarted = true;
 		SmoothTransitionSpeed = CameraVolume->CameraSmoothTransitionSpeed;
+		SmoothTransitionEasingFunction = CameraVolume->SmoothTransitionEasingFunction;
+		EasingFunctionBlendExp = CameraVolume->EasingFunctionBlendExp;
+		EasingFunctionSteps = CameraVolume->EasingFunctionSteps;
 	}
 	else if (SideInfo.SideTransitionType == ESideTransitionType::ESTT_Cut)
 	{
 		bNeedsCutTransition = true;
 		bNeedsSmoothTransition = false;
-		SmoothTransitionAlpha = 0.f;
 	}
 	else
 	{
 		bNeedsSmoothTransition = false;
-		SmoothTransitionAlpha = 0.f;
 		bNeedsCutTransition = false;
 	}
-
+	
 	// Store OnCameraVolumeChanged broadcast params
 	bBroadcastOnCameraVolumeChanged = true;
 	BroadcastCameraVolume = CameraVolume;
@@ -547,19 +529,34 @@ void ACameraVolumesCameraManager::SetTransitionBySideInfo(ACameraVolumeActor* Ca
 void ACameraVolumesCameraManager::CalculateTransitions(float DeltaTime)
 {
 	if (bNeedsSmoothTransition)
-	{
+	{	
 		SmoothTransitionAlpha += DeltaTime * SmoothTransitionSpeed;
-
-		if (SmoothTransitionAlpha <= 1.f)
+		SmoothTransitionAlphaEase = UKismetMathLibrary::Ease(0.f, 1.f, SmoothTransitionAlpha, SmoothTransitionEasingFunction, EasingFunctionBlendExp, EasingFunctionSteps);
+		
+		if (CameraLocationNew.Equals(CameraLocationOld, 0.1f)
+			|| SmoothTransitionAlpha > 1.f)
 		{
-			CameraLocationNew = FMath::Lerp(CameraLocationOld, CameraLocationNew, SmoothTransitionAlpha);
-			CameraRotationNew = FQuat::Slerp(CameraRotationOld, CameraRotationNew, SmoothTransitionAlpha);
-			CameraFOVOWNew = FMath::Lerp(CameraFOVOWOld, CameraFOVOWNew, SmoothTransitionAlpha);
+			SmoothTransitionAlpha = 0.f;
+			SmoothTransitionAlphaEase = 0.f;
+			bNeedsSmoothTransition = false;
+			bSmoothTransitionInDeadZone = false;
 		}
 		else
 		{
-			SmoothTransitionAlpha = 0.f;
-			bNeedsSmoothTransition = false;
+			if (bSmoothTransitionJustStarted)
+			{
+				CameraLocationNewFixed = CameraLocationNew;
+				bSmoothTransitionJustStarted = false;
+			}
+
+			if (bSmoothTransitionInDeadZone)
+			{
+				CameraLocationNew = CameraLocationNewFixed;
+			}
+
+			CameraLocationNew = FMath::Lerp(CameraLocationOld, CameraLocationNew, SmoothTransitionAlphaEase);
+			CameraRotationNew = FQuat::Slerp(CameraRotationOld, CameraRotationNew, SmoothTransitionAlphaEase);
+			CameraFOVOWNew = FMath::Lerp(CameraFOVOWOld, CameraFOVOWNew, SmoothTransitionAlphaEase);
 		}
 	}
 	else if (bNeedsCutTransition)
@@ -570,14 +567,12 @@ void ACameraVolumesCameraManager::CalculateTransitions(float DeltaTime)
 	}
 	else
 	{
-		if (CameraComponent->bEnableCameraLocationLag && !bUsePlayerPawnControlRotation
-			&& !bUseDeadZone)
+		if (CameraComponent->bEnableCameraLocationLag && !bUsePlayerPawnControlRotation)
 		{
 			CameraLocationNew = FMath::VInterpTo(CameraLocationOld, CameraLocationNew, DeltaTime, CameraComponent->CameraLocationLagSpeed);
 		}
 
-		if (CameraComponent->bEnableCameraRotationLag && !bUsePlayerPawnControlRotation
-			&& !bUseDeadZone)
+		if (CameraComponent->bEnableCameraRotationLag && !bUsePlayerPawnControlRotation)
 		{
 			CameraRotationNew = FMath::QInterpTo(CameraRotationOld, CameraRotationNew, DeltaTime, CameraComponent->CameraRotationLagSpeed);
 		}
@@ -642,12 +637,17 @@ void ACameraVolumesCameraManager::ProcessDeadZone()
 			CameraLocationNew = CameraLocationOld;
 			CameraRotationNew = CameraRotationOld;
 		}
+		else if (bNeedsSmoothTransition)
+		{
+			bSmoothTransitionInDeadZone = true;
+		}
 	}
 	else
 	{
-	// should recalculate if dead zone becomes smaller
-	// should recalculate if camera is relative to volume
-	//	CameraLocationNew = CameraLocationOld + (PlayerPawnLocation - PlayerPawnLocationOld);
+		bNeedsSmoothTransition = false;
+		bSmoothTransitionInDeadZone = false;
+		
+		UE_LOG(LogTemp, Warning, TEXT("Not in dead zone"));
 	}
 }
 

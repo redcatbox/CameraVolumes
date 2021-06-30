@@ -38,14 +38,9 @@ ACameraVolumeActor::ACameraVolumeActor()
 	BoxComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 
 	// Default values
-	Priority = 0;
-
 	bUseZeroDepthExtentEditCond = true;
-	bUseZeroDepthExtent = false;
-	bUse6DOFVolume = false;
 	bPerformCameraBlockingEditCond = true;
 	bPerformCameraBlocking = true;
-	bDisableMainBoxCollision = false;
 
 #if WITH_EDITORONLY_DATA
 	CameraProjectionMode = ECameraProjectionMode::Perspective;
@@ -53,29 +48,17 @@ ACameraVolumeActor::ACameraVolumeActor()
 
 	CameraMobility = ECameraMobility::ECM_Movable;
 
-	bOverrideCameraLocation = false;
 	bCameraLocationRelativeToVolume = true;
 
-	bOverrideCameraRotation = false;
-	CameraFocalPoint = FVector::ZeroVector;
-	CameraRoll = 0.f;
-	bFocalPointIsPlayerEditCond = false;
-	bFocalPointIsPlayer = false;
-
-	bOverrideCameraFieldOfView = false;
 	CameraFieldOfView = 90.f;
-
-	bOverrideCameraOrthoWidth = false;
 	CameraOrthoWidth = 512.f;
 
 	CameraSmoothTransitionSpeed = 1.f;
-
-	bOverrideDeadZoneSettings = false;
-	DeadZoneExtent = FVector2D::ZeroVector;
-	DeadZoneOffset = FVector2D::ZeroVector;
+	SmoothTransitionEasingFunction = EEasingFunc::SinusoidalInOut;
+	EasingFunctionBlendExp = 2.f;
+	EasingFunctionSteps = 2;
 
 	bUseCameraRotationAxisEditCond = true;
-	bUseCameraRotationAxis = false;
 
 #if WITH_EDITORONLY_DATA
 	TextSize = 50.f;
