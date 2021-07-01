@@ -54,9 +54,9 @@ ACameraVolumeActor::ACameraVolumeActor()
 	CameraOrthoWidth = 512.f;
 
 	CameraSmoothTransitionSpeed = 1.f;
-	SmoothTransitionEasingFunction = EEasingFunc::SinusoidalInOut;
-	EasingFunctionBlendExp = 2.f;
-	EasingFunctionSteps = 2;
+	SmoothTransitionEasingFunc = EEasingFunc::SinusoidalInOut;
+	EasingFuncBlendExp = 2.f;
+	EasingFuncSteps = 2;
 
 	bUseCameraRotationAxisEditCond = true;
 

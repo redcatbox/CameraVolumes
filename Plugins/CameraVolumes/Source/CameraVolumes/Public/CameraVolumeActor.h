@@ -236,15 +236,15 @@ public:
 
 	// Smooth camera transition easing function
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VolumeSides|SmoothTransition")
-		TEnumAsByte<EEasingFunc::Type> SmoothTransitionEasingFunction;
+		TEnumAsByte<EEasingFunc::Type> SmoothTransitionEasingFunc;
 
 	// Easing function exponent
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VolumeSides|SmoothTransition")
-		float EasingFunctionBlendExp;
+		float EasingFuncBlendExp;
 
 	// Easing function steps
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VolumeSides|SmoothTransition", Meta = (ClampMin = "1", UIMin = "1"))
-		int32 EasingFunctionSteps;
+		int32 EasingFuncSteps;
 	
 	// Sides info
 public:

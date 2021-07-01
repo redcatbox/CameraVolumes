@@ -177,6 +177,9 @@ protected:
 		bool bNeedsSmoothTransition;
 
 	UPROPERTY()
+		bool bSmoothTransitionInterrupted;
+
+	UPROPERTY()
 		bool bSmoothTransitionInDeadZone;
 
 	UPROPERTY()
@@ -192,13 +195,13 @@ protected:
 		float SmoothTransitionAlphaEase;
 
 	UPROPERTY()
-		TEnumAsByte<EEasingFunc::Type> SmoothTransitionEasingFunction;
+		TEnumAsByte<EEasingFunc::Type> SmoothTransitionEasingFunc;
 
 	UPROPERTY()
-		float EasingFunctionBlendExp;
+		float EasingFuncBlendExp;
 
 	UPROPERTY()
-		int32 EasingFunctionSteps;
+		int32 EasingFuncSteps;
 	
 	UPROPERTY()
 		bool bNeedsCutTransition;

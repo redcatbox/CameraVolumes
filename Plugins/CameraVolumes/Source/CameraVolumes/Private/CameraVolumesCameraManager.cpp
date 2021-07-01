@@ -176,11 +176,20 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 
 void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 {
-	// Store previous values and prepare params
+	// Smooth transition from fixed old params
 	if (!bNeedsSmoothTransition)
 	{
 		CameraLocationOld = CameraLocationNew;
 		CameraRotationOld = CameraRotationNew;
+		CameraFOVOWOld = CameraFOVOWNew;
+	}
+	// Change params if smooth transition is interrupted
+	else if (bSmoothTransitionInterrupted)
+	{
+		bSmoothTransitionInterrupted = false;
+		CameraLocationOld = CameraLocationNew;
+		CameraRotationOld = CameraRotationNew;
+		CameraFOVOWOld = CameraFOVOWNew;
 	}
 
 	CameraLocationNew = PlayerPawnLocation + CameraComponent->DefaultCameraLocation;
@@ -188,12 +197,13 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 	CameraFocalPointNew = PlayerPawnLocation + CameraComponent->DefaultCameraFocalPoint;
 	bIsCameraStatic = false;
 	bIsCameraOrthographic = CameraComponent->GetIsCameraOrthographic();
-	CameraFOVOWOld = CameraFOVOWNew;
-	bBroadcastOnCameraVolumeChanged = false;
 	bUsePlayerPawnControlRotation = false;
 	CameraFOVOWNew = bIsCameraOrthographic
 		? CameraComponent->DefaultCameraOrthoWidth
 		: CameraComponent->DefaultCameraFieldOfView;
+
+	bBroadcastOnCameraVolumeChanged = false;
+
 	bUseDeadZone = false;
 	bIsInDeadZone = false;
 
@@ -483,6 +493,15 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 			: CameraComponent->AdditionalCameraFOV;
 	}
 
+	// Update control rotation from camera rotation
+	if (!bUsePlayerPawnControlRotation)
+	{
+		if (APlayerController* PlayerController = GetOwningPlayerController())
+		{
+			PlayerController->SetControlRotation(CameraRotationFinalNew.Rotator());
+		}
+	}
+
 	bFirstPass = false;
 
 	// Broadcast volume changed event
@@ -494,25 +513,30 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 
 void ACameraVolumesCameraManager::SetTransitionBySideInfo(ACameraVolumeActor* CameraVolume, FSideInfo SideInfo)
 {
+	if (bNeedsSmoothTransition)
+	{
+		bSmoothTransitionInterrupted = true;
+	}
+
 	SmoothTransitionAlpha = 0.f;
 	SmoothTransitionAlphaEase = 0.f;
-	SmoothTransitionEasingFunction = EEasingFunc::SinusoidalInOut;
-	EasingFunctionBlendExp = 2.f;
-	EasingFunctionSteps = 2;
+	SmoothTransitionEasingFunc = EEasingFunc::SinusoidalInOut;
+	EasingFuncBlendExp = 2.f;
+	EasingFuncSteps = 2;
 
 	if (SideInfo.SideTransitionType == ESideTransitionType::ESTT_Smooth)
 	{
 		bNeedsSmoothTransition = true;
 		bSmoothTransitionJustStarted = true;
 		SmoothTransitionSpeed = CameraVolume->CameraSmoothTransitionSpeed;
-		SmoothTransitionEasingFunction = CameraVolume->SmoothTransitionEasingFunction;
-		EasingFunctionBlendExp = CameraVolume->EasingFunctionBlendExp;
-		EasingFunctionSteps = CameraVolume->EasingFunctionSteps;
+		SmoothTransitionEasingFunc = CameraVolume->SmoothTransitionEasingFunc;
+		EasingFuncBlendExp = CameraVolume->EasingFuncBlendExp;
+		EasingFuncSteps = CameraVolume->EasingFuncSteps;
 	}
 	else if (SideInfo.SideTransitionType == ESideTransitionType::ESTT_Cut)
 	{
-		bNeedsCutTransition = true;
 		bNeedsSmoothTransition = false;
+		bNeedsCutTransition = true;
 	}
 	else
 	{
@@ -531,10 +555,10 @@ void ACameraVolumesCameraManager::CalculateTransitions(float DeltaTime)
 	if (bNeedsSmoothTransition)
 	{	
 		SmoothTransitionAlpha += DeltaTime * SmoothTransitionSpeed;
-		SmoothTransitionAlphaEase = UKismetMathLibrary::Ease(0.f, 1.f, SmoothTransitionAlpha, SmoothTransitionEasingFunction, EasingFunctionBlendExp, EasingFunctionSteps);
-		
+		SmoothTransitionAlphaEase = UKismetMathLibrary::Ease(0.f, 1.f, SmoothTransitionAlpha, SmoothTransitionEasingFunc, EasingFuncBlendExp, EasingFuncSteps);
+
 		if (CameraLocationNew.Equals(CameraLocationOld, 0.1f)
-			|| SmoothTransitionAlpha > 1.f)
+			|| SmoothTransitionAlpha >= 1.f)
 		{
 			SmoothTransitionAlpha = 0.f;
 			SmoothTransitionAlphaEase = 0.f;
@@ -593,12 +617,12 @@ void ACameraVolumesCameraManager::CalculateTransitions(float DeltaTime)
 
 bool ACameraVolumesCameraManager::IsInDeadZone(FVector& InWorldLocation, FDeadZoneTransform& InDeadZoneTransform)
 {
-	if (APlayerController* PC = GetOwningPlayerController())
+	if (APlayerController* PlayerController = GetOwningPlayerController())
 	{
 		if (GEngine && GEngine->GameViewport && GEngine->GameViewport->Viewport)
 		{
 			FVector2D ScreenLocation;
-			PC->ProjectWorldLocationToScreen(InWorldLocation, ScreenLocation);
+			PlayerController->ProjectWorldLocationToScreen(InWorldLocation, ScreenLocation);
 			const FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 			const FVector2D DeadZoneScreenExtent = ViewportSize * InDeadZoneTransform.DeadZoneExtent / 200.f;
 			const FVector2D DeadZoneScreenOffset = ViewportSize * InDeadZoneTransform.DeadZoneOffset / 100.f;
