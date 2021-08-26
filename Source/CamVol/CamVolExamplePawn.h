@@ -1,8 +1,8 @@
 
 /**
-* Example pawn support.
-* Unlike Character, Pawn doesn't have collision primitive to process BeginOverlap and EndOverlap events, so it should be added.
-*/
+ * Example pawn support.
+ * Unlike Character, Pawn doesn't have collision primitive to process BeginOverlap and EndOverlap events, so it should be added.
+ */
 
 #pragma once
 
@@ -23,7 +23,7 @@ public:
 	virtual class UCameraVolumesCameraComponent* GetCameraComponent() const override;
 	virtual class UPrimitiveComponent* GetCollisionPrimitiveComponent() const override;
 
-	/** Returns CapsuleComponent subobject **/
+	// Returns CapsuleComponent subobject
 	FORCEINLINE class UCapsuleComponent* GetCapsuleComponent() const { return CapsuleComponent; }
 
 protected:
@@ -32,7 +32,7 @@ protected:
 	void MoveForward(float Val);
 	void MoveUp(float Val);
 
-	/** Camera component */
+	// Camera component
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CameraVolumes", Meta = (AllowPrivateAccess = "true"))
 		class UCameraVolumesCameraComponent* CameraComponent;
 
@@ -40,7 +40,7 @@ protected:
 	virtual void OnCollisionPrimitiveComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
 
 private:
-	/** The CapsuleComponent being used for movement collision (by CharacterMovement). Always treated as being vertically aligned in simple collision check functions. */
+	// The CapsuleComponent being used for movement collision (by CharacterMovement). Always treated as being vertically aligned in simple collision check functions.
 	UPROPERTY(Category = Pawn, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		UCapsuleComponent* CapsuleComponent;
 

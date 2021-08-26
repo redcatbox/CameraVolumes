@@ -15,11 +15,15 @@ ACamVolPaperCharacter::ACamVolPaperCharacter()
 	// Flipbooks
 	static ConstructorHelpers::FObjectFinder<UPaperFlipbook> IdleAnimationObj(TEXT("/Game/2DSideScroller/Sprites/IdleAnimation.IdleAnimation"));
 	if (IdleAnimationObj.Object)
+	{
 		IdleAnimation = IdleAnimationObj.Object;
+	}
 
 	static ConstructorHelpers::FObjectFinder<UPaperFlipbook> RunningAnimationObj(TEXT("/Game/2DSideScroller/Sprites/RunningAnimation.RunningAnimation"));
 	if (RunningAnimationObj.Object)
+	{
 		RunningAnimation = RunningAnimationObj.Object;
+	}
 
 	GetSprite()->SetFlipbook(IdleAnimation);
 
@@ -43,16 +47,16 @@ ACamVolPaperCharacter::ACamVolPaperCharacter()
 	bReplicates = true;
 
 	// Orthographic camera
-	GetCameraComponent()->ProjectionMode = ECameraProjectionMode::Orthographic;
-	GetCameraComponent()->OrthoWidth = 2048.f;
+	ACamVolPaperCharacter::GetCameraComponent()->ProjectionMode = ECameraProjectionMode::Orthographic;
+	ACamVolPaperCharacter::GetCameraComponent()->OrthoWidth = 2048.f;
 
 	// Camera lag
-	GetCameraComponent()->bEnableCameraLocationLag = true;
-	GetCameraComponent()->CameraLocationLagSpeed = 5.f;
-	GetCameraComponent()->bEnableCameraRotationLag = true;
-	GetCameraComponent()->CameraRotationLagSpeed = 5.f;
-	GetCameraComponent()->bEnableCameraOrthoWidthInterp = true;
-	GetCameraComponent()->CameraOrthoWidthInterpSpeed = 5.f;
+	ACamVolPaperCharacter::GetCameraComponent()->bEnableCameraLocationLag = true;
+	ACamVolPaperCharacter::GetCameraComponent()->CameraLocationLagSpeed = 5.f;
+	ACamVolPaperCharacter::GetCameraComponent()->bEnableCameraRotationLag = true;
+	ACamVolPaperCharacter::GetCameraComponent()->CameraRotationLagSpeed = 5.f;
+	ACamVolPaperCharacter::GetCameraComponent()->bEnableCameraOrthoWidthInterp = true;
+	ACamVolPaperCharacter::GetCameraComponent()->CameraOrthoWidthInterpSpeed = 5.f;
 }
 
 // Animation
@@ -64,13 +68,15 @@ void ACamVolPaperCharacter::UpdateAnimation()
 	// Are we moving or standing still?
 	UPaperFlipbook* DesiredAnimation = (PlayerSpeedSqr > 0.0f) ? RunningAnimation : IdleAnimation;
 	if(GetSprite()->GetFlipbook() != DesiredAnimation)
+	{
 		GetSprite()->SetFlipbook(DesiredAnimation);
+	}
 }
 
 void ACamVolPaperCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	UpdateCharacter();	
+	UpdateCharacter();
 }
 
 // Input

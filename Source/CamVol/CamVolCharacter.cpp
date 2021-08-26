@@ -16,11 +16,15 @@ ACamVolCharacter::ACamVolCharacter()
 
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletalMeshObj(TEXT("/Game/Mannequin/Character/Mesh/SK_Mannequin"));
 	if (SkeletalMeshObj.Object)
+	{
 		GetMesh()->SetSkeletalMesh(SkeletalMeshObj.Object, true);
+	}
 
 	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimClass(TEXT("/Game/Mannequin/Animations/ThirdPerson_AnimBP"));
 	if (AnimClass.Class)
+	{
 		GetMesh()->AnimClass = AnimClass.Class;
+	}
 
 	// Configure character movement
 	GetCharacterMovement()->GravityScale = 2.f;
@@ -31,12 +35,12 @@ ACamVolCharacter::ACamVolCharacter()
 	GetCharacterMovement()->MaxFlySpeed = 600.f;
 
 	// Camera lag
-	GetCameraComponent()->bEnableCameraLocationLag = true;
-	GetCameraComponent()->CameraLocationLagSpeed = 5.f;
-	GetCameraComponent()->bEnableCameraRotationLag = true;
-	GetCameraComponent()->CameraRotationLagSpeed = 5.f;
-	GetCameraComponent()->bEnableCameraFOVInterp = true;
-	GetCameraComponent()->CameraFOVInterpSpeed = 5.f;
+	ACamVolCharacter::GetCameraComponent()->bEnableCameraLocationLag = true;
+	ACamVolCharacter::GetCameraComponent()->CameraLocationLagSpeed = 5.f;
+	ACamVolCharacter::GetCameraComponent()->bEnableCameraRotationLag = true;
+	ACamVolCharacter::GetCameraComponent()->CameraRotationLagSpeed = 5.f;
+	ACamVolCharacter::GetCameraComponent()->bEnableCameraFOVInterp = true;
+	ACamVolCharacter::GetCameraComponent()->CameraFOVInterpSpeed = 5.f;
 }
 
 // Input

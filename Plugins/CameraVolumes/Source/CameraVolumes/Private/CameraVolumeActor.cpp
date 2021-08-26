@@ -1,13 +1,16 @@
-//redbox, 2019
+// redbox, 2021
 
 #include "CameraVolumeActor.h"
+#include "CameraVolumesCameraComponent.h"
 #include "CameraVolumesFunctionLibrary.h"
 #include "UObject/ConstructorHelpers.h"
+#include "Components/BillboardComponent.h"
+#include "Components/BoxComponent.h"
+#include "Components/TextRenderComponent.h"
 #include "Materials/MaterialInterface.h"
 
 ACameraVolumeActor::ACameraVolumeActor()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
 	// Default root
@@ -21,15 +24,10 @@ ACameraVolumeActor::ACameraVolumeActor()
 	BillboardComponent = CreateDefaultSubobject<UBillboardComponent>(TEXT("BillboardComponent"));
 	BillboardComponent->SetupAttachment(RootComponent);
 	BillboardComponent->bHiddenInGame = true;
-	static ConstructorHelpers::FObjectFinder<UTexture2D> TextureObj(TEXT("/CameraVolumes/Icons/CameraVolume"));
-	if (TextureObj.Object)
-	{
-		BillboardComponent->Sprite = TextureObj.Object;
-	}
 
-	// CameraComponent
-	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
-	CameraComponent->SetupAttachment(RootComponent);
+	// CameraPreview
+	CameraPreview = CreateDefaultSubobject<UCameraVolumesCameraComponent>(TEXT("CameraPreview"));
+	CameraPreview->SetupAttachment(RootComponent);
 #endif
 
 	// BoxComponent
@@ -40,15 +38,9 @@ ACameraVolumeActor::ACameraVolumeActor()
 	BoxComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 
 	// Default values
-	Priority = 0;
-	VolumeExtent = VolumeExtentDefault;
-
 	bUseZeroDepthExtentEditCond = true;
-	bUseZeroDepthExtent = false;
-	bUse6DOFVolume = false;
 	bPerformCameraBlockingEditCond = true;
 	bPerformCameraBlocking = true;
-	bDisableMainBoxCollision = false;
 
 #if WITH_EDITORONLY_DATA
 	CameraProjectionMode = ECameraProjectionMode::Perspective;
@@ -56,24 +48,17 @@ ACameraVolumeActor::ACameraVolumeActor()
 
 	CameraMobility = ECameraMobility::ECM_Movable;
 
-	bOverrideCameraLocation = false;
 	bCameraLocationRelativeToVolume = true;
 
-	bOverrideCameraRotation = false;
-	CameraFocalPoint = FVector::ZeroVector;
-	CameraRoll = 0.f;
-	bFocalPointIsPlayer = false;
-
-	bOverrideCameraFieldOfView = false;
 	CameraFieldOfView = 90.f;
-
-	bOverrideCameraOrthoWidth = false;
 	CameraOrthoWidth = 512.f;
 
 	CameraSmoothTransitionSpeed = 1.f;
+	SmoothTransitionEasingFunc = EEasingFunc::SinusoidalInOut;
+	EasingFuncBlendExp = 2.f;
+	EasingFuncSteps = 2;
 
 	bUseCameraRotationAxisEditCond = true;
-	bUseCameraRotationAxis = false;
 
 #if WITH_EDITORONLY_DATA
 	TextSize = 50.f;
@@ -90,7 +75,46 @@ ACameraVolumeActor::ACameraVolumeActor()
 	ACameraVolumeActor::CreateSidesIndicators();
 #endif
 
+	OpenEdgeOffset = 10000.f;
+	VolumeExtentDefault = FVector(500.f);
+
+#if WITH_EDITORONLY_DATA
+	BillboardIconPath = TEXT("/CameraVolumes/Icons/CameraVolume");
+#endif
+
+	LoadConfig();
+	
+	VolumeExtent = VolumeExtentDefault;
+
+#if WITH_EDITORONLY_DATA
+	static ConstructorHelpers::FObjectFinder<UTexture2D> TextureObj(*BillboardIconPath);
+	if (TextureObj.Object)
+	{
+		BillboardComponent->Sprite = TextureObj.Object;
+	}
+#endif
+
 	ACameraVolumeActor::UpdateVolume();
+}
+
+float ACameraVolumeActor::GetCamVolAspectRatio() const
+{
+	return CamVolAspectRatio;
+}
+
+FVector ACameraVolumeActor::GetCamVolMinCorrected() const
+{
+	return CamVolMinCorrected;
+}
+
+FVector ACameraVolumeActor::GetCamVolMaxCorrected() const
+{
+	return CamVolMaxCorrected;
+}
+
+FVector ACameraVolumeActor::GetCamVolExtentCorrected() const
+{
+	return CamVolExtentCorrected;
 }
 
 void ACameraVolumeActor::UpdateVolume()
@@ -124,18 +148,23 @@ void ACameraVolumeActor::UpdateVolume()
 	{
 	case ECameraMobility::ECM_Movable:
 		bIsCameraStatic = false;
-		bFocalPointIsPlayer = true;
+		bFocalPointIsPlayerEditCond = bUseCameraRotationAxis;
+		if (!bUseCameraRotationAxis)
+		{
+			bFocalPointIsPlayer = true;
+		}
 		bUseCameraRotationAxisEditCond = true;
 		break;
 	case ECameraMobility::ECM_Static:
 		bIsCameraStatic = true;
+		bFocalPointIsPlayerEditCond = true;
 		bOverrideCameraLocation = true;
 		bPerformCameraBlocking = false;
 		bUseCameraRotationAxisEditCond = false;
 		bUseCameraRotationAxis = false;
 		break;
 	}
-
+	
 	if (!bOverrideCameraLocation)
 	{
 		CameraLocation = FVector(0.f, 1000.f, 0.f);
@@ -163,14 +192,21 @@ void ACameraVolumeActor::UpdateVolume()
 	}
 
 #if WITH_EDITORONLY_DATA
-	CameraComponent->SetRelativeLocationAndRotation(CameraLocation, CameraRotation);
-	CameraComponent->FieldOfView = CameraFieldOfView;
-	CameraComponent->OrthoWidth = CameraOrthoWidth;
-	CameraComponent->ProjectionMode = CameraProjectionMode;
-	CameraComponent->RefreshVisualRepresentation();
+	CameraPreview->ProjectionMode = CameraProjectionMode;
+	CameraPreview->DefaultCameraFieldOfView = CameraFieldOfView;
+	CameraPreview->DefaultCameraOrthoWidth = CameraOrthoWidth;
+	CameraPreview->DefaultCameraLocation = CameraLocation;
+	CameraPreview->DefaultCameraFocalPoint = CameraFocalPoint;
+	CameraPreview->DefaultCameraRoll = CameraRoll;
+
+	CameraPreview->bUseDeadZone = bOverrideDeadZoneSettings;
+	CameraPreview->DeadZoneExtent = DeadZoneExtent;
+	CameraPreview->DeadZoneOffset = DeadZoneOffset;
+	CameraPreview->bPreviewDeadZone = bOverrideDeadZoneSettings;
 #endif
 
 #if WITH_EDITOR
+	CameraPreview->UpdateCameraComponent();
 	UpdateSidesIndicators();
 	Modify();
 #endif
@@ -456,7 +492,7 @@ void ACameraVolumeActor::UpdateSidesIndicators()
 void ACameraVolumeActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
-	FName PropertyName = (PropertyChangedEvent.Property != NULL) ? PropertyChangedEvent.Property->GetFName() : NAME_None;
+	const FName PropertyName = PropertyChangedEvent.Property ? PropertyChangedEvent.Property->GetFName() : NAME_None;
 	if (PropertyName == TEXT("Priority") || TEXT("VolumeExtent")
 		|| TEXT("bUseZeroDepthExtent") || TEXT("bUse6DOFVolume")
 		|| TEXT("bDisableMainBoxCollision")
@@ -467,7 +503,8 @@ void ACameraVolumeActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyC
 		|| TEXT("bOverrideCameraOrthoWidth") || TEXT("CameraOrthoWidth")
 		|| TEXT("FrontSide") || TEXT("BackSide") || TEXT("RightSide") || TEXT("LeftSide") || TEXT("TopSide") || TEXT("BottomSide")
 		|| TEXT("TextSize")
-		|| TEXT("bUseCameraRotationAxis"))
+		|| TEXT("bUseCameraRotationAxis")
+		|| TEXT("bOverrideDeadZoneSettings") || TEXT("DeadZoneExtent") || TEXT("DeadZoneOffset"))
 	{
 		UpdateVolume();
 	}
@@ -489,16 +526,15 @@ void ACameraVolumeActor::EditorApplyScale(const FVector& DeltaScale, const FVect
 {
 	Super::EditorApplyScale(DeltaScale, PivotLocation, bAltDown, bShiftDown, bCtrlDown);
 
-	const FVector CurrentScale = VolumeExtent / VolumeExtentDefault;
-	FVector ScaleToApply;
+	FVector ScaleToApply = VolumeExtent / VolumeExtentDefault;
 
-	if (AActor::bUsePercentageBasedScaling)
+	if (bUsePercentageBasedScaling)
 	{
-		ScaleToApply = CurrentScale * (FVector::OneVector + DeltaScale);
+		ScaleToApply *= FVector::OneVector + DeltaScale;
 	}
 	else
 	{
-		ScaleToApply = CurrentScale + DeltaScale;
+		ScaleToApply += DeltaScale;
 	}
 
 	VolumeExtent = VolumeExtentDefault * ScaleToApply;
@@ -535,6 +571,11 @@ void ACameraVolumeActor::SetCameraMobility(ECameraMobility NewCameraMobility)
 {
 	CameraMobility = NewCameraMobility;
 	UpdateVolume();
+}
+
+bool ACameraVolumeActor::GetIsCameraStatic() const
+{
+	return bIsCameraStatic;
 }
 
 void ACameraVolumeActor::SetOverrideCameraLocation(bool bNewOverrideCameraLocation)

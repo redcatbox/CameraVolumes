@@ -1,4 +1,4 @@
-//redbox, 2019
+// redbox, 2021
 
 #include "CameraVolumesCharacter.h"
 #include "Components/CapsuleComponent.h"
@@ -18,7 +18,6 @@ ACameraVolumesCharacter::ACameraVolumesCharacter()
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
-	//GetCharacterMovement()->RotationRate = FRotator(0.f, 720.f, 0.f);
 }
 
 void ACameraVolumesCharacter::PostInitializeComponents()

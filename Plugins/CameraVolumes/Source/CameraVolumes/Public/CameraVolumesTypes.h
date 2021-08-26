@@ -1,7 +1,8 @@
-//redbox, 2019
+// redbox, 2021
 
 #pragma once
 
+#include "CoreMinimal.h"
 #include "CameraVolumesTypes.generated.h"
 
 // Camera mobility
@@ -61,5 +62,38 @@ struct FSideInfo
 		Side = ESide::ES_Front;
 		SideType = ESideType::EST_Open;
 		SideTransitionType = ESideTransitionType::ESTT_Normal;
+	}
+};
+
+// Dead zone transform
+USTRUCT(BlueprintType)
+struct FDeadZoneTransform
+{
+	GENERATED_BODY()
+
+	// Dead zone extent (in screen percentage)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FVector2D DeadZoneExtent;
+
+	// Dead zone offset from the center of the screen (in screen percentage)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FVector2D DeadZoneOffset;
+
+	// Dead zone roll (in degrees)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float DeadZoneRoll;
+
+	FDeadZoneTransform()
+	{
+		DeadZoneExtent = FVector2D::ZeroVector;
+		DeadZoneOffset = FVector2D::ZeroVector;
+		DeadZoneRoll = 0.f;
+	}
+
+	FDeadZoneTransform(FVector2D InDeadZoneExtent, FVector2D InDeadZoneOffset, float InDeadZoneRoll)
+	{
+		DeadZoneExtent = InDeadZoneExtent;
+		DeadZoneOffset = InDeadZoneOffset;
+		DeadZoneRoll = InDeadZoneRoll;
 	}
 };

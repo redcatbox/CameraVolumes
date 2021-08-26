@@ -16,7 +16,6 @@ ACamVolExamplePawn::ACamVolExamplePawn()
 	CapsuleComponent->SetCollisionProfileName(UCollisionProfile::Pawn_ProfileName);
 	CapsuleComponent->CanCharacterStepUpOn = ECB_No;
 	CapsuleComponent->SetShouldUpdatePhysicsVolume(true);
-	//CapsuleComponent->bCheckAsyncSceneOnMove = false;
 	CapsuleComponent->SetCanEverAffectNavigation(false);
 	CapsuleComponent->bDynamicObstacle = true;
 	CapsuleComponent->bHiddenInGame = false;

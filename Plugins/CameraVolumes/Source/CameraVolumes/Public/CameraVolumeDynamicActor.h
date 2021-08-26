@@ -1,9 +1,10 @@
-//redbox, 2019
+// redbox, 2021
 
 // Dynamic camera volume actor
 
 #pragma once
 
+#include "CoreMinimal.h"
 #include "CameraVolumeActor.h"
 #include "CameraVolumeDynamicActor.generated.h"
 

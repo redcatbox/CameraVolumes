@@ -1,13 +1,14 @@
-//redbox, 2019
+// redbox, 2021
 
 /**
-* Interface for characters using camera volumes.
-* Returns camera component.
-* Returns collision primitive component and it's BeginOverlap and EndOverlap events.
-*/
+ * Interface for characters using camera volumes.
+ * Returns camera component.
+ * Returns collision primitive component and it's BeginOverlap and EndOverlap events.
+ */
 
 #pragma once
 
+#include "CoreMinimal.h"
 #include "CameraVolumesCameraComponent.h"
 #include "Components/PrimitiveComponent.h"
 #include "CameraVolumesCharacterInterface.generated.h"
@@ -23,11 +24,11 @@ class CAMERAVOLUMES_API ICameraVolumesCharacterInterface
 	GENERATED_BODY()
 
 public:
-	/** Returns CameraComponent subobject */
+	// Returns CameraComponent subobject
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual class UCameraVolumesCameraComponent* GetCameraComponent() const = 0;
 
-	/** Returns collision primitive subobject (CapsuleComponent for Characters) */
+	// Returns collision primitive subobject (CapsuleComponent for Characters)
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 		virtual class UPrimitiveComponent* GetCollisionPrimitiveComponent() const = 0;
 

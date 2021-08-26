@@ -1,17 +1,18 @@
-//redbox, 2019
+// redbox, 2021
 
 /**
-* Player camera manager performs camera calculations according to camera parameters from camera component or camera volume.
-* Contains OnCameraVolumeChanged delegate.
-*/
+ * Player camera manager performs camera calculations according to camera parameters from camera component or camera volume.
+ * Contains OnCameraVolumeChanged delegate.
+ */
 
 #pragma once
 
+#include "CoreMinimal.h"
 #include "Camera/PlayerCameraManager.h"
 #include "CameraVolumesFunctionLibrary.h"
 #include "CameraVolumesCameraManager.generated.h"
 
-/** Delegate for notification when camera volume is changed */
+// Delegate for notification when camera volume is changed
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FCameraVolumeChangedSignature, ACameraVolumeActor*, CameraVolume, FSideInfo, PassedSideInfo);
 
 UCLASS(Config = CameraVolumes)
@@ -23,58 +24,72 @@ public:
 	ACameraVolumesCameraManager(const FObjectInitializer& ObjectInitializer);
 	virtual void UpdateCamera(float DeltaTime) override;
 
-	/** Set transition according to side info */
+protected:
+	// Set transition according to side info
 	UFUNCTION()
 		virtual void SetTransitionBySideInfo(ACameraVolumeActor* CameraVolume, FSideInfo SideInfo);
 
-	/** Calculate new camera parameters */
+	// Calculate new camera parameters
 	UFUNCTION()
-		virtual void CalcNewCameraParams(ACameraVolumeActor* CameraVolume, float DeltaTime);
+		virtual void CalculateCameraParams(float DeltaTime);
 
-	/** Should perform camera updates? */
+	// Calculate camera transitions and interpolations
+	UFUNCTION()
+		virtual void CalculateTransitions(float DeltaTime);
+
+	// Process dead zone camera behavior
+	UFUNCTION()
+		virtual void ProcessDeadZone();
+
+public:
+	// Should perform camera updates?
 	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
 		bool bUpdateCamera;
 
-	/** Set perform camera updates. */
-	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-		virtual void SetUpdateCamera(bool bNewUpdateCamera);
-
-	/** Should check for camera volumes? */
-	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
-		bool bCheckCameraVolumes;
-
-	/** Set check for camera volumes. Used by Player Character according to overlapping camera volumes. */
-	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-		virtual void SetCheckCameraVolumes(bool bNewCheck);
-
-	/** Should perform camera blocking calculations? */
-	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = CameraVolumes)
-		bool bPerformBlockingCalculations;
-
-	/** Set perform camera blocking calculations */
-	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-		virtual void SetPerformBlockingCalculations(bool bNewPerformBlockingCalculations);
-
-	/** Calculate screen world extent at depth */
-	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-		virtual FVector2D CalculateScreenWorldExtentAtDepth(float Depth);
-
-	/** OnCameraVolumeChanged event signature */
+	// OnCameraVolumeChanged event signature
 	UPROPERTY(BlueprintAssignable, Category = CameraVolumes)
 		FCameraVolumeChangedSignature OnCameraVolumeChanged;
 
-	/** Get new calculated camera location. */
+	// Set perform camera updates.
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
+		virtual void SetUpdateCamera(bool bNewUpdateCamera);
+
+	// Should check for camera volumes?
+	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
+		bool bCheckCameraVolumes;
+
+	// Set check for camera volumes. Used by Player Character according to overlapping camera volumes.
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
+		virtual void SetCheckCameraVolumes(bool bNewCheck);
+
+	// Should perform camera blocking calculations?
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CameraVolumes)
+		bool bPerformBlockingCalculations;
+
+	// Set perform camera blocking calculations
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
+		virtual void SetPerformBlockingCalculations(bool bNewPerformBlockingCalculations);
+
+	// Calculate screen world extent at depth
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
+		virtual FVector2D CalculateScreenWorldExtentAtDepth(float Depth);
+
+	// Get new calculated camera location.
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
-		virtual FVector GetNewCameraLocation() { return NewCameraLocation; }
+		virtual FVector GetNewCameraLocation() { return CameraLocationNew; }
 
-	/** Get new calculated camera rotation. */
+	// Get new calculated camera rotation.
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
-		virtual FRotator GetNewCameraRotation() { return NewCameraRotation.Rotator(); }
+		virtual FRotator GetNewCameraRotation() { return CameraRotationNew.Rotator(); }
 
-	///** Is provided world location in dead zone? */
-	//UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
-	//	virtual bool IsInDeadZone(FVector WorldLocationToCheck);
+	// Is location in dead zone?
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
+		virtual bool IsInDeadZone(FVector& InWorldLocation, FDeadZoneTransform& DeadZoneTransform);
 
+	// Reset first pass calculations
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
+		virtual void ResetFirstPass() { bFirstPass = true; }
+	
 protected:
 	UPROPERTY()
 		class APawn* PlayerPawn;
@@ -89,6 +104,9 @@ protected:
 		FVector PlayerPawnLocationOld;
 
 	UPROPERTY()
+		FQuat PlayerPawnRotation;
+	
+	UPROPERTY()
 		class UCameraVolumesCameraComponent* CameraComponent;
 
 	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
@@ -98,35 +116,56 @@ protected:
 		class ACameraVolumeActor* CameraVolumePrevious;
 
 	UPROPERTY()
-		FVector OldCameraLocation;
+		FVector CameraLocationOld;
 
 	UPROPERTY()
-		FVector NewCameraLocation;
+		FVector CameraLocationNew;
 
 	UPROPERTY()
-		FVector NewCameraLocationFinal;
+		FVector CameraLocationNewFixed;
 
 	UPROPERTY()
-		FVector NewCameraFocalPoint;
+		FVector CameraLocationFinalNew;
 
 	UPROPERTY()
-		FQuat OldCameraRotation;
+		FVector CameraFocalPointNew;
 
 	UPROPERTY()
-		FQuat NewCameraRotation;
+		FQuat CameraRotationOld;
 
 	UPROPERTY()
-		FQuat NewCameraRotationFinal;
+		FQuat CameraRotationNew;
 
 	UPROPERTY()
-		float OldCameraFOV_OW;
-
-	/** Used as FOV or OrthoWidth depending on bIsCameraOrthographic */
-	UPROPERTY()
-		float NewCameraFOV_OW;
+		FQuat CameraRotationFinalNew;
 
 	UPROPERTY()
-		float NewCameraFOV_OWFinal;
+		float CameraFOVOWOld;
+
+	// Used as FOV or OrthoWidth depending on bIsCameraOrthographic
+	UPROPERTY()
+		float CameraFOVOWNew;
+
+	UPROPERTY()
+		float CameraFOVOWFinalNew;
+
+	UPROPERTY()
+		bool bFirstPass;
+
+	UPROPERTY()
+		bool bUseDeadZone;
+
+	UPROPERTY()
+		FVector2D DeadZoneExtent;
+
+	UPROPERTY()
+		FVector2D DeadZoneOffset;
+
+	UPROPERTY()
+		float DeadZoneRoll;
+
+	UPROPERTY()
+		bool bIsInDeadZone;
 
 	UPROPERTY()
 		bool bIsCameraStatic;
@@ -138,11 +177,32 @@ protected:
 		bool bNeedsSmoothTransition;
 
 	UPROPERTY()
+		bool bSmoothTransitionInterrupted;
+
+	UPROPERTY()
+		bool bSmoothTransitionInDeadZone;
+
+	UPROPERTY()
+		bool bSmoothTransitionJustStarted;
+
+	UPROPERTY()
 		float SmoothTransitionSpeed;
 
 	UPROPERTY()
 		float SmoothTransitionAlpha;
 
+	UPROPERTY()
+		float SmoothTransitionAlphaEase;
+
+	UPROPERTY()
+		TEnumAsByte<EEasingFunc::Type> SmoothTransitionEasingFunc;
+
+	UPROPERTY()
+		float EasingFuncBlendExp;
+
+	UPROPERTY()
+		int32 EasingFuncSteps;
+	
 	UPROPERTY()
 		bool bNeedsCutTransition;
 

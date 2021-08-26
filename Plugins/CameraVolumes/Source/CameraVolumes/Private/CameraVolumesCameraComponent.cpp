@@ -1,4 +1,4 @@
-// redbox, 2019
+// redbox, 2021
 
 #include "CameraVolumesCameraComponent.h"
 #include "CameraVolumesFunctionLibrary.h"
@@ -7,71 +7,39 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 {
 	// Camera defaults
 	DefaultCameraLocation = FVector(0.f, 1000.f, 0.f);
-	DefaultCameraFocalPoint = FVector::ZeroVector;
-	DefaultCameraRoll = 0.f;
 	DefaultCameraFieldOfView = 90.f;
 	DefaultCameraOrthoWidth = 512.f;
-	bIsCameraOrthographic = false;
-	UCameraVolumesCameraComponent::UpdateCameraComponent();
 
 	// Camera lag
-	bEnableCameraLocationLag = false;
 	CameraLocationLagSpeed = 10.0f;
-	bEnableCameraRotationLag = false;
 	CameraRotationLagSpeed = 10.0f;
-	bEnableCameraFOVInterp = false;
 	CameraFOVInterpSpeed = 10.f;
-	bEnableCameraOrthoWidthInterp = false;
 	CameraOrthoWidthInterpSpeed = 10.f;
 
-	// Additional params
-	bUseAdditionalCameraParams = false;
-	AdditionalCameraLocation = FVector::ZeroVector;
-	AdditionalCameraRotation = FRotator::ZeroRotator;
-	AdditionalCameraFOV = 0.f;
-	AdditionalCameraOrthoWidth = 0.f;
-
 	// Dead zone
-	//bUseDeadZone = false;
-	//DeadZoneExtent = FVector2D::ZeroVector;
-	//DeadZoneOffset = FVector2D::ZeroVector;
-	//bOverrideDeadZoneFocalPoint = false;
-	//OverridenDeadZoneFocalPoint = FVector::ZeroVector;
+#if WITH_EDITORONLY_DATA
+	DeadZonePreviewMaterialPath = TEXT("/CameraVolumes/Materials/DeadZonePreview");
+#endif
 
 	// Camera collision
-	bDoCollisionTest = false;
-	ProbeSize = 12.0f;
+	ProbeSize = 12.f;
 	ProbeChannel = ECC_Camera;
 
 	// Camera rotation
-	bUsePawnControlRotationCV = false;
 	bInheritPitchCV = true;
 	bInheritYawCV = true;
 	bInheritRollCV = true;
 
 	bUpdateCamera = true;
-}
 
-void UCameraVolumesCameraComponent::UpdateCameraComponent()
-{
-	switch (ProjectionMode)
-	{
-	case ECameraProjectionMode::Orthographic:
-		bIsCameraOrthographic = true;
-		SetOrthoWidth(DefaultCameraOrthoWidth);
-		break;
-	case ECameraProjectionMode::Perspective:
-		bIsCameraOrthographic = false;
-		SetFieldOfView(DefaultCameraFieldOfView);
-		break;
-	default:
-		bIsCameraOrthographic = false;
-		SetFieldOfView(DefaultCameraFieldOfView);
-		break;
-	}
+	LoadConfig();
 
-	DefaultCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(DefaultCameraLocation, DefaultCameraFocalPoint, DefaultCameraRoll);
-	SetRelativeLocationAndRotation(DefaultCameraLocation, DefaultCameraRotation);
+#if WITH_EDITORONLY_DATA
+	static ConstructorHelpers::FObjectFinder<UMaterialInterface> MaterialObj(*DeadZonePreviewMaterialPath);
+	DeadZonePreviewMaterial = MaterialObj.Object;
+#endif
+
+	UCameraVolumesCameraComponent::UpdateCameraComponent();
 }
 
 void UCameraVolumesCameraComponent::UpdateCamera(FVector& CameraLocation, FVector& CameraFocalPoint, FQuat& CameraRotation, float CameraFOV_OW, bool bIsCameraStatic)
@@ -92,7 +60,6 @@ void UCameraVolumesCameraComponent::UpdateCamera(FVector& CameraLocation, FVecto
 
 		SetWorldLocationAndRotation(CameraLocation, CameraRotation);
 
-
 		if (bIsCameraOrthographic)
 		{
 			SetOrthoWidth(CameraFOV_OW);
@@ -104,18 +71,50 @@ void UCameraVolumesCameraComponent::UpdateCamera(FVector& CameraLocation, FVecto
 	}
 }
 
+void UCameraVolumesCameraComponent::UpdateCameraComponent()
+{
+	switch (ProjectionMode)
+	{
+	case ECameraProjectionMode::Orthographic:
+		bIsCameraOrthographic = true;
+		SetOrthoWidth(DefaultCameraOrthoWidth);
+		break;
+	default:
+		bIsCameraOrthographic = false;
+		SetFieldOfView(DefaultCameraFieldOfView);
+		break;
+	}
+
+	DefaultCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(DefaultCameraLocation, DefaultCameraFocalPoint, DefaultCameraRoll);
+	SetRelativeLocationAndRotation(DefaultCameraLocation, DefaultCameraRotation);
+
+#if WITH_EDITOR
+	FDeadZoneTransform DeadZoneTransform(DeadZoneExtent, DeadZoneOffset, DefaultCameraRoll);
+	UpdateDeadZonePreview(DeadZoneTransform);
+#endif
+
+#if WITH_EDITORONLY_DATA
+	RefreshVisualRepresentation();
+#endif
+}
+
+bool UCameraVolumesCameraComponent::GetIsCameraOrthographic() const
+{
+	return bIsCameraOrthographic;
+}
+
 //Update with changed property
 #if WITH_EDITOR
 void UCameraVolumesCameraComponent::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
-	FName PropertyName = (PropertyChangedEvent.Property != NULL) ? PropertyChangedEvent.Property->GetFName() : NAME_None;
+	const FName PropertyName = PropertyChangedEvent.Property ? PropertyChangedEvent.Property->GetFName() : NAME_None;
 	if (PropertyName == TEXT("ProjectionMode")
 		|| TEXT("DefaultCameraLocation")
 		|| TEXT("DefaultCameraFocalPoint")
 		|| TEXT("DefaultCameraRoll")
-		|| TEXT("DefaultCameraFieldOfView")
-		|| TEXT("DefaultCameraOrthoWidth"))
+		|| TEXT("DefaultCameraFieldOfView") || TEXT("DefaultCameraOrthoWidth")
+		|| TEXT("bUseDeadZone") || TEXT("DeadZoneExtent") || TEXT("DeadZoneOffset") || TEXT("bPreviewDeadZone"))
 	{
 		UpdateCameraComponent();
 	}
@@ -140,3 +139,31 @@ void UCameraVolumesCameraComponent::SetDefaultCameraRoll(float NewDefaultCameraR
 	DefaultCameraRoll = NewDefaultCameraRoll;
 	DefaultCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(DefaultCameraLocation, DefaultCameraFocalPoint, DefaultCameraRoll);
 }
+
+#if WITH_EDITOR
+void UCameraVolumesCameraComponent::UpdateDeadZonePreview(FDeadZoneTransform& NewDeadZoneTransform)
+{
+	if (bPreviewDeadZone)
+	{
+		if (!DeadZonePreviewMID)
+		{
+			DeadZonePreviewMID = UMaterialInstanceDynamic::Create(DeadZonePreviewMaterial, this);
+			AddOrUpdateBlendable(DeadZonePreviewMID, 1.f);
+		}
+
+		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Size_X")), NewDeadZoneTransform.DeadZoneExtent.X);
+		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Size_Y")), NewDeadZoneTransform.DeadZoneExtent.Y);
+		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Offset_X")), NewDeadZoneTransform.DeadZoneOffset.X);
+		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Offset_Y")), NewDeadZoneTransform.DeadZoneOffset.Y);
+		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Roll")), NewDeadZoneTransform.DeadZoneRoll);
+	}
+	else
+	{
+		if (DeadZonePreviewMID)
+		{
+			RemoveBlendable(DeadZonePreviewMID);
+			DeadZonePreviewMID = nullptr;
+		}
+	}
+}
+#endif
