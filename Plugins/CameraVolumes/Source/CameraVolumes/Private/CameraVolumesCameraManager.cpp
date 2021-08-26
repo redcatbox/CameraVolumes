@@ -470,7 +470,7 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 	// Dead zone
 	if (bUseDeadZone && !bFirstPass)
 	{
-		ProcessDeadZone();
+		//ProcessDeadZone();
 	}
 
 	// Transitions and interpolations
@@ -513,6 +513,11 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 
 void ACameraVolumesCameraManager::SetTransitionBySideInfo(ACameraVolumeActor* CameraVolume, FSideInfo SideInfo)
 {
+	if (!CameraVolume)
+	{
+		return;
+	}
+
 	if (bNeedsSmoothTransition)
 	{
 		bSmoothTransitionInterrupted = true;
