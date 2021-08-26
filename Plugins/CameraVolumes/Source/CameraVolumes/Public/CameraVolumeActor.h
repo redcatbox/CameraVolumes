@@ -359,15 +359,15 @@ protected:
 	// Dead zone
 public:
 	// Should override dead zone settings?
-	UPROPERTY(/*EditAnywhere, BlueprintReadWrite, Category = DeadZone*/)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DeadZone)
 		bool bOverrideDeadZoneSettings;
 
 	// Dead zone extent (in screen percentage)
-	UPROPERTY(/*EditAnywhere, BlueprintReadWrite, Category = DeadZone, Meta = (EditCondition = "bOverrideDeadZoneSettings")*/)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DeadZone, Meta = (EditCondition = "bOverrideDeadZoneSettings"))
 		FVector2D DeadZoneExtent;
 
 	// Dead zone offset from the center of the screen (in screen percentage)
-	UPROPERTY(/*EditAnywhere, BlueprintReadWrite, Category = DeadZone, Meta = (EditCondition = "bOverrideDeadZoneSettings")*/)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DeadZone, Meta = (EditCondition = "bOverrideDeadZoneSettings"))
 		FVector2D DeadZoneOffset;
 
 

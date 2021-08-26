@@ -120,20 +120,20 @@ public:
 	//Dead zone
 public:
 	//	Should use screen-space dead zone to toggle camera movement?
-	UPROPERTY(/*EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone"*/)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone")
 		bool bUseDeadZone;
 
 	// Dead zone extent (in screen percentage)
-	UPROPERTY(/*EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone", Meta = (EditCondition = "bUseDeadZone")*/)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone", Meta = (EditCondition = "bUseDeadZone"))
 		FVector2D DeadZoneExtent;
 
 	// Dead zone offset from the center of the screen (in screen percentage)
-	UPROPERTY(/*EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone", Meta = (EditCondition = "bUseDeadZone")*/)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone", Meta = (EditCondition = "bUseDeadZone"))
 		FVector2D DeadZoneOffset;
 
 #if WITH_EDITORONLY_DATA
 	// Should preview dead zone (editor only)?
-	UPROPERTY(/*EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone"*/)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone")
 		bool bPreviewDeadZone;
 
 private:
