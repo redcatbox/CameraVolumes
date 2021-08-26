@@ -470,7 +470,7 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 	// Dead zone
 	if (bUseDeadZone && !bFirstPass)
 	{
-		//ProcessDeadZone();
+		ProcessDeadZone();
 	}
 
 	// Transitions and interpolations
