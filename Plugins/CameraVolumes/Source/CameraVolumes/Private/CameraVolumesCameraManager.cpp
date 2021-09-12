@@ -494,7 +494,7 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 	}
 
 	// Update control rotation from camera rotation
-	if (!bUsePlayerPawnControlRotation)
+	if (!bUsePlayerPawnControlRotation && CameraComponent->bUpdateControlRotationFromCameraRotation)
 	{
 		if (APlayerController* PlayerController = GetOwningPlayerController())
 		{
