@@ -170,6 +170,10 @@ public:
 
 	//Camera rotation
 public:
+	// Should update control rotation from camera rotation when not in UsePawnControlRotation mode?
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraRotation")
+		bool bUpdateControlRotationFromCameraRotation;
+
 	// Should use pawn control rotation when it's possible?
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraRotation")
 		bool bUsePawnControlRotationCV;

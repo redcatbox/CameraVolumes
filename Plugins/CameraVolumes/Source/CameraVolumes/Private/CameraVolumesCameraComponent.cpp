@@ -16,6 +16,8 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 	CameraFOVInterpSpeed = 10.f;
 	CameraOrthoWidthInterpSpeed = 10.f;
 
+	bUpdateControlRotationFromCameraRotation = true;
+
 	// Dead zone
 #if WITH_EDITORONLY_DATA
 	DeadZonePreviewMaterialPath = TEXT("/CameraVolumes/Materials/DeadZonePreview");
