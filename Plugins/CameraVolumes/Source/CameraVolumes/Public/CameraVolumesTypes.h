@@ -72,15 +72,15 @@ struct FDeadZoneTransform
 	GENERATED_BODY()
 
 	// Dead zone extent (in screen percentage)
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DeadZone)
 		FVector2D DeadZoneExtent;
 
 	// Dead zone offset from the center of the screen (in screen percentage)
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DeadZone)
 		FVector2D DeadZoneOffset;
 
 	// Dead zone roll (in degrees)
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DeadZone)
 		float DeadZoneRoll;
 
 	FDeadZoneTransform()
