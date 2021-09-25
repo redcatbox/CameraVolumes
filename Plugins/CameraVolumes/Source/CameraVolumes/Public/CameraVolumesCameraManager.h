@@ -27,194 +27,194 @@ public:
 protected:
 	// Set transition according to side info
 	UFUNCTION()
-		virtual void SetTransitionBySideInfo(ACameraVolumeActor* CameraVolume, FSideInfo SideInfo);
+	virtual void SetTransitionBySideInfo(ACameraVolumeActor* CameraVolume, FSideInfo SideInfo);
 
 	// Calculate new camera parameters
 	UFUNCTION()
-		virtual void CalculateCameraParams(float DeltaTime);
+	virtual void CalculateCameraParams(float DeltaTime);
 
 	// Calculate camera transitions and interpolations
 	UFUNCTION()
-		virtual void CalculateTransitions(float DeltaTime);
+	virtual void CalculateTransitions(float DeltaTime);
 
 	// Process dead zone camera behavior
 	UFUNCTION()
-		virtual void ProcessDeadZone();
+	virtual void ProcessDeadZone();
 
 public:
 	// Should perform camera updates?
 	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
-		bool bUpdateCamera;
+	bool bUpdateCamera;
 
 	// OnCameraVolumeChanged event signature
 	UPROPERTY(BlueprintAssignable, Category = CameraVolumes)
-		FCameraVolumeChangedSignature OnCameraVolumeChanged;
+	FCameraVolumeChangedSignature OnCameraVolumeChanged;
 
 	// Set perform camera updates.
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-		virtual void SetUpdateCamera(bool bNewUpdateCamera);
+	virtual void SetUpdateCamera(bool bNewUpdateCamera);
 
 	// Should check for camera volumes?
 	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
-		bool bCheckCameraVolumes;
+	bool bCheckCameraVolumes;
 
 	// Set check for camera volumes. Used by Player Character according to overlapping camera volumes.
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-		virtual void SetCheckCameraVolumes(bool bNewCheck);
+	virtual void SetCheckCameraVolumes(bool bNewCheck);
 
 	// Should perform camera blocking calculations?
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CameraVolumes)
-		bool bPerformBlockingCalculations;
+	bool bPerformBlockingCalculations;
 
 	// Set perform camera blocking calculations
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-		virtual void SetPerformBlockingCalculations(bool bNewPerformBlockingCalculations);
+	virtual void SetPerformBlockingCalculations(bool bNewPerformBlockingCalculations);
 
 	// Calculate screen world extent at depth
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-		virtual FVector2D CalculateScreenWorldExtentAtDepth(float Depth);
+	virtual FVector2D CalculateScreenWorldExtentAtDepth(float Depth);
 
 	// Get new calculated camera location.
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
-		virtual FVector GetNewCameraLocation() { return CameraLocationNew; }
+	virtual FVector GetNewCameraLocation() { return CameraLocationNew; }
 
 	// Get new calculated camera rotation.
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
-		virtual FRotator GetNewCameraRotation() { return CameraRotationNew.Rotator(); }
+	virtual FRotator GetNewCameraRotation() { return CameraRotationNew.Rotator(); }
 
 	// Is location in dead zone?
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
-		virtual bool IsInDeadZone(FVector& InWorldLocation, FDeadZoneTransform& DeadZoneTransform);
+	virtual bool IsInDeadZone(FVector& InWorldLocation, FDeadZoneTransform& DeadZoneTransform);
 
 	// Reset first pass calculations
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-		virtual void ResetFirstPass() { bFirstPass = true; }
+	virtual void ResetFirstPass() { bFirstPass = true; }
 	
 protected:
 	UPROPERTY()
-		class APawn* PlayerPawn;
+	class APawn* PlayerPawn;
 
 	UPROPERTY()
-		bool bUsePlayerPawnControlRotation;
+	bool bUsePlayerPawnControlRotation;
 
 	UPROPERTY()
-		FVector PlayerPawnLocation;
+	FVector PlayerPawnLocation;
 
 	UPROPERTY()
-		FVector PlayerPawnLocationOld;
+	FVector PlayerPawnLocationOld;
 
 	UPROPERTY()
-		FQuat PlayerPawnRotation;
+	FQuat PlayerPawnRotation;
 	
 	UPROPERTY()
-		class UCameraVolumesCameraComponent* CameraComponent;
+	class UCameraVolumesCameraComponent* CameraComponent;
 
 	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
-		class ACameraVolumeActor* CameraVolumeCurrent;
+	class ACameraVolumeActor* CameraVolumeCurrent;
 
 	UPROPERTY()
-		class ACameraVolumeActor* CameraVolumePrevious;
+	class ACameraVolumeActor* CameraVolumePrevious;
 
 	UPROPERTY()
-		FVector CameraLocationOld;
+	FVector CameraLocationOld;
 
 	UPROPERTY()
-		FVector CameraLocationNew;
+	FVector CameraLocationNew;
 
 	UPROPERTY()
-		FVector CameraLocationNewFixed;
+	FVector CameraLocationNewFixed;
 
 	UPROPERTY()
-		FVector CameraLocationFinalNew;
+	FVector CameraLocationFinalNew;
 
 	UPROPERTY()
-		FVector CameraFocalPointNew;
+	FVector CameraFocalPointNew;
 
 	UPROPERTY()
-		FQuat CameraRotationOld;
+	FQuat CameraRotationOld;
 
 	UPROPERTY()
-		FQuat CameraRotationNew;
+	FQuat CameraRotationNew;
 
 	UPROPERTY()
-		FQuat CameraRotationFinalNew;
+	FQuat CameraRotationFinalNew;
 
 	UPROPERTY()
-		float CameraFOVOWOld;
+	float CameraFOVOWOld;
 
 	// Used as FOV or OrthoWidth depending on bIsCameraOrthographic
 	UPROPERTY()
-		float CameraFOVOWNew;
+	float CameraFOVOWNew;
 
 	UPROPERTY()
-		float CameraFOVOWFinalNew;
+	float CameraFOVOWFinalNew;
 
 	UPROPERTY()
-		bool bFirstPass;
+	bool bFirstPass;
 
 	UPROPERTY()
-		bool bUseDeadZone;
+	bool bUseDeadZone;
 
 	UPROPERTY()
-		FVector2D DeadZoneExtent;
+	FVector2D DeadZoneExtent;
 
 	UPROPERTY()
-		FVector2D DeadZoneOffset;
+	FVector2D DeadZoneOffset;
 
 	UPROPERTY()
-		float DeadZoneRoll;
+	float DeadZoneRoll;
 
 	UPROPERTY()
-		bool bIsInDeadZone;
+	bool bIsInDeadZone;
 
 	UPROPERTY()
-		bool bIsCameraStatic;
+	bool bIsCameraStatic;
 
 	UPROPERTY()
-		bool bIsCameraOrthographic;
+	bool bIsCameraOrthographic;
 
 	UPROPERTY()
-		bool bNeedsSmoothTransition;
+	bool bNeedsSmoothTransition;
 
 	UPROPERTY()
-		bool bSmoothTransitionInterrupted;
+	bool bSmoothTransitionInterrupted;
 
 	UPROPERTY()
-		bool bSmoothTransitionInDeadZone;
+	bool bSmoothTransitionInDeadZone;
 
 	UPROPERTY()
-		bool bSmoothTransitionJustStarted;
+	bool bSmoothTransitionJustStarted;
 
 	UPROPERTY()
-		float SmoothTransitionSpeed;
+	float SmoothTransitionSpeed;
 
 	UPROPERTY()
-		float SmoothTransitionAlpha;
+	float SmoothTransitionAlpha;
 
 	UPROPERTY()
-		float SmoothTransitionAlphaEase;
+	float SmoothTransitionAlphaEase;
 
 	UPROPERTY()
-		TEnumAsByte<EEasingFunc::Type> SmoothTransitionEasingFunc;
+	TEnumAsByte<EEasingFunc::Type> SmoothTransitionEasingFunc;
 
 	UPROPERTY()
-		float EasingFuncBlendExp;
+	float EasingFuncBlendExp;
 
 	UPROPERTY()
-		int32 EasingFuncSteps;
+	int32 EasingFuncSteps;
 	
 	UPROPERTY()
-		bool bNeedsCutTransition;
+	bool bNeedsCutTransition;
 
 	UPROPERTY()
-		bool bBlockingCalculations;
+	bool bBlockingCalculations;
 
 	UPROPERTY()
-		bool bBroadcastOnCameraVolumeChanged;
+	bool bBroadcastOnCameraVolumeChanged;
 
 	UPROPERTY()
-		ACameraVolumeActor* BroadcastCameraVolume;
+	ACameraVolumeActor* BroadcastCameraVolume;
 
 	UPROPERTY()
-		FSideInfo BroadcastSideInfo;
+	FSideInfo BroadcastSideInfo;
 };
