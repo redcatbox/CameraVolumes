@@ -15,13 +15,13 @@ class CAMERAVOLUMES_API UCameraVolumesFunctionLibrary : public UBlueprintFunctio
 public:
 	// Get current camera volume from array of volumes according to 6 sides, coordinates and priority
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-		static ACameraVolumeActor* GetCurrentCameraVolume(TArray<ACameraVolumeActor*> CameraVolumes, FVector& PlayerPawnLocation);
+	static ACameraVolumeActor* GetCurrentCameraVolume(TArray<ACameraVolumeActor*> CameraVolumes, FVector& PlayerPawnLocation);
 
 	// Check is sides are in pair Front/Back, Right/Left, Top/Bottom
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-		static bool CompareSidesPairs(ESide SideA, ESide SideB, bool b6DOFVolume);
+	static bool CompareSidesPairs(ESide SideA, ESide SideB, bool b6DOFVolume);
 
 	// Calculate camera rotation from camera position, focal point and roll
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-		static FQuat CalculateCameraRotation(FVector& CameraLocation, FVector& CameraFocalPoint, float CameraRoll);
+	static FQuat CalculateCameraRotation(FVector& CameraLocation, FVector& CameraFocalPoint, float CameraRoll);
 };

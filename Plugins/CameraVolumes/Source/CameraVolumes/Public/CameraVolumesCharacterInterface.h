@@ -26,16 +26,16 @@ class CAMERAVOLUMES_API ICameraVolumesCharacterInterface
 public:
 	// Returns CameraComponent subobject
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-		virtual class UCameraVolumesCameraComponent* GetCameraComponent() const = 0;
+	virtual class UCameraVolumesCameraComponent* GetCameraComponent() const = 0;
 
 	// Returns collision primitive subobject (CapsuleComponent for Characters)
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-		virtual class UPrimitiveComponent* GetCollisionPrimitiveComponent() const = 0;
+	virtual class UPrimitiveComponent* GetCollisionPrimitiveComponent() const = 0;
 
 protected:
 	UFUNCTION()
-		virtual void OnCollisionPrimitiveComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) = 0;
+	virtual void OnCollisionPrimitiveComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) = 0;
 
 	UFUNCTION()
-		virtual void OnCollisionPrimitiveComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) = 0;
+	virtual void OnCollisionPrimitiveComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) = 0;
 };
