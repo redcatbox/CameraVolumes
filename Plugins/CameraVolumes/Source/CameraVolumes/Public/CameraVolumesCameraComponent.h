@@ -132,6 +132,7 @@ public:
 	FVector2D DeadZoneOffset;
 
 #if WITH_EDITORONLY_DATA
+public:
 	// Should preview dead zone (editor only)?
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone")
 	bool bPreviewDeadZone;
@@ -147,8 +148,8 @@ protected:
 	UMaterialInstanceDynamic* DeadZonePreviewMID;
 #endif
 
-public:
 #if WITH_EDITOR
+public:
 	void UpdateDeadZonePreview(FDeadZoneTransform& NewDeadZoneTransform);
 #endif
 
