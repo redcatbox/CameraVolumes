@@ -24,7 +24,7 @@ public:
 	UCameraVolumesCameraComponent();
 
 
-//Default parameters
+	// Default parameters
 public:
 	// Default camera RELATIVE location
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CameraSettings | DefaultParameters")
@@ -94,7 +94,7 @@ public:
 	float CameraOrthoWidthInterpSpeed;
 
 
-	//Additional parameters
+	// Additional parameters
 public:
 	// Should camera use additional (WORLD-SPACE) parameters?
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | AdditionalParameters")
@@ -117,9 +117,9 @@ public:
 	float AdditionalCameraOrthoWidth;
 
 
-	//Dead zone
+	// Dead zone
 public:
-	//	Should use screen-space dead zone to toggle camera movement?
+	// Should use screen-space dead zone to toggle camera movement?
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone")
 	bool bUseDeadZone;
 
@@ -136,7 +136,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone")
 	bool bPreviewDeadZone;
 
-private:
+protected:
 	UPROPERTY(Config)
 	FString DeadZonePreviewMaterialPath;
 
@@ -153,7 +153,7 @@ public:
 #endif
 
 
-	//Camera collision
+	// Camera collision
 public:
 	// If true, do a collision test using ProbeChannel and ProbeSize to prevent camera clipping into level.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraCollision")
@@ -168,7 +168,7 @@ public:
 	TEnumAsByte<ECollisionChannel> ProbeChannel;
 
 
-	//Camera rotation
+	// Camera rotation
 public:
 	// Should update control rotation from camera rotation when not in UsePawnControlRotation mode?
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraRotation")

@@ -23,7 +23,7 @@ public:
 	ACameraVolumeActor();
 
 
-//Components
+	// Components
 protected:
 	UPROPERTY()
 	class USceneComponent* DefaultSceneRoot;
@@ -43,13 +43,12 @@ protected:
 #endif
 
 
+	// Volume
 public:
 	// Priority of camera volume in case of few overlapped volumes
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Volume, Meta = (ClampMin = "-100", ClampMax = "100", UIMin = "-100", UIMax = "100"))
 	int32 Priority;
 
-
-	// Volume extent
 protected:
 	UPROPERTY(Config)
 	float OpenEdgeOffset;

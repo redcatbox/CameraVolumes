@@ -16,8 +16,6 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 	CameraFOVInterpSpeed = 10.f;
 	CameraOrthoWidthInterpSpeed = 10.f;
 
-	bUpdateControlRotationFromCameraRotation = true;
-
 	// Dead zone
 #if WITH_EDITORONLY_DATA
 	DeadZonePreviewMaterialPath = TEXT("/CameraVolumes/Materials/DeadZonePreview");
@@ -28,6 +26,7 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 	ProbeChannel = ECC_Camera;
 
 	// Camera rotation
+	bUpdateControlRotationFromCameraRotation = true;
 	bInheritPitchCV = true;
 	bInheritYawCV = true;
 	bInheritRollCV = true;
