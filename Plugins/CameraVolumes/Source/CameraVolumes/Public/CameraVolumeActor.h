@@ -31,7 +31,9 @@ protected:
 	UPROPERTY()
 	class UBoxComponent* BoxComponent;
 
+
 #if WITH_EDITORONLY_DATA
+protected:
 	UPROPERTY()
 	class UBillboardComponent* BillboardComponent;
 
@@ -45,7 +47,7 @@ protected:
 
 	// Volume
 public:
-	// Priority of camera volume in case of few overlapped volumes
+	// Camera volume priority (to handle overlapped volumes)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Volume, Meta = (ClampMin = "-100", ClampMax = "100", UIMin = "-100", UIMax = "100"))
 	int32 Priority;
 
@@ -57,6 +59,7 @@ protected:
 	FVector VolumeExtentDefault;
 
 public:
+	// Volume extent
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Volume, Meta = (MakeEditWidget = true))
 	FVector VolumeExtent;
 
@@ -71,7 +74,7 @@ protected:
 	bool bUseZeroDepthExtentEditCond;
 
 public:
-	// (For 2D games) Should use zero volume extent by depth for camera blocking?
+	// (For 2D games) Should use zero volume extent (by depth) for camera blocking?
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = Volume, Meta = (EditCondition = "bUseZeroDepthExtentEditCond"))
 	bool bUseZeroDepthExtent;
 
@@ -113,12 +116,13 @@ public:
 	virtual void SetDisableMainBoxCollision(bool bNewDisableMainBoxCollision);
 
 
-public:
 #if WITH_EDITORONLY_DATA
+public:
 	// Camera projection mode (For camera frustrum preview only!)
 	UPROPERTY(Config, EditAnywhere, BlueprintReadWrite, Category = Camera)
 	TEnumAsByte<ECameraProjectionMode::Type> CameraProjectionMode;
 #endif
+
 
 	// Camera mobility
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera)
@@ -244,7 +248,7 @@ public:
 	// Easing function steps
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VolumeSides|SmoothTransition", Meta = (ClampMin = "1", UIMin = "1"))
 	int32 EasingFuncSteps;
-	
+
 	// Sides info
 public:
 	// Right side info
@@ -322,8 +326,8 @@ public:
 
 
 	// Text indicators
-protected:
 #if WITH_EDITOR
+protected:
 	UFUNCTION()
 	virtual void CreateSidesIndicators();
 
@@ -332,15 +336,15 @@ protected:
 #endif
 
 #if WITH_EDITORONLY_DATA
-	UPROPERTY()
-	TArray<class UTextRenderComponent*> Text_Indicators;
-
 public:
 	// Text size of sides indicators
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = VolumeSides)
 	float TextSize;
 
 protected:
+	UPROPERTY()
+	TArray<class UTextRenderComponent*> Text_Indicators;
+
 	const FText Text_Front = FText::FromString("FRONT");
 	const FText Text_Back = FText::FromString("BACK");
 	const FText Text_Right = FText::FromString("RIGHT");
@@ -401,8 +405,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 	virtual FSideInfo GetNearestVolumeSideInfo(FVector& PlayerPawnLocation);
 
-public:
 #if WITH_EDITOR
+public:
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 	virtual void EditorApplyTranslation(const FVector& DeltaTranslation, bool bAltDown, bool bShiftDown, bool bCtrlDown) override;
 	virtual void EditorApplyRotation(const FRotator& DeltaRotation, bool bAltDown, bool bShiftDown, bool bCtrlDown) override;

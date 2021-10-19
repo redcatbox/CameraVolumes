@@ -6,12 +6,10 @@
 
 void FCameraVolumesModule::StartupModule()
 {
-
 }
 
 void FCameraVolumesModule::ShutdownModule()
 {
-
 }
 
 #undef LOCTEXT_NAMESPACE

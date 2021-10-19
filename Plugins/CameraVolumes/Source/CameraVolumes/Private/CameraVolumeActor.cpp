@@ -83,7 +83,7 @@ ACameraVolumeActor::ACameraVolumeActor()
 #endif
 
 	LoadConfig();
-	
+
 	VolumeExtent = VolumeExtentDefault;
 
 #if WITH_EDITORONLY_DATA
@@ -164,7 +164,7 @@ void ACameraVolumeActor::UpdateVolume()
 		bUseCameraRotationAxis = false;
 		break;
 	}
-	
+
 	if (!bOverrideCameraLocation)
 	{
 		CameraLocation = FVector(0.f, 1000.f, 0.f);

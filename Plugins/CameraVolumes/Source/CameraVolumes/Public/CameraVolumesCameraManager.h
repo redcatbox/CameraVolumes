@@ -89,7 +89,7 @@ public:
 	// Reset first pass calculations
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 	virtual void ResetFirstPass() { bFirstPass = true; }
-	
+
 protected:
 	UPROPERTY()
 	class APawn* PlayerPawn;
@@ -105,7 +105,7 @@ protected:
 
 	UPROPERTY()
 	FQuat PlayerPawnRotation;
-	
+
 	UPROPERTY()
 	class UCameraVolumesCameraComponent* CameraComponent;
 
@@ -202,7 +202,7 @@ protected:
 
 	UPROPERTY()
 	int32 EasingFuncSteps;
-	
+
 	UPROPERTY()
 	bool bNeedsCutTransition;
 

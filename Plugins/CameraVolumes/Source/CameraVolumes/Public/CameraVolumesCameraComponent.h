@@ -191,12 +191,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraRotation", Meta = (EditCondition = "bUsePawnControlRotationCV"))
 	bool bInheritRollCV;
 
-
-public:
 	// Overlapping camera volumes
 	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
 	TArray<ACameraVolumeActor*> OverlappingCameraVolumes;
-
 
 	// Should update camera parameters?
 	UPROPERTY(BlueprintReadWrite, Category = CameraVolumes)
@@ -220,6 +217,7 @@ public:
 	virtual bool GetIsCameraOrthographic() const;
 
 #if WITH_EDITOR
+public:
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
 };
