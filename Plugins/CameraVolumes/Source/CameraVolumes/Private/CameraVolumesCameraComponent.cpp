@@ -16,11 +16,6 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 	CameraFOVInterpSpeed = 10.f;
 	CameraOrthoWidthInterpSpeed = 10.f;
 
-	// Dead zone
-#if WITH_EDITORONLY_DATA
-	DeadZonePreviewMaterialPath = TEXT("/CameraVolumes/Materials/DeadZonePreview");
-#endif
-
 	// Camera collision
 	ProbeSize = 12.f;
 	ProbeChannel = ECC_Camera;
