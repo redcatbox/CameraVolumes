@@ -5,12 +5,13 @@
 #include "CameraVolumeDynamicActor.h"
 #include "Engine/Engine.h"
 #include "GameFramework/PlayerController.h"
+#include "drawdebughelpers.h"
 
 ACameraVolumesCameraManager::ACameraVolumesCameraManager(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	bUpdateCamera = true;
-	bCheckCameraVolumes = true;
+	bProcessCameraVolumes = true;
 	bPerformBlockingCalculations = true;
 	CameraFOVOWOld = 90.f;
 	CameraFOVOWNew = 90.f;
@@ -18,17 +19,23 @@ ACameraVolumesCameraManager::ACameraVolumesCameraManager(const FObjectInitialize
 	LoadConfig();
 }
 
-void ACameraVolumesCameraManager::SetUpdateCamera(bool bNewUpdateCamera)
+void ACameraVolumesCameraManager::SetUpdateCamera(bool bShouldUpdateCamera)
 {
-	bUpdateCamera = bNewUpdateCamera;
+	bUpdateCamera = bShouldUpdateCamera;
 }
 
 void ACameraVolumesCameraManager::SetCheckCameraVolumes(bool bNewCheck)
 {
-	if (bCheckCameraVolumes != bNewCheck)
+	// deprecated
+	UE_LOG(LogTemp, Warning, TEXT("SetCheckCameraVolumes() is deprecated! Use SetProcessCameraVolumes() instead!"));
+}
+
+void ACameraVolumesCameraManager::SetProcessCameraVolumes(bool bShouldProcess)
+{
+	if (bProcessCameraVolumes != bShouldProcess)
 	{
-		bCheckCameraVolumes = bNewCheck;
-		if (!bCheckCameraVolumes)
+		bProcessCameraVolumes = bShouldProcess;
+		if (!bProcessCameraVolumes)
 		{
 			APawn* OwningPawn = GetOwningPlayerController()->GetPawn();
 			if (OwningPawn)
@@ -37,16 +44,19 @@ void ACameraVolumesCameraManager::SetCheckCameraVolumes(bool bNewCheck)
 				if (PlayerCharacter)
 				{
 					UCameraVolumesCameraComponent* CamComp = PlayerCharacter->GetCameraComponent();
-					CamComp->OverlappingCameraVolumes.Empty();
+					if (CamComp)
+					{
+						CamComp->OverlappingCameraVolumes.Empty(5);
+					}
 				}
 			}
 		}
 	}
 }
 
-void ACameraVolumesCameraManager::SetPerformBlockingCalculations(bool bNewPerformBlockingCalculations)
+void ACameraVolumesCameraManager::SetPerformBlockingCalculations(bool bShouldPerformBlockingCalculations)
 {
-	bPerformBlockingCalculations = bNewPerformBlockingCalculations;
+	bPerformBlockingCalculations = bShouldPerformBlockingCalculations;
 }
 
 void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
@@ -62,110 +72,112 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 				//Store previous values and prepare params
 				CameraVolumePrevious = CameraVolumeCurrent;
 				CameraVolumeCurrent = nullptr;
-				PlayerPawnLocationOld = PlayerPawnLocation;
-				PlayerPawnLocation = PlayerPawn->GetActorLocation();
-				PlayerPawnRotation = PlayerPawn->GetActorQuat();
+				
 				CameraComponent = PlayerCharacter->GetCameraComponent();
-
-				if (bCheckCameraVolumes)
+				if (CameraComponent)
 				{
-					// Check if camera component not contains any overlapped camera volumes,
-					// try to get them from actors overlapping character's primitive component
-					// and put into camera component
-					if (CameraComponent->OverlappingCameraVolumes.Num() == 0)
+					PlayerPawnLocation = PlayerPawn->GetActorLocation();
+
+					if (bProcessCameraVolumes)
 					{
-						TArray<AActor*> OverlappingActors;
-						PlayerCharacter->GetCollisionPrimitiveComponent()->GetOverlappingActors(OverlappingActors, ACameraVolumeActor::StaticClass());
-
-						if (OverlappingActors.Num() > 0)
+						// Check if camera component not contains any overlapped camera volumes,
+						// try to get them from actors overlapping character's primitive component
+						// and put into camera component
+						if (CameraComponent->OverlappingCameraVolumes.Num() == 0)
 						{
-							for (AActor* OverlappingActor : OverlappingActors)
-							{
-								if (ACameraVolumeActor* CameraVolume = Cast<ACameraVolumeActor>(OverlappingActor))
-								{
-									CameraComponent->OverlappingCameraVolumes.AddUnique(CameraVolume);
-								}
-							}
+							TArray<AActor*> OverlappingActors;
+							PlayerCharacter->GetCollisionPrimitiveComponent()->GetOverlappingActors(OverlappingActors, ACameraVolumeActor::StaticClass());
 
-							CameraVolumeCurrent = UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(CameraComponent->OverlappingCameraVolumes, PlayerPawnLocation);
+							if (OverlappingActors.Num() > 0)
+							{
+								for (AActor* OverlappingActor : OverlappingActors)
+								{
+									if (ACameraVolumeActor* CameraVolume = Cast<ACameraVolumeActor>(OverlappingActor))
+									{
+										CameraComponent->OverlappingCameraVolumes.Emplace(CameraVolume);
+									}
+								}
+
+								CameraVolumeCurrent = UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(CameraComponent->OverlappingCameraVolumes, PlayerPawnLocation);
+							}
+							else
+							{
+								// There are no camera volumes overlapping character at this time,
+								// so we can stop processing until player pawn overlap some camera volume again.
+								SetProcessCameraVolumes(false);
+							}
 						}
 						else
 						{
-							// There are no camera volumes overlapping character at this time,
-							// so we don't need this check until player pawn overlap some camera volume again.
-							SetCheckCameraVolumes(false);
+							CameraVolumeCurrent = UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(CameraComponent->OverlappingCameraVolumes, PlayerPawnLocation);
 						}
-					}
-					else
-					{
-						CameraVolumeCurrent = UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(CameraComponent->OverlappingCameraVolumes, PlayerPawnLocation);
-					}
 
-					if (CameraVolumeCurrent)
-					{
-						if (CameraVolumeCurrent != CameraVolumePrevious) // Do we changed to another volume?
+						if (CameraVolumeCurrent)
 						{
-							const FSideInfo PassedSideInfoCurrent = CameraVolumeCurrent->GetNearestVolumeSideInfo(PlayerPawnLocation);
-
-							if (CameraVolumePrevious)
+							if (CameraVolumeCurrent != CameraVolumePrevious) // Do we changed to another volume?
 							{
-								const FSideInfo PassedSideInfoPrevious = CameraVolumePrevious->GetNearestVolumeSideInfo(PlayerPawnLocation);
+								const FSideInfo PassedSideInfoCurrent = CameraVolumeCurrent->GetNearestVolumeSideInfo(PlayerPawnLocation);
 
-								if (UCameraVolumesFunctionLibrary::CompareSidesPairs(PassedSideInfoCurrent.Side, PassedSideInfoPrevious.Side, CameraVolumePrevious->bUse6DOFVolume))
+								if (CameraVolumePrevious)
 								{
-									// We've passed to nearby volume
-									// Use settings of side we have passed to
-									SetTransitionBySideInfo(CameraVolumeCurrent, PassedSideInfoCurrent);
-								}
-								else
-								{
-									// We've passed to volume with another priority
-									if (CameraVolumeCurrent->Priority > CameraVolumePrevious->Priority)
+									const FSideInfo PassedSideInfoPrevious = CameraVolumePrevious->GetNearestVolumeSideInfo(PlayerPawnLocation);
+
+									if (UCameraVolumesFunctionLibrary::CompareSidesPairs(PassedSideInfoCurrent.Side, PassedSideInfoPrevious.Side, CameraVolumePrevious->bUse6DOFVolume))
 									{
+										// We've passed to nearby volume
 										// Use settings of side we have passed to
 										SetTransitionBySideInfo(CameraVolumeCurrent, PassedSideInfoCurrent);
 									}
 									else
 									{
-										// Use settings of side we have passed from
-										SetTransitionBySideInfo(CameraVolumePrevious, PassedSideInfoPrevious);
+										// We've passed to volume with another priority
+										if (CameraVolumeCurrent->Priority > CameraVolumePrevious->Priority)
+										{
+											// Use settings of side we have passed to
+											SetTransitionBySideInfo(CameraVolumeCurrent, PassedSideInfoCurrent);
+										}
+										else
+										{
+											// Use settings of side we have passed from
+											SetTransitionBySideInfo(CameraVolumePrevious, PassedSideInfoPrevious);
+										}
 									}
 								}
-							}
-							else
-							{
-								// We've passed from void to volume
-								SetTransitionBySideInfo(CameraVolumeCurrent, PassedSideInfoCurrent);
+								else
+								{
+									// We've passed from void to volume
+									SetTransitionBySideInfo(CameraVolumeCurrent, PassedSideInfoCurrent);
+								}
 							}
 						}
+						else if (CameraVolumePrevious) // Do we passed from volume to void?
+						{
+							// Use settings of side we've passed from
+							const FSideInfo PassedSideInfoPrevious = CameraVolumePrevious->GetNearestVolumeSideInfo(PlayerPawnLocation);
+							SetTransitionBySideInfo(CameraVolumePrevious, PassedSideInfoPrevious);
+						}
 					}
-					else if (CameraVolumePrevious) // Do we passed from volume to void?
-					{
-						// Use settings of side we've passed from
-						const FSideInfo PassedSideInfoPrevious = CameraVolumePrevious->GetNearestVolumeSideInfo(PlayerPawnLocation);
-						SetTransitionBySideInfo(CameraVolumePrevious, PassedSideInfoPrevious);
-					}
-				}
 
-				CalculateCameraParams(DeltaTime);
+					CalculateCameraParams(DeltaTime);
 
-				// Update camera component
-				CameraComponent->UpdateCamera(CameraLocationFinalNew, CameraFocalPointNew, CameraRotationFinalNew, CameraFOVOWFinalNew, bIsCameraStatic);
+					// Update camera component
+					CameraComponent->UpdateCamera(CameraLocationFinalNew, CameraFocalPointNew, CameraRotationFinalNew, CameraFOVOWFinalNew, bIsCameraStatic);
 
 #if WITH_EDITOR
-				// Dead zone
-				FDeadZoneTransform DeadZoneTransform(DeadZoneExtent, DeadZoneOffset, DeadZoneRoll);
-				CameraComponent->UpdateDeadZonePreview(DeadZoneTransform);
+					// Dead zone preview
+					FDeadZoneTransform DeadZoneTransform(DeadZoneExtent, DeadZoneOffset, DeadZoneRoll);
+					CameraComponent->UpdateDeadZonePreview(DeadZoneTransform);
 #endif
 
-				// Update camera manager
-				if (bIsCameraOrthographic)
-				{
-					DefaultOrthoWidth = CameraFOVOWFinalNew;
-				}
-				else
-				{
-					DefaultFOV = CameraFOVOWFinalNew;
+					// Update camera manager
+					if (bIsCameraOrthographic)
+					{
+						DefaultOrthoWidth = CameraFOVOWFinalNew;
+					}
+					else
+					{
+						DefaultFOV = CameraFOVOWFinalNew;
+					}
 				}
 			}
 		}
@@ -179,14 +191,24 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 	// Smooth transition from fixed old params or smooth transition was interrupted
 	if (!bNeedsSmoothTransition || bSmoothTransitionInterrupted)
 	{
+		bSmoothTransitionInterrupted = false;
 		CameraLocationOld = CameraLocationNew;
 		CameraRotationOld = CameraRotationNew;
 		CameraFOVOWOld = CameraFOVOWNew;
-		bSmoothTransitionInterrupted = false;
+		CameraLocationSourceOld = CameraLocationSource;
+		CameraLocationSource = PlayerPawnLocation;
 	}
 
+	bIsCameraStatic = false;
 	bIsCameraOrthographic = CameraComponent->GetIsCameraOrthographic();
 	bUsePlayerPawnControlRotation = false;
+
+	CameraLocationNew = PlayerPawnLocation + CameraComponent->DefaultCameraLocation;
+	CameraRotationNew = CameraComponent->DefaultCameraRotation;
+	CameraFocalPointNew = PlayerPawnLocation + CameraComponent->DefaultCameraFocalPoint;
+	CameraFOVOWNew = bIsCameraOrthographic
+		? CameraComponent->DefaultCameraOrthoWidth
+		: CameraComponent->DefaultCameraFieldOfView;
 
 	bUseDeadZone = false;
 	bIsInDeadZone = false;
@@ -195,19 +217,17 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 
 	if (CameraVolumeCurrent)
 	{
-		// Dead zone
-		if (CameraVolumeCurrent->bOverrideDeadZoneSettings)
-		{
-			bUseDeadZone = true;
-			DeadZoneExtent = CameraVolumeCurrent->DeadZoneExtent;
-			DeadZoneOffset = CameraVolumeCurrent->DeadZoneOffset;
-		}
-
 		bIsCameraStatic = CameraVolumeCurrent->GetIsCameraStatic();
 		if (bIsCameraStatic && !CameraVolumeCurrent->bFocalPointIsPlayer)
 		{
 			// Do not process dead zone for fully static camera
 			bUseDeadZone = false;
+		}
+		else if (CameraVolumeCurrent->bOverrideDeadZoneSettings)
+		{
+			bUseDeadZone = true;
+			DeadZoneExtent = CameraVolumeCurrent->DeadZoneExtent;
+			DeadZoneOffset = CameraVolumeCurrent->DeadZoneOffset;
 		}
 
 		if (bIsCameraOrthographic)
@@ -226,7 +246,7 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 		}
 
 		// Location and Rotation
-		const FVector PlayerPawnLocationTransformed = CameraVolumeCurrent->GetActorTransform().InverseTransformPositionNoScale(PlayerPawnLocation);
+		const FVector CameraLocationSourceTransformed = CameraVolumeCurrent->GetActorTransform().InverseTransformPositionNoScale(CameraLocationSource);
 
 		if (bIsCameraStatic)
 		{
@@ -234,7 +254,7 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 
 			if (CameraVolumeCurrent->bFocalPointIsPlayer)
 			{
-				CameraFocalPointNew = PlayerPawnLocationTransformed + CameraVolumeCurrent->CameraFocalPoint;
+				CameraFocalPointNew = CameraLocationSourceTransformed + CameraVolumeCurrent->CameraFocalPoint;
 				CameraRotationNew = UCameraVolumesFunctionLibrary::CalculateCameraRotation(CameraVolumeCurrent->CameraLocation, CameraFocalPointNew, CameraVolumeCurrent->CameraRoll);
 			}
 			else
@@ -250,13 +270,13 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 					? CameraVolumeCurrent->CameraLocation
 					: CameraComponent->DefaultCameraLocation;
 
-				const FVector DirToAxis = PlayerPawnLocationTransformed.GetSafeNormal2D();
+				const FVector DirToAxis = CameraLocationSourceTransformed.GetSafeNormal2D();
 				const FQuat RotToAxis = FRotationMatrix::MakeFromX(DirToAxis).ToQuat();
-				CameraLocationNew = RotToAxis.RotateVector(CameraLocationNew) + FVector(0.f, 0.f, PlayerPawnLocationTransformed.Z);
+				CameraLocationNew = RotToAxis.RotateVector(CameraLocationNew) + FVector(0.f, 0.f, CameraLocationSourceTransformed.Z);
 
 				if (!CameraVolumeCurrent->bCameraLocationRelativeToVolume)
 				{
-					CameraLocationNew += FVector(PlayerPawnLocationTransformed.X, PlayerPawnLocationTransformed.Y, 0.f);
+					CameraLocationNew += FVector(CameraLocationSourceTransformed.X, CameraLocationSourceTransformed.Y, 0.f);
 				}
 
 				CameraFocalPointNew = CameraVolumeCurrent->bOverrideCameraRotation
@@ -269,7 +289,7 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 
 				if (CameraVolumeCurrent->bFocalPointIsPlayer)
 				{
-					CameraFocalPointNew += PlayerPawnLocationTransformed;
+					CameraFocalPointNew += CameraLocationSourceTransformed;
 					CameraRotationNew = UCameraVolumesFunctionLibrary::CalculateCameraRotation(CameraLocationNew, CameraFocalPointNew, NewCameraRoll);
 				}
 				else
@@ -282,8 +302,8 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 			}
 			else
 			{
-				CameraLocationNew = PlayerPawnLocationTransformed;
-				CameraFocalPointNew = PlayerPawnLocationTransformed;
+				CameraLocationNew = CameraLocationSourceTransformed;
+				CameraFocalPointNew = CameraLocationSourceTransformed;
 
 				CameraLocationNew += CameraVolumeCurrent->bOverrideCameraLocation
 					? CameraVolumeCurrent->CameraLocation
@@ -411,9 +431,9 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 	else
 	{
 		bIsCameraStatic = false;
-		CameraLocationNew = PlayerPawnLocation + CameraComponent->DefaultCameraLocation;
+		CameraLocationNew = CameraLocationSource + CameraComponent->DefaultCameraLocation;
 		CameraRotationNew = CameraComponent->DefaultCameraRotation;
-		CameraFocalPointNew = PlayerPawnLocation + CameraComponent->DefaultCameraFocalPoint;
+		CameraFocalPointNew = CameraLocationSource + CameraComponent->DefaultCameraFocalPoint;
 		CameraFOVOWNew = bIsCameraOrthographic
 			? CameraComponent->DefaultCameraOrthoWidth
 			: CameraComponent->DefaultCameraFieldOfView;
@@ -458,11 +478,11 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 
 			if (CameraComponent->bEnableCameraLocationLag)
 			{
-				CameraLocationNew = FMath::VInterpTo(PlayerPawnLocationOld, PlayerPawnLocation, DeltaTime, CameraComponent->CameraLocationLagSpeed);
+				CameraLocationNew = FMath::VInterpTo(CameraLocationSourceOld, CameraLocationSource, DeltaTime, CameraComponent->CameraLocationLagSpeed);
 			}
 
 			// Final world-space values
-			CameraFocalPointNew = PlayerPawnLocation + PlayerPawnRotation.RotateVector(CameraComponent->DefaultCameraFocalPoint);
+			CameraFocalPointNew = CameraLocationSource + PlayerPawn->GetActorQuat().RotateVector(CameraComponent->DefaultCameraFocalPoint);
 			CameraLocationNew = CameraFocalPointNew + CameraRotationNew.RotateVector(CameraComponent->DefaultCameraLocation - CameraComponent->DefaultCameraFocalPoint);
 		}
 	}
@@ -657,7 +677,7 @@ void ACameraVolumesCameraManager::ProcessDeadZone()
 	}
 
 	FDeadZoneTransform DeadZoneTransform(DeadZoneExtent, DeadZoneOffset, DeadZoneRoll);
-	bIsInDeadZone = IsInDeadZone(PlayerPawnLocation, DeadZoneTransform);
+	bIsInDeadZone = IsInDeadZone(CameraLocationSource, DeadZoneTransform);
 	if (bIsInDeadZone)
 	{
 		if (!(bNeedsSmoothTransition || bNeedsCutTransition))
@@ -673,6 +693,10 @@ void ACameraVolumesCameraManager::ProcessDeadZone()
 	else
 	{
 		bSmoothTransitionInDeadZone = false;
+
+
+		CameraLocationNew;
+		CameraLocationSource;
 	}
 }
 

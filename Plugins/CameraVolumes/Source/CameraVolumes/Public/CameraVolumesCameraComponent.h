@@ -193,7 +193,7 @@ public:
 
 	// Overlapping camera volumes
 	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
-	TArray<ACameraVolumeActor*> OverlappingCameraVolumes;
+	TSet<ACameraVolumeActor*> OverlappingCameraVolumes;
 
 	// Should update camera parameters?
 	UPROPERTY(BlueprintReadWrite, Category = CameraVolumes)

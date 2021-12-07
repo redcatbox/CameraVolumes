@@ -2,17 +2,17 @@
 
 #include "CameraVolumesFunctionLibrary.h"
 
-ACameraVolumeActor* UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(TArray<ACameraVolumeActor*> CameraVolumes, FVector& PlayerPawnLocation)
+ACameraVolumeActor* UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(TSet<ACameraVolumeActor*> InCameraVolumes, FVector& InPlayerPawnLocation)
 {
 	ACameraVolumeActor* Result = nullptr;
-	int8 MaxPriorityIndex = -101; // this is clamped (-100, 100) in ACameraVolumeActor->Priority
+	int8 MaxPriorityIndex = -101; // ACameraVolumeActor->Priority is clamped to (-100, 100)
 	bool Condition = false;
 
-	for (ACameraVolumeActor* CameraVolume : CameraVolumes)
+	for (ACameraVolumeActor* CameraVolume : InCameraVolumes)
 	{
 		if (CameraVolume)
 		{
-			FVector PlayerPawnLocationTransformed = CameraVolume->GetActorTransform().InverseTransformPositionNoScale(PlayerPawnLocation);
+			FVector PlayerPawnLocationTransformed = CameraVolume->GetActorTransform().InverseTransformPositionNoScale(InPlayerPawnLocation);
 
 			if (CameraVolume->bUse6DOFVolume)
 			{
@@ -70,9 +70,9 @@ bool UCameraVolumesFunctionLibrary::CompareSidesPairs(ESide SideA, ESide SideB, 
 	return false;
 }
 
-FQuat UCameraVolumesFunctionLibrary::CalculateCameraRotation(FVector& CameraLocation, FVector& CameraFocalPoint, float CameraRoll)
+FQuat UCameraVolumesFunctionLibrary::CalculateCameraRotation(FVector& InCameraLocation, FVector& InCameraFocalPoint, float InCameraRoll)
 {
-	FQuat CameraRotation = FRotationMatrix::MakeFromX(CameraFocalPoint - CameraLocation).ToQuat();
-	CameraRotation = FQuat(CameraRotation.GetAxisX(), FMath::DegreesToRadians(CameraRoll)) * CameraRotation;
+	FQuat CameraRotation = FRotationMatrix::MakeFromX(InCameraFocalPoint - InCameraLocation).ToQuat();
+	CameraRotation = FQuat(CameraRotation.GetAxisX(), FMath::DegreesToRadians(InCameraRoll)) * CameraRotation;
 	return CameraRotation;
 }

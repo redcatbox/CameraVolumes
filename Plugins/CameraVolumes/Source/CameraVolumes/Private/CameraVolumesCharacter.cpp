@@ -40,12 +40,12 @@ void ACameraVolumesCharacter::OnCollisionPrimitiveComponentBeginOverlap(UPrimiti
 			{
 				if (ACameraVolumesCameraManager* CameraVolumePCM = Cast<ACameraVolumesCameraManager>(PC->PlayerCameraManager))
 				{
-					CameraVolumePCM->SetCheckCameraVolumes(true);
+					CameraVolumePCM->SetProcessCameraVolumes(true);
 				}
 			}
 		}
 
-		GetCameraComponent()->OverlappingCameraVolumes.AddUnique(CameraVolume);
+		GetCameraComponent()->OverlappingCameraVolumes.Emplace(CameraVolume);
 	}
 }
 

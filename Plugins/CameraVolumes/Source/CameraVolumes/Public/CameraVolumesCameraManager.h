@@ -52,15 +52,27 @@ public:
 
 	// Set perform camera updates.
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-	virtual void SetUpdateCamera(bool bNewUpdateCamera);
+	virtual void SetUpdateCamera(bool bShouldUpdateCamera);
 
-	// Should check for camera volumes?
-	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
-	bool bCheckCameraVolumes;
+	/** Should check for camera volumes?
+	* @deprecated - Use bProcessCameraVolumes instead.
+	*/
+	UPROPERTY(Meta = (DeprecatedProperty, DeprecationMessage = "Use bProcessCameraVolumes instead."))
+	bool bCheckCameraVolumes_DEPRECATED;
 
-	// Set check for camera volumes. Used by Player Character according to overlapping camera volumes.
-	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
+	/** Set check for camera volumes.
+	* @deprecated - Use SetProcessCameraVolumes() instead.
+	*/
+	UFUNCTION(Meta = (DeprecatedFunction, DeprecationMessage = "Use SetProcessCameraVolumes() instead."))
 	virtual void SetCheckCameraVolumes(bool bNewCheck);
+
+	// Should process camera volumes?
+	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
+	bool bProcessCameraVolumes;
+
+	// Set process camera volumes. Used by Player Character according to overlapping camera volumes.
+	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
+	virtual void SetProcessCameraVolumes(bool bShouldProcess);
 
 	// Should perform camera blocking calculations?
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CameraVolumes)
@@ -68,7 +80,7 @@ public:
 
 	// Set perform camera blocking calculations
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-	virtual void SetPerformBlockingCalculations(bool bNewPerformBlockingCalculations);
+	virtual void SetPerformBlockingCalculations(bool bShouldPerformBlockingCalculations);
 
 	// Calculate screen world extent at depth
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
@@ -101,12 +113,6 @@ protected:
 	FVector PlayerPawnLocation;
 
 	UPROPERTY()
-	FVector PlayerPawnLocationOld;
-
-	UPROPERTY()
-	FQuat PlayerPawnRotation;
-
-	UPROPERTY()
 	class UCameraVolumesCameraComponent* CameraComponent;
 
 	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
@@ -114,6 +120,12 @@ protected:
 
 	UPROPERTY()
 	class ACameraVolumeActor* CameraVolumePrevious;
+
+	UPROPERTY()
+	FVector CameraLocationSourceOld;
+
+	UPROPERTY()
+	FVector CameraLocationSource;
 
 	UPROPERTY()
 	FVector CameraLocationOld;
