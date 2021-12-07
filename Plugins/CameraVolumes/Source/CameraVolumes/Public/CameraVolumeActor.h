@@ -207,7 +207,7 @@ public:
 	// Camera FOV/OrthoWidth
 public:
 	// Should override camera FOV? For perspective cameras.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (EditCondition = "CameraProjectionMode == ECameraProjectionMode::Perspective"))
 	bool bOverrideCameraFieldOfView;
 
 	// New camera FOV. For perspective cameras.
@@ -215,7 +215,7 @@ public:
 	float CameraFieldOfView;
 
 	// Should override camera OrthoWidth? For orthographic cameras.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (EditCondition = "CameraProjectionMode == ECameraProjectionMode::Orthographic"))
 	bool bOverrideCameraOrthoWidth;
 
 	// New camera OrthoWidth. For orthographic cameras.
