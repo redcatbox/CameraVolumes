@@ -160,7 +160,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Camera)
 	virtual void SetCameraLocation(FVector NewCameraLocation);
 
-	// Should camera location be relative to volume?
+	// Should camera location be relative to volume or to player character?
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
 	bool bCameraLocationRelativeToVolume;
 
