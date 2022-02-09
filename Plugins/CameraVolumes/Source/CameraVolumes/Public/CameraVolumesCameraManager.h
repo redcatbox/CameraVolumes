@@ -96,7 +96,7 @@ public:
 
 	// Is location in dead zone?
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
-	virtual bool IsInDeadZone(FVector& InWorldLocation, FDeadZoneTransform& DeadZoneTransform);
+	virtual bool IsInDeadZone(const FVector& InWorldLocation, const FDeadZoneTransform DeadZoneTransform);
 
 	// Reset first pass calculations
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)

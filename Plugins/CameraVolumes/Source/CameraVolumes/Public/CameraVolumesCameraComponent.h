@@ -150,7 +150,7 @@ protected:
 
 #if WITH_EDITOR
 public:
-	void UpdateDeadZonePreview(FDeadZoneTransform& NewDeadZoneTransform);
+	void UpdateDeadZonePreview(const FDeadZoneTransform NewDeadZoneTransform);
 #endif
 
 

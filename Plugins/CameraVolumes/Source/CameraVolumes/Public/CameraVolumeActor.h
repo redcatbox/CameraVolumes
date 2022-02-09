@@ -142,6 +142,26 @@ public:
 	bool GetIsCameraStatic() const;
 
 
+	// Camera lag
+protected:
+	UPROPERTY()
+	bool bDisableCameraLocationLagEditCond;
+
+public:
+	// Should disable camera location lag?
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (EditCondition = "bDisableCameraLocationLagEditCond"))
+	bool bDisableCameraLocationLag;
+
+protected:
+	UPROPERTY()
+	bool bDisableCameraRotationLagEditCond;
+
+public:
+	// Should disable camera rotation lag?
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (EditCondition = "bDisableCameraRotationLagEditCond"))
+	bool bDisableCameraRotationLag;
+
+
 	// Camera location
 public:
 	// Should override camera location?

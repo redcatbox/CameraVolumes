@@ -154,6 +154,8 @@ void ACameraVolumeActor::UpdateVolume()
 			bFocalPointIsPlayer = true;
 		}
 		bUseCameraRotationAxisEditCond = true;
+		bDisableCameraLocationLagEditCond = true;
+		bDisableCameraRotationLagEditCond = true;
 		break;
 	case ECameraMobility::ECM_Static:
 		bIsCameraStatic = true;
@@ -162,6 +164,11 @@ void ACameraVolumeActor::UpdateVolume()
 		bPerformCameraBlocking = false;
 		bUseCameraRotationAxisEditCond = false;
 		bUseCameraRotationAxis = false;
+		bDisableCameraLocationLagEditCond = false;
+		if (!bFocalPointIsPlayer)
+		{
+			bDisableCameraRotationLagEditCond = false;
+		}
 		break;
 	}
 

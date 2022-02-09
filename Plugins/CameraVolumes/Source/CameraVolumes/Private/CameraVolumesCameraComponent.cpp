@@ -137,7 +137,7 @@ void UCameraVolumesCameraComponent::SetDefaultCameraRoll(float NewDefaultCameraR
 }
 
 #if WITH_EDITOR
-void UCameraVolumesCameraComponent::UpdateDeadZonePreview(FDeadZoneTransform& NewDeadZoneTransform)
+void UCameraVolumesCameraComponent::UpdateDeadZonePreview(const FDeadZoneTransform NewDeadZoneTransform)
 {
 	if (bPreviewDeadZone)
 	{

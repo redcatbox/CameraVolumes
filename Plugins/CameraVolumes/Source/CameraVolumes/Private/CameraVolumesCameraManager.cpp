@@ -167,8 +167,7 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 
 #if WITH_EDITOR
 					// Dead zone preview
-					FDeadZoneTransform DeadZoneTransform(DeadZoneExtent, DeadZoneOffset, DeadZoneRoll);
-					CameraComponent->UpdateDeadZonePreview(DeadZoneTransform);
+					CameraComponent->UpdateDeadZonePreview(FDeadZoneTransform(DeadZoneExtent, DeadZoneOffset, DeadZoneRoll));
 #endif
 
 					// Update camera manager
@@ -245,11 +244,7 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 
 		if (bUseDeadZone && !bFirstPass)
 		{
-			DeadZoneRoll = -CameraRotationNew.Rotator().Roll;
-			if (CameraVolumeCurrent)
-			{
-				DeadZoneRoll -= CameraVolumeCurrent->GetActorRotation().Pitch;
-			}
+			ProcessDeadZone();
 		}
 
 		// Camera projection
@@ -634,16 +629,31 @@ void ACameraVolumesCameraManager::CalculateTransitions(float DeltaTime)
 	}
 	else
 	{
-		if (CameraComponent->bEnableCameraLocationLag && !bUsePlayerPawnControlRotation)
+		// Camera location lag
+		bool bUseCameraLocationLag = CameraComponent->bEnableCameraLocationLag && !bUsePlayerPawnControlRotation;
+		if (CameraVolumeCurrent)
+		{
+			bUseCameraLocationLag = CameraVolumeCurrent->bDisableCameraLocationLag ? false : bUseCameraLocationLag;
+		}
+
+		if (bUseCameraLocationLag)
 		{
 			CameraLocationNew = FMath::VInterpTo(CameraLocationOld, CameraLocationNew, DeltaTime, CameraComponent->CameraLocationLagSpeed);
 		}
 
-		if (CameraComponent->bEnableCameraRotationLag && !bUsePlayerPawnControlRotation)
+		// Camera rotation lag
+		bool bUseCameraRotationLag = CameraComponent->bEnableCameraRotationLag && !bUsePlayerPawnControlRotation;
+		if (CameraVolumeCurrent)
+		{
+			bUseCameraRotationLag = CameraVolumeCurrent->bDisableCameraRotationLag ? false : bUseCameraRotationLag;
+		}
+
+		if (bUseCameraRotationLag)
 		{
 			CameraRotationNew = FMath::QInterpTo(CameraRotationOld, CameraRotationNew, DeltaTime, CameraComponent->CameraRotationLagSpeed);
 		}
 
+		// Camera FOV/OW interpolation
 		if (bIsCameraOrthographic)
 		{
 			if (CameraComponent->bEnableCameraOrthoWidthInterp)
@@ -658,7 +668,7 @@ void ACameraVolumesCameraManager::CalculateTransitions(float DeltaTime)
 	}
 }
 
-bool ACameraVolumesCameraManager::IsInDeadZone(FVector& InWorldLocation, FDeadZoneTransform& InDeadZoneTransform)
+bool ACameraVolumesCameraManager::IsInDeadZone(const FVector& InWorldLocation, const FDeadZoneTransform InDeadZoneTransform)
 {
 	if (APlayerController* PlayerController = GetOwningPlayerController())
 	{
@@ -689,14 +699,13 @@ bool ACameraVolumesCameraManager::IsInDeadZone(FVector& InWorldLocation, FDeadZo
 
 void ACameraVolumesCameraManager::ProcessDeadZone()
 {
-	//DeadZoneRoll = -CameraRotationNew.Rotator().Roll;
-	//if (CameraVolumeCurrent)
-	//{
-	//	DeadZoneRoll -= CameraVolumeCurrent->GetActorRotation().Pitch;
-	//}
+	DeadZoneRoll = -CameraRotationNew.Rotator().Roll;
+	if (CameraVolumeCurrent)
+	{
+		DeadZoneRoll -= CameraVolumeCurrent->GetActorRotation().Pitch;
+	}
 
-	FDeadZoneTransform DeadZoneTransform(DeadZoneExtent, DeadZoneOffset, DeadZoneRoll);
-	bIsInDeadZone = IsInDeadZone(PlayerPawnLocation, DeadZoneTransform);
+	bIsInDeadZone = IsInDeadZone(PlayerPawnLocation, FDeadZoneTransform(DeadZoneExtent, DeadZoneOffset, DeadZoneRoll));
 	if (bIsInDeadZone)
 	{
 		if (!(bNeedsSmoothTransition || bNeedsCutTransition))
