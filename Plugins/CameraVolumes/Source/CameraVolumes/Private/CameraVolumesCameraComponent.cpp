@@ -38,22 +38,10 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 	UCameraVolumesCameraComponent::UpdateCameraComponent();
 }
 
-void UCameraVolumesCameraComponent::UpdateCamera(FVector& CameraLocation, FVector& CameraFocalPoint, FQuat& CameraRotation, float CameraFOV_OW, bool bIsCameraStatic)
+void UCameraVolumesCameraComponent::UpdateCamera(FVector& CameraLocation, FQuat& CameraRotation, float CameraFOV_OW)
 {
 	if (bUpdateCamera)
 	{
-		if (bDoCollisionTest && !bIsCameraStatic)
-		{
-			FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(SpringArm), false, GetOwner());
-			FHitResult HitResult;
-			GetWorld()->SweepSingleByChannel(HitResult, CameraFocalPoint, CameraLocation, FQuat::Identity, ProbeChannel, FCollisionShape::MakeSphere(ProbeSize), QueryParams);
-
-			if (HitResult.bBlockingHit)
-			{
-				CameraLocation = HitResult.Location;
-			}
-		}
-
 		SetWorldLocationAndRotation(CameraLocation, CameraRotation);
 
 		if (bIsCameraOrthographic)

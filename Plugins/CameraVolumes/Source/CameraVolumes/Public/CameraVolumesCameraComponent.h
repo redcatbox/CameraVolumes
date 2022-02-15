@@ -156,7 +156,7 @@ public:
 
 	// Camera collision
 public:
-	// If true, do a collision test using ProbeChannel and ProbeSize to prevent camera clipping into level.
+	// Do a camera collision test using ProbeChannel and ProbeSize to prevent camera clipping into level
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraCollision")
 	bool bDoCollisionTest;
 
@@ -201,7 +201,7 @@ public:
 
 	// Updates camera by camera manager
 	UFUNCTION()
-	virtual void UpdateCamera(FVector& CameraLocation, FVector& CameraFocalPoint, FQuat& CameraRotation, float CameraFOV_OW, bool bIsCameraStatic);
+	virtual void UpdateCamera(FVector& CameraLocation, FQuat& CameraRotation, float CameraFOV_OW);
 
 	// Update camera component parameters
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)

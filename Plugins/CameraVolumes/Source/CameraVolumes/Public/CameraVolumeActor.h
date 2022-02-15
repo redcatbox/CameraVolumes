@@ -14,7 +14,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "CameraVolumeActor.generated.h"
 
-UCLASS(Config = CameraVolumes, AutoExpandCategories = (Camera, Volume, VolumeSides, "VolumeSides|SmoothTransition", DeadZone))
+UCLASS(Config = CameraVolumes, AutoExpandCategories = (Camera, "Camera|Location", "Camera|Rotation", "Camera|FOV/OW", "Camera|Utils", Volume, VolumeSides, "VolumeSides|SmoothTransition", DeadZone))
 class CAMERAVOLUMES_API ACameraVolumeActor : public AActor
 {
 	GENERATED_BODY()
@@ -142,30 +142,21 @@ public:
 	bool GetIsCameraStatic() const;
 
 
-	// Camera lag
+	// Camera rotation axis
 protected:
 	UPROPERTY()
-	bool bDisableCameraLocationLagEditCond;
+	bool bUseCameraRotationAxisEditCond;
 
 public:
-	// Should disable camera location lag?
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (EditCondition = "bDisableCameraLocationLagEditCond"))
-	bool bDisableCameraLocationLag;
-
-protected:
-	UPROPERTY()
-	bool bDisableCameraRotationLagEditCond;
-
-public:
-	// Should disable camera rotation lag?
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (EditCondition = "bDisableCameraRotationLagEditCond"))
-	bool bDisableCameraRotationLag;
+	// Should rotate camera around volume's central axis?
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (EditCondition = "bUseCameraRotationAxisEditCond"))
+	bool bUseCameraRotationAxis;
 
 
 	// Camera location
 public:
 	// Should override camera location?
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera|Location")
 	bool bOverrideCameraLocation;
 
 	// Set new bOverrideCameraLocation
@@ -173,7 +164,7 @@ public:
 	virtual void SetOverrideCameraLocation(bool bNewOverrideCameraLocation);
 
 	// New camera location
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera, Meta = (EditCondition = "bOverrideCameraLocation", MakeEditWidget = true))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera|Location", Meta = (EditCondition = "bOverrideCameraLocation", MakeEditWidget = true))
 	FVector CameraLocation;
 
 	// Set new CameraLocation
@@ -181,14 +172,14 @@ public:
 	virtual void SetCameraLocation(FVector NewCameraLocation);
 
 	// Should camera location be relative to volume or to player character?
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Location")
 	bool bCameraLocationRelativeToVolume;
 
 
 	// Camera rotation
 public:
 	// Should override camera focal point?
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera|Rotation")
 	bool bOverrideCameraRotation;
 
 	// Set new bOverrideCameraRotation
@@ -196,7 +187,7 @@ public:
 	virtual void SetOverrideCameraRotation(bool bNewOverrideCameraRotation);
 
 	// New camera focal point
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera, Meta = (EditCondition = "bOverrideCameraRotation", MakeEditWidget = true))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera|Rotation", Meta = (EditCondition = "bOverrideCameraRotation", MakeEditWidget = true))
 	FVector CameraFocalPoint;
 
 	// Set new CameraFocalPoint
@@ -204,7 +195,7 @@ public:
 	virtual void SetCameraFocalPoint(FVector NewCameraFocalPoint);
 
 	// New camera roll
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera, Meta = (EditCondition = "bOverrideCameraRotation"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera|Rotation", Meta = (EditCondition = "bOverrideCameraRotation"))
 	float CameraRoll;
 
 	// Set new CameraRoll
@@ -217,7 +208,7 @@ protected:
 
 public:
 	// Should camera look at player character?
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (EditCondition = "bFocalPointIsPlayerEditCond"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Rotation", Meta = (EditCondition = "bFocalPointIsPlayerEditCond"))
 	bool bFocalPointIsPlayer;
 
 	UPROPERTY()
@@ -227,31 +218,40 @@ public:
 	// Camera FOV/OrthoWidth
 public:
 	// Should override camera FOV? For perspective cameras.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (EditCondition = "CameraProjectionMode == ECameraProjectionMode::Perspective"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|FOV/OW", Meta = (EditCondition = "CameraProjectionMode == ECameraProjectionMode::Perspective"))
 	bool bOverrideCameraFieldOfView;
 
 	// New camera FOV. For perspective cameras.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (EditCondition = "bOverrideCameraFieldOfView", UIMin = "5", UIMax = "170", ClampMin = "0.001", ClampMax = "360", Units = deg))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|FOV/OW", Meta = (EditCondition = "bOverrideCameraFieldOfView", UIMin = "5", UIMax = "170", ClampMin = "0.001", ClampMax = "360", Units = deg))
 	float CameraFieldOfView;
 
 	// Should override camera OrthoWidth? For orthographic cameras.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (EditCondition = "CameraProjectionMode == ECameraProjectionMode::Orthographic"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|FOV/OW", Meta = (EditCondition = "CameraProjectionMode == ECameraProjectionMode::Orthographic"))
 	bool bOverrideCameraOrthoWidth;
 
 	// New camera OrthoWidth. For orthographic cameras.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (EditCondition = "bOverrideCameraOrthoWidth"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|FOV/OW", Meta = (EditCondition = "bOverrideCameraOrthoWidth"))
 	float CameraOrthoWidth;
 
 
-	// Camera rotation axis
+	// Camera lag
 protected:
 	UPROPERTY()
-	bool bUseCameraRotationAxisEditCond;
+	bool bDisableCameraLocationLagEditCond;
 
 public:
-	// Should rotate camera around volume's central axis?
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (EditCondition = "bUseCameraRotationAxisEditCond"))
-	bool bUseCameraRotationAxis;
+	// Should disable camera location lag in this particular volume?
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Utils", Meta = (EditCondition = "bDisableCameraLocationLagEditCond"))
+	bool bDisableCameraLocationLag;
+
+protected:
+	UPROPERTY()
+	bool bDisableCameraRotationLagEditCond;
+
+public:
+	// Should disable camera rotation lag in this particular volume?
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Utils", Meta = (EditCondition = "bDisableCameraRotationLagEditCond"))
+	bool bDisableCameraRotationLag;
 
 	// Speed of smooth camera transition
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VolumeSides|SmoothTransition", Meta = (ClampMin = "0.01", ClampMax = "10", UIMin = "0.01", UIMax = "10"))
@@ -268,6 +268,18 @@ public:
 	// Easing function steps
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VolumeSides|SmoothTransition", Meta = (ClampMin = "1", UIMin = "1"))
 	int32 EasingFuncSteps;
+
+
+	// Camera collision
+protected:
+	UPROPERTY()
+	bool bDoCollisionTestEditCond;
+
+public:
+	// Should do a camera collision test in this particular volume?
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Utils", Meta = (EditCondition = "bDoCollisionTestEditCond"))
+	bool bDoCollisionTest;
+
 
 	// Sides info
 public:
