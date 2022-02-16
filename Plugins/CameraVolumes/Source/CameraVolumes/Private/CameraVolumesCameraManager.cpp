@@ -7,8 +7,6 @@
 #include "GameFramework/PlayerController.h"
 #include "drawdebughelpers.h"
 
-#define DEADZONES 1
-
 ACameraVolumesCameraManager::ACameraVolumesCameraManager(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
@@ -167,7 +165,7 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 					// Update camera component
 					CameraComponent->UpdateCamera(CameraLocationFinalNew, CameraRotationFinalNew, CameraFOVOWFinalNew);
 
-#if WITH_EDITOR && DEADZONES
+#if WITH_EDITOR
 					// Dead zone preview
 					CameraComponent->UpdateDeadZonePreview(FDeadZoneTransform(DeadZoneExtent, DeadZoneOffset, DeadZoneRoll));
 #endif
@@ -204,7 +202,7 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 	CameraLocationSource = PlayerPawnLocation;
 
 	bIsCameraStatic = false;
-	bIsCameraOrthographic = CameraComponent->GetIsCameraOrthographic();
+	bIsCameraOrthographic = CameraComponent->ProjectionMode == ECameraProjectionMode::Orthographic;
 	bUsePlayerPawnControlRotation = false;
 
 	CameraLocationNew = CameraLocationSource + CameraComponent->DefaultCameraLocation;
@@ -219,21 +217,18 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 	bUseDeadZone = false;
 	bIsInDeadZone = false;
 
-#if DEADZONES
 	if (CameraComponent->bUseDeadZone)
 	{
 		bUseDeadZone = true;
 		DeadZoneExtent = CameraComponent->DeadZoneExtent;
 		DeadZoneOffset = CameraComponent->DeadZoneOffset;
 	}
-#endif
 
 	bBroadcastOnCameraVolumeChanged = false;
 
 	// Active camera volume
 	if (CameraVolumeCurrent)
 	{
-#if DEADZONES
 		// Dead zone
 		if (CameraVolumeCurrent->bOverrideDeadZoneSettings)
 		{
@@ -253,7 +248,7 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 		{
 			ProcessDeadZone();
 		}
-#endif
+
 		// Camera projection
 		if (bIsCameraOrthographic)
 		{
@@ -297,7 +292,9 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 
 				const FVector DirToAxis = CameraLocationSourceTransformed.GetSafeNormal2D();
 				const FQuat RotToAxis = FRotationMatrix::MakeFromX(DirToAxis).ToQuat();
-				CameraLocationNew = RotToAxis.RotateVector(CameraLocationNew) + FVector(0.f, 0.f, CameraLocationSourceTransformed.Z);
+				const FVector VerticalOffset = FVector(0.f, 0.f, CameraLocationSourceTransformed.Z);
+
+				CameraLocationNew = RotToAxis.RotateVector(CameraLocationNew) + VerticalOffset;
 
 				if (!CameraVolumeCurrent->bCameraLocationRelativeToVolume)
 				{
@@ -319,6 +316,7 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 				}
 				else
 				{
+					CameraFocalPointNew += VerticalOffset;
 					CameraRotationNew = CameraVolumeCurrent->bOverrideCameraRotation
 						? RotToAxis * CameraVolumeCurrent->CameraRotation
 						// Focal point will be relative to volume, not character!
@@ -460,12 +458,11 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 		CameraLocationNew = CameraVolumeCurrent->GetActorTransform().TransformPositionNoScale(CameraLocationNew);
 		CameraFocalPointNew = CameraVolumeCurrent->GetActorTransform().TransformPositionNoScale(CameraFocalPointNew);
 		CameraRotationNew = CameraVolumeCurrent->GetActorTransform().TransformRotation(CameraRotationNew);
-#if DEADZONES
+
 		if (bUseDeadZone && !bFirstPass)
 		{
 			ProcessDeadZone();
 		}
-#endif
 	}
 	else
 	{
@@ -511,12 +508,11 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 			CameraFocalPointNew = CameraLocationSource + PlayerPawn->GetActorQuat().RotateVector(CameraComponent->DefaultCameraFocalPoint);
 			CameraLocationNew = CameraFocalPointNew + CameraRotationNew.RotateVector(CameraComponent->DefaultCameraLocation - CameraComponent->DefaultCameraFocalPoint);
 		}
-#if DEADZONES
+
 		if (bUseDeadZone && !bFirstPass)
 		{
 			ProcessDeadZone();
 		}
-#endif
 	}
 
 	// Camera collision
@@ -622,12 +618,12 @@ void ACameraVolumesCameraManager::CalculateTransitions(float DeltaTime)
 			CameraLocationNewFixed = CameraLocationNew;
 			bSmoothTransitionJustStarted = false;
 		}
-#if DEADZONES
+
 		if (bSmoothTransitionInDeadZone)
 		{
 			CameraLocationNew = CameraLocationNewFixed;
 		}
-#endif
+
 		SmoothTransitionAlpha = FMath::Clamp(SmoothTransitionAlpha + DeltaTime * SmoothTransitionSpeed, 0.f, 1.f);
 		SmoothTransitionAlphaEase = UKismetMathLibrary::Ease(0.f, 1.f, SmoothTransitionAlpha, SmoothTransitionEasingFunc, EasingFuncBlendExp, EasingFuncSteps);
 
@@ -691,7 +687,7 @@ void ACameraVolumesCameraManager::CalculateTransitions(float DeltaTime)
 		}
 	}
 }
-#if DEADZONES
+
 bool ACameraVolumesCameraManager::IsInDeadZone(const FVector& InWorldLocation, const FDeadZoneTransform InDeadZoneTransform)
 {
 	if (APlayerController* PlayerController = GetOwningPlayerController())
@@ -749,7 +745,6 @@ void ACameraVolumesCameraManager::ProcessDeadZone()
 		bSmoothTransitionInDeadZone = false;
 	}
 }
-#endif
 
 FVector2D ACameraVolumesCameraManager::CalculateScreenWorldExtentAtDepth(float Depth)
 {
@@ -760,7 +755,7 @@ FVector2D ACameraVolumesCameraManager::CalculateScreenWorldExtentAtDepth(float D
 	{
 		ScreenAspectRatio = CameraComponent->AspectRatio;
 
-		ScreenExtentResult.X = CameraComponent->GetIsCameraOrthographic()
+		ScreenExtentResult.X = CameraComponent->ProjectionMode == ECameraProjectionMode::Orthographic
 			? DefaultOrthoWidth * 0.5f
 			: ScreenExtentResult.X = FMath::Abs(Depth * FMath::Tan(FMath::DegreesToRadians(DefaultFOV * 0.5f)));
 	}

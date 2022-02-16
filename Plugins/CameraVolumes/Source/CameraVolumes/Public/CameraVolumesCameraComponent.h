@@ -15,7 +15,7 @@
 #include "CameraVolumeActor.h"
 #include "CameraVolumesCameraComponent.generated.h"
 
-UCLASS(Config = CameraVolumes, AutoExpandCategories = (CameraSettings, "CameraSettings | DefaultParameters", "CameraSettings | AdditionalParameters", "CameraSettings | DeadZone", "CameraSettings | CameraCollision", "CameraSettings | CameraRotation"))
+UCLASS(Config = CameraVolumes, AutoExpandCategories = (CameraSettings, "CameraSettings | DefaultParameters", "CameraSettings | AdditionalParameters", "CameraSettings | DeadZone", "CameraSettings | CameraCollision", "CameraSettings | CameraControlRotation"))
 class CAMERAVOLUMES_API UCameraVolumesCameraComponent : public UCameraComponent
 {
 	GENERATED_BODY()
@@ -172,23 +172,23 @@ public:
 	// Camera rotation
 public:
 	// Should update control rotation from camera rotation when not in UsePawnControlRotation mode?
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraRotation")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraControlRotation")
 	bool bUpdateControlRotationFromCameraRotation;
 
 	// Should use pawn control rotation when it's possible?
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraRotation")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraControlRotation")
 	bool bUsePawnControlRotationCV;
 
 	// Should use pitch?
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraRotation", Meta = (EditCondition = "bUsePawnControlRotationCV"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraControlRotation", Meta = (EditCondition = "bUsePawnControlRotationCV"))
 	bool bInheritPitchCV;
 
 	// Should use yaw?
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraRotation", Meta = (EditCondition = "bUsePawnControlRotationCV"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraControlRotation", Meta = (EditCondition = "bUsePawnControlRotationCV"))
 	bool bInheritYawCV;
 
 	// Should use roll?
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraRotation", Meta = (EditCondition = "bUsePawnControlRotationCV"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | CameraControlRotation", Meta = (EditCondition = "bUsePawnControlRotationCV"))
 	bool bInheritRollCV;
 
 	// Overlapping camera volumes
@@ -206,15 +206,6 @@ public:
 	// Update camera component parameters
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 	virtual void UpdateCameraComponent();
-
-protected:
-	UPROPERTY()
-	bool bIsCameraOrthographic;
-
-public:
-	// Get is camera uses orthographic projection mode
-	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-	virtual bool GetIsCameraOrthographic() const;
 
 #if WITH_EDITOR
 public:

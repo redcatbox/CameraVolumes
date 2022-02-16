@@ -94,7 +94,7 @@ ACameraVolumeActor::ACameraVolumeActor()
 	}
 #endif
 
-	ACameraVolumeActor::UpdateVolume();
+	UpdateVolume();
 }
 
 float ACameraVolumeActor::GetCamVolAspectRatio() const
@@ -199,11 +199,13 @@ void ACameraVolumeActor::UpdateVolume()
 
 #if WITH_EDITORONLY_DATA
 	CameraPreview->ProjectionMode = CameraProjectionMode;
-	CameraPreview->DefaultCameraFieldOfView = CameraFieldOfView;
-	CameraPreview->DefaultCameraOrthoWidth = CameraOrthoWidth;
+
 	CameraPreview->DefaultCameraLocation = CameraLocation;
 	CameraPreview->DefaultCameraFocalPoint = CameraFocalPoint;
 	CameraPreview->DefaultCameraRoll = CameraRoll;
+
+	CameraPreview->DefaultCameraFieldOfView = CameraFieldOfView;
+	CameraPreview->DefaultCameraOrthoWidth = CameraOrthoWidth;
 
 	CameraPreview->bUseDeadZone = bOverrideDeadZoneSettings;
 	CameraPreview->DeadZoneExtent = DeadZoneExtent;

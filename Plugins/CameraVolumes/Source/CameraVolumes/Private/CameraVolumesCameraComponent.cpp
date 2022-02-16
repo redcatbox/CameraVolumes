@@ -35,7 +35,7 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 	DeadZonePreviewMaterial = MaterialObj.Object;
 #endif
 
-	UCameraVolumesCameraComponent::UpdateCameraComponent();
+	UpdateCameraComponent();
 }
 
 void UCameraVolumesCameraComponent::UpdateCamera(FVector& CameraLocation, FQuat& CameraRotation, float CameraFOV_OW)
@@ -44,13 +44,14 @@ void UCameraVolumesCameraComponent::UpdateCamera(FVector& CameraLocation, FQuat&
 	{
 		SetWorldLocationAndRotation(CameraLocation, CameraRotation);
 
-		if (bIsCameraOrthographic)
+		switch (ProjectionMode)
 		{
+		case ECameraProjectionMode::Orthographic:
 			SetOrthoWidth(CameraFOV_OW);
-		}
-		else
-		{
+			break;
+		default:
 			SetFieldOfView(CameraFOV_OW);
+			break;
 		}
 	}
 }
@@ -60,11 +61,9 @@ void UCameraVolumesCameraComponent::UpdateCameraComponent()
 	switch (ProjectionMode)
 	{
 	case ECameraProjectionMode::Orthographic:
-		bIsCameraOrthographic = true;
 		SetOrthoWidth(DefaultCameraOrthoWidth);
 		break;
 	default:
-		bIsCameraOrthographic = false;
 		SetFieldOfView(DefaultCameraFieldOfView);
 		break;
 	}
@@ -73,18 +72,11 @@ void UCameraVolumesCameraComponent::UpdateCameraComponent()
 	SetRelativeLocationAndRotation(DefaultCameraLocation, DefaultCameraRotation);
 
 #if WITH_EDITOR
+	RefreshVisualRepresentation();
+
 	FDeadZoneTransform DeadZoneTransform(DeadZoneExtent, DeadZoneOffset, DefaultCameraRoll);
 	UpdateDeadZonePreview(DeadZoneTransform);
 #endif
-
-#if WITH_EDITORONLY_DATA
-	RefreshVisualRepresentation();
-#endif
-}
-
-bool UCameraVolumesCameraComponent::GetIsCameraOrthographic() const
-{
-	return bIsCameraOrthographic;
 }
 
 //Update with changed property
