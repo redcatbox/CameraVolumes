@@ -165,7 +165,7 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 					// Update camera component
 					CameraComponent->UpdateCamera(CameraLocationFinalNew, CameraRotationFinalNew, CameraFOVOWFinalNew);
 
-#if WITH_EDITOR
+#if WITH_EDITOR && 0
 					// Dead zone preview
 					CameraComponent->UpdateDeadZonePreview(FDeadZoneTransform(DeadZoneExtent, DeadZoneOffset, DeadZoneRoll));
 #endif
@@ -214,6 +214,7 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 
 	bool bDoCollisionTest = CameraComponent->bDoCollisionTest;
 
+#if 0
 	bUseDeadZone = false;
 	bIsInDeadZone = false;
 
@@ -223,12 +224,14 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 		DeadZoneExtent = CameraComponent->DeadZoneExtent;
 		DeadZoneOffset = CameraComponent->DeadZoneOffset;
 	}
+#endif
 
 	bBroadcastOnCameraVolumeChanged = false;
 
 	// Active camera volume
 	if (CameraVolumeCurrent)
 	{
+#if 0
 		// Dead zone
 		if (CameraVolumeCurrent->bOverrideDeadZoneSettings)
 		{
@@ -236,8 +239,9 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 			DeadZoneExtent = CameraVolumeCurrent->DeadZoneExtent;
 			DeadZoneOffset = CameraVolumeCurrent->DeadZoneOffset;
 		}
-
+#endif
 		bIsCameraStatic = CameraVolumeCurrent->GetIsCameraStatic();
+#if 0
 		if (bIsCameraStatic && !CameraVolumeCurrent->bFocalPointIsPlayer)
 		{
 			// Do not process dead zone for fully static camera
@@ -248,6 +252,7 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 		{
 			ProcessDeadZone();
 		}
+#endif
 
 		// Camera projection
 		if (bIsCameraOrthographic)
@@ -458,11 +463,6 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 		CameraLocationNew = CameraVolumeCurrent->GetActorTransform().TransformPositionNoScale(CameraLocationNew);
 		CameraFocalPointNew = CameraVolumeCurrent->GetActorTransform().TransformPositionNoScale(CameraFocalPointNew);
 		CameraRotationNew = CameraVolumeCurrent->GetActorTransform().TransformRotation(CameraRotationNew);
-
-		if (bUseDeadZone && !bFirstPass)
-		{
-			ProcessDeadZone();
-		}
 	}
 	else
 	{
@@ -470,10 +470,10 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 		{
 			// Player-controlled camera
 			bUsePlayerPawnControlRotation = true;
-
+#if 0
 			// Do not process dead zone for camera that uses control rotation
 			bUseDeadZone = false;
-
+#endif
 			const FRotator CamRot = CameraComponent->DefaultCameraRotation.Rotator();
 			FRotator PawnViewRot = PlayerPawn->GetViewRotation();
 
@@ -508,11 +508,18 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 			CameraFocalPointNew = CameraLocationSource + PlayerPawn->GetActorQuat().RotateVector(CameraComponent->DefaultCameraFocalPoint);
 			CameraLocationNew = CameraFocalPointNew + CameraRotationNew.RotateVector(CameraComponent->DefaultCameraLocation - CameraComponent->DefaultCameraFocalPoint);
 		}
-
+#if 0
 		if (bUseDeadZone && !bFirstPass)
 		{
 			ProcessDeadZone();
 		}
+#endif
+	}
+
+	// Transitions and interpolations
+	if (!bFirstPass)
+	{
+		CalculateTransitions(DeltaTime);
 	}
 
 	// Camera collision
@@ -526,12 +533,6 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 		{
 			CameraLocationNew = HitResult.Location;
 		}
-	}
-
-	// Transitions and interpolations
-	if (!bFirstPass)
-	{
-		CalculateTransitions(DeltaTime);
 	}
 
 	CameraLocationFinalNew = CameraLocationNew;
@@ -618,12 +619,12 @@ void ACameraVolumesCameraManager::CalculateTransitions(float DeltaTime)
 			CameraLocationNewFixed = CameraLocationNew;
 			bSmoothTransitionJustStarted = false;
 		}
-
+#if 0
 		if (bSmoothTransitionInDeadZone)
 		{
 			CameraLocationNew = CameraLocationNewFixed;
 		}
-
+#endif
 		SmoothTransitionAlpha = FMath::Clamp(SmoothTransitionAlpha + DeltaTime * SmoothTransitionSpeed, 0.f, 1.f);
 		SmoothTransitionAlphaEase = UKismetMathLibrary::Ease(0.f, 1.f, SmoothTransitionAlpha, SmoothTransitionEasingFunc, EasingFuncBlendExp, EasingFuncSteps);
 
@@ -687,7 +688,7 @@ void ACameraVolumesCameraManager::CalculateTransitions(float DeltaTime)
 		}
 	}
 }
-
+#if 0
 bool ACameraVolumesCameraManager::IsInDeadZone(const FVector& InWorldLocation, const FDeadZoneTransform InDeadZoneTransform)
 {
 	if (APlayerController* PlayerController = GetOwningPlayerController())
@@ -731,21 +732,33 @@ void ACameraVolumesCameraManager::ProcessDeadZone()
 		if (!(bNeedsSmoothTransition || bNeedsCutTransition))
 		{
 			CameraLocationSource = CameraLocationSourceOld;
-			// skip all further calculations
+			//// skip all further calculations
 			CameraLocationNew = CameraLocationOld;
 			CameraRotationNew = CameraRotationOld;
+			UE_LOG(LogTemp, Warning, TEXT("1"));
 		}
 		else if (bNeedsSmoothTransition)
 		{
 			bSmoothTransitionInDeadZone = true;
+			UE_LOG(LogTemp, Warning, TEXT("22"));
 		}
+
+		UE_LOG(LogTemp, Warning, TEXT("333"));
 	}
 	else
 	{
 		bSmoothTransitionInDeadZone = false;
+		UE_LOG(LogTemp, Warning, TEXT("4444"));
 	}
 }
 
+FVector ACameraVolumesCameraManager::CalcLocationOnDeadZoneEdge()
+{
+	FVector Result;
+
+	return Result;
+}
+#endif
 FVector2D ACameraVolumesCameraManager::CalculateScreenWorldExtentAtDepth(float Depth)
 {
 	FVector2D ScreenExtentResult = FVector2D::ZeroVector;

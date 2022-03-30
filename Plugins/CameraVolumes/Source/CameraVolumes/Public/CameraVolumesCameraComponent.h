@@ -15,7 +15,7 @@
 #include "CameraVolumeActor.h"
 #include "CameraVolumesCameraComponent.generated.h"
 
-UCLASS(Config = CameraVolumes, AutoExpandCategories = (CameraSettings, "CameraSettings | DefaultParameters", "CameraSettings | AdditionalParameters", "CameraSettings | DeadZone", "CameraSettings | CameraCollision", "CameraSettings | CameraControlRotation"))
+UCLASS(Config = CameraVolumes, AutoExpandCategories = (CameraSettings, "CameraSettings | DefaultParameters", "CameraSettings | AdditionalParameters", /*"CameraSettings | DeadZone",*/ "CameraSettings | CameraCollision", "CameraSettings | CameraControlRotation"))
 class CAMERAVOLUMES_API UCameraVolumesCameraComponent : public UCameraComponent
 {
 	GENERATED_BODY()
@@ -116,7 +116,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | AdditionalParameters", Meta = (EditCondition = "bUseAdditionalCameraParams"))
 	float AdditionalCameraOrthoWidth;
 
-
+#if 0
 	// Dead zone
 public:
 	// Should use screen-space dead zone to toggle camera movement?
@@ -151,6 +151,7 @@ protected:
 #if WITH_EDITOR
 public:
 	void UpdateDeadZonePreview(const FDeadZoneTransform NewDeadZoneTransform);
+#endif
 #endif
 
 

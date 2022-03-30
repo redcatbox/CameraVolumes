@@ -64,7 +64,7 @@ struct FSideInfo
 		SideTransitionType = ESideTransitionType::ESTT_Normal;
 	}
 };
-
+#if 0
 // Dead zone transform
 USTRUCT(BlueprintType)
 struct FDeadZoneTransform
@@ -97,3 +97,4 @@ struct FDeadZoneTransform
 		DeadZoneRoll = InDeadZoneRoll;
 	}
 };
+#endif

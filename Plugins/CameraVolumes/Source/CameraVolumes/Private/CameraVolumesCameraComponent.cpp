@@ -30,7 +30,7 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 
 	LoadConfig();
 
-#if WITH_EDITORONLY_DATA
+#if WITH_EDITORONLY_DATA && 0
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> MaterialObj(*DeadZonePreviewMaterialPath);
 	DeadZonePreviewMaterial = MaterialObj.Object;
 #endif
@@ -73,9 +73,10 @@ void UCameraVolumesCameraComponent::UpdateCameraComponent()
 
 #if WITH_EDITOR
 	RefreshVisualRepresentation();
-
+#if 0
 	FDeadZoneTransform DeadZoneTransform(DeadZoneExtent, DeadZoneOffset, DefaultCameraRoll);
 	UpdateDeadZonePreview(DeadZoneTransform);
+#endif
 #endif
 }
 
@@ -90,7 +91,7 @@ void UCameraVolumesCameraComponent::PostEditChangeProperty(FPropertyChangedEvent
 		|| TEXT("DefaultCameraFocalPoint")
 		|| TEXT("DefaultCameraRoll")
 		|| TEXT("DefaultCameraFieldOfView") || TEXT("DefaultCameraOrthoWidth")
-		|| TEXT("bUseDeadZone") || TEXT("DeadZoneExtent") || TEXT("DeadZoneOffset") || TEXT("bPreviewDeadZone"))
+		/*|| TEXT("bUseDeadZone") || TEXT("DeadZoneExtent") || TEXT("DeadZoneOffset") || TEXT("bPreviewDeadZone")*/)
 	{
 		UpdateCameraComponent();
 	}
@@ -116,7 +117,7 @@ void UCameraVolumesCameraComponent::SetDefaultCameraRoll(float NewDefaultCameraR
 	DefaultCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(DefaultCameraLocation, DefaultCameraFocalPoint, DefaultCameraRoll);
 }
 
-#if WITH_EDITOR
+#if WITH_EDITOR && 0
 void UCameraVolumesCameraComponent::UpdateDeadZonePreview(const FDeadZoneTransform NewDeadZoneTransform)
 {
 	if (bPreviewDeadZone)

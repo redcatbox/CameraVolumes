@@ -14,7 +14,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "CameraVolumeActor.generated.h"
 
-UCLASS(Config = CameraVolumes, AutoExpandCategories = (Camera, "Camera|Location", "Camera|Rotation", "Camera|FOV/OW", "Camera|Utils", Volume, VolumeSides, "VolumeSides|SmoothTransition", DeadZone))
+UCLASS(Config = CameraVolumes, AutoExpandCategories = (Camera, "Camera|Location", "Camera|Rotation", "Camera|FOV/OW", "Camera|Utils", Volume, VolumeSides, "VolumeSides|SmoothTransition"/*, DeadZone*/))
 class CAMERAVOLUMES_API ACameraVolumeActor : public AActor
 {
 	GENERATED_BODY()
@@ -390,7 +390,7 @@ protected:
 	const FText Text_Cut = FText::FromString("CUT");
 #endif
 
-
+#if 0
 	// Dead zone
 public:
 	// Should override dead zone settings?
@@ -404,7 +404,7 @@ public:
 	// Dead zone offset from the center of the screen (in screen percentage)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DeadZone, Meta = (EditCondition = "bOverrideDeadZoneSettings"))
 	FVector2D DeadZoneOffset;
-
+#endif
 
 protected:
 	UPROPERTY()

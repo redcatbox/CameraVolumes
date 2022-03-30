@@ -36,11 +36,11 @@ protected:
 	// Calculate camera transitions and interpolations
 	UFUNCTION()
 	virtual void CalculateTransitions(float DeltaTime);
-
+#if 0
 	// Process dead zone camera behavior
 	UFUNCTION()
 	virtual void ProcessDeadZone();
-
+#endif
 public:
 	// Should perform camera updates?
 	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
@@ -93,11 +93,13 @@ public:
 	// Get new calculated camera rotation.
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
 	virtual FRotator GetNewCameraRotation() { return CameraRotationNew.Rotator(); }
-
+#if 0
 	// Is location in dead zone?
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
 	virtual bool IsInDeadZone(const FVector& InWorldLocation, const FDeadZoneTransform DeadZoneTransform);
 
+	virtual FVector CalcLocationOnDeadZoneEdge();
+#endif
 	// Reset first pass calculations
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 	virtual void ResetFirstPass() { bFirstPass = true; }
@@ -163,7 +165,7 @@ protected:
 
 	UPROPERTY()
 	bool bFirstPass;
-
+#if 0
 	UPROPERTY()
 	bool bUseDeadZone;
 
@@ -178,7 +180,7 @@ protected:
 
 	UPROPERTY()
 	bool bIsInDeadZone;
-
+#endif
 	UPROPERTY()
 	bool bIsCameraStatic;
 
@@ -190,10 +192,10 @@ protected:
 
 	UPROPERTY()
 	bool bSmoothTransitionInterrupted;
-
+#if 0
 	UPROPERTY()
 	bool bSmoothTransitionInDeadZone;
-
+#endif
 	UPROPERTY()
 	bool bSmoothTransitionJustStarted;
 
