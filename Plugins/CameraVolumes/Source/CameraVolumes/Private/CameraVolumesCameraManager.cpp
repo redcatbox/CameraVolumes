@@ -522,6 +522,10 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 		CalculateTransitions(DeltaTime);
 	}
 
+	CameraLocationFinalNew = CameraLocationNew;
+	CameraRotationFinalNew = CameraRotationNew;
+	CameraFOVOWFinalNew = CameraFOVOWNew;
+
 	// Camera collision
 	if (!bIsCameraStatic && bDoCollisionTest)
 	{
@@ -531,13 +535,9 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 
 		if (HitResult.bBlockingHit)
 		{
-			CameraLocationNew = HitResult.Location;
+			CameraLocationFinalNew = HitResult.Location;
 		}
 	}
-
-	CameraLocationFinalNew = CameraLocationNew;
-	CameraRotationFinalNew = CameraRotationNew;
-	CameraFOVOWFinalNew = CameraFOVOWNew;
 
 	// Additional camera params
 	if (CameraComponent->bUseAdditionalCameraParams && !bFirstPass)
