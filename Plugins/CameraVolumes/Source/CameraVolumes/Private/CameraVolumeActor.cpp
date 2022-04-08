@@ -83,7 +83,7 @@ ACameraVolumeActor::ACameraVolumeActor()
 #endif
 
 	LoadConfig();
-	
+
 	VolumeExtent = VolumeExtentDefault;
 
 #if WITH_EDITORONLY_DATA
@@ -94,7 +94,7 @@ ACameraVolumeActor::ACameraVolumeActor()
 	}
 #endif
 
-	ACameraVolumeActor::UpdateVolume();
+	UpdateVolume();
 }
 
 float ACameraVolumeActor::GetCamVolAspectRatio() const
@@ -154,6 +154,9 @@ void ACameraVolumeActor::UpdateVolume()
 			bFocalPointIsPlayer = true;
 		}
 		bUseCameraRotationAxisEditCond = true;
+		bDisableCameraLocationLagEditCond = true;
+		bDisableCameraRotationLagEditCond = true;
+		bDoCollisionTestEditCond = true;
 		break;
 	case ECameraMobility::ECM_Static:
 		bIsCameraStatic = true;
@@ -162,9 +165,12 @@ void ACameraVolumeActor::UpdateVolume()
 		bPerformCameraBlocking = false;
 		bUseCameraRotationAxisEditCond = false;
 		bUseCameraRotationAxis = false;
+		bDisableCameraLocationLagEditCond = false;
+		bDisableCameraRotationLagEditCond = bFocalPointIsPlayer;
+		bDoCollisionTestEditCond = false;
 		break;
 	}
-	
+
 	if (!bOverrideCameraLocation)
 	{
 		CameraLocation = FVector(0.f, 1000.f, 0.f);
@@ -193,16 +199,19 @@ void ACameraVolumeActor::UpdateVolume()
 
 #if WITH_EDITORONLY_DATA
 	CameraPreview->ProjectionMode = CameraProjectionMode;
-	CameraPreview->DefaultCameraFieldOfView = CameraFieldOfView;
-	CameraPreview->DefaultCameraOrthoWidth = CameraOrthoWidth;
+
 	CameraPreview->DefaultCameraLocation = CameraLocation;
 	CameraPreview->DefaultCameraFocalPoint = CameraFocalPoint;
 	CameraPreview->DefaultCameraRoll = CameraRoll;
 
+	CameraPreview->DefaultCameraFieldOfView = CameraFieldOfView;
+	CameraPreview->DefaultCameraOrthoWidth = CameraOrthoWidth;
+#if 0
 	CameraPreview->bUseDeadZone = bOverrideDeadZoneSettings;
 	CameraPreview->DeadZoneExtent = DeadZoneExtent;
 	CameraPreview->DeadZoneOffset = DeadZoneOffset;
 	CameraPreview->bPreviewDeadZone = bOverrideDeadZoneSettings;
+#endif
 #endif
 
 #if WITH_EDITOR
@@ -504,7 +513,7 @@ void ACameraVolumeActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyC
 		|| TEXT("FrontSide") || TEXT("BackSide") || TEXT("RightSide") || TEXT("LeftSide") || TEXT("TopSide") || TEXT("BottomSide")
 		|| TEXT("TextSize")
 		|| TEXT("bUseCameraRotationAxis")
-		|| TEXT("bOverrideDeadZoneSettings") || TEXT("DeadZoneExtent") || TEXT("DeadZoneOffset"))
+		/*|| TEXT("bOverrideDeadZoneSettings") || TEXT("DeadZoneExtent") || TEXT("DeadZoneOffset")*/)
 	{
 		UpdateVolume();
 	}

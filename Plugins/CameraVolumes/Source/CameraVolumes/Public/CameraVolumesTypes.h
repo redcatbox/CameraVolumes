@@ -49,13 +49,13 @@ struct FSideInfo
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadOnly, Category = VolumeSides)
-		ESide Side;
+	ESide Side;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = VolumeSides)
-		ESideType SideType;
+	ESideType SideType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = VolumeSides)
-		ESideTransitionType SideTransitionType;
+	ESideTransitionType SideTransitionType;
 
 	FSideInfo()
 	{
@@ -64,7 +64,7 @@ struct FSideInfo
 		SideTransitionType = ESideTransitionType::ESTT_Normal;
 	}
 };
-
+#if 0
 // Dead zone transform
 USTRUCT(BlueprintType)
 struct FDeadZoneTransform
@@ -73,15 +73,15 @@ struct FDeadZoneTransform
 
 	// Dead zone extent (in screen percentage)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DeadZone)
-		FVector2D DeadZoneExtent;
+	FVector2D DeadZoneExtent;
 
 	// Dead zone offset from the center of the screen (in screen percentage)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DeadZone)
-		FVector2D DeadZoneOffset;
+	FVector2D DeadZoneOffset;
 
 	// Dead zone roll (in degrees)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DeadZone)
-		float DeadZoneRoll;
+	float DeadZoneRoll;
 
 	FDeadZoneTransform()
 	{
@@ -97,3 +97,4 @@ struct FDeadZoneTransform
 		DeadZoneRoll = InDeadZoneRoll;
 	}
 };
+#endif

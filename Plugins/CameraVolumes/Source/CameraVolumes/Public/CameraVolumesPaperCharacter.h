@@ -8,7 +8,6 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "PaperCharacter.h"
 #include "CameraVolumesCharacterInterface.h"
 #include "CameraVolumesPaperCharacter.generated.h"
@@ -27,8 +26,9 @@ public:
 protected:
 	// Camera component
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CameraVolumes)
-		class UCameraVolumesCameraComponent* CameraComponent;
+	class UCameraVolumesCameraComponent* CameraComponent;
 
 	virtual void OnCollisionPrimitiveComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
+
 	virtual void OnCollisionPrimitiveComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
 };

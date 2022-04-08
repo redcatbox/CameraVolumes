@@ -16,18 +16,12 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 	CameraFOVInterpSpeed = 10.f;
 	CameraOrthoWidthInterpSpeed = 10.f;
 
-	bUpdateControlRotationFromCameraRotation = true;
-
-	// Dead zone
-#if WITH_EDITORONLY_DATA
-	DeadZonePreviewMaterialPath = TEXT("/CameraVolumes/Materials/DeadZonePreview");
-#endif
-
 	// Camera collision
 	ProbeSize = 12.f;
 	ProbeChannel = ECC_Camera;
 
 	// Camera rotation
+	bUpdateControlRotationFromCameraRotation = true;
 	bInheritPitchCV = true;
 	bInheritYawCV = true;
 	bInheritRollCV = true;
@@ -36,39 +30,28 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 
 	LoadConfig();
 
-#if WITH_EDITORONLY_DATA
+#if WITH_EDITORONLY_DATA && 0
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> MaterialObj(*DeadZonePreviewMaterialPath);
 	DeadZonePreviewMaterial = MaterialObj.Object;
 #endif
 
-	UCameraVolumesCameraComponent::UpdateCameraComponent();
+	UpdateCameraComponent();
 }
 
-void UCameraVolumesCameraComponent::UpdateCamera(FVector& CameraLocation, FVector& CameraFocalPoint, FQuat& CameraRotation, float CameraFOV_OW, bool bIsCameraStatic)
+void UCameraVolumesCameraComponent::UpdateCamera(FVector& CameraLocation, FQuat& CameraRotation, float CameraFOV_OW)
 {
 	if (bUpdateCamera)
 	{
-		if (bDoCollisionTest && !bIsCameraStatic)
-		{
-			FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(SpringArm), false, GetOwner());
-			FHitResult HitResult;
-			GetWorld()->SweepSingleByChannel(HitResult, CameraFocalPoint, CameraLocation, FQuat::Identity, ProbeChannel, FCollisionShape::MakeSphere(ProbeSize), QueryParams);
-
-			if (HitResult.bBlockingHit)
-			{
-				CameraLocation = HitResult.Location;
-			}
-		}
-
 		SetWorldLocationAndRotation(CameraLocation, CameraRotation);
 
-		if (bIsCameraOrthographic)
+		switch (ProjectionMode)
 		{
+		case ECameraProjectionMode::Orthographic:
 			SetOrthoWidth(CameraFOV_OW);
-		}
-		else
-		{
+			break;
+		default:
 			SetFieldOfView(CameraFOV_OW);
+			break;
 		}
 	}
 }
@@ -78,11 +61,9 @@ void UCameraVolumesCameraComponent::UpdateCameraComponent()
 	switch (ProjectionMode)
 	{
 	case ECameraProjectionMode::Orthographic:
-		bIsCameraOrthographic = true;
 		SetOrthoWidth(DefaultCameraOrthoWidth);
 		break;
 	default:
-		bIsCameraOrthographic = false;
 		SetFieldOfView(DefaultCameraFieldOfView);
 		break;
 	}
@@ -91,18 +72,12 @@ void UCameraVolumesCameraComponent::UpdateCameraComponent()
 	SetRelativeLocationAndRotation(DefaultCameraLocation, DefaultCameraRotation);
 
 #if WITH_EDITOR
+	RefreshVisualRepresentation();
+#if 0
 	FDeadZoneTransform DeadZoneTransform(DeadZoneExtent, DeadZoneOffset, DefaultCameraRoll);
 	UpdateDeadZonePreview(DeadZoneTransform);
 #endif
-
-#if WITH_EDITORONLY_DATA
-	RefreshVisualRepresentation();
 #endif
-}
-
-bool UCameraVolumesCameraComponent::GetIsCameraOrthographic() const
-{
-	return bIsCameraOrthographic;
 }
 
 //Update with changed property
@@ -116,7 +91,7 @@ void UCameraVolumesCameraComponent::PostEditChangeProperty(FPropertyChangedEvent
 		|| TEXT("DefaultCameraFocalPoint")
 		|| TEXT("DefaultCameraRoll")
 		|| TEXT("DefaultCameraFieldOfView") || TEXT("DefaultCameraOrthoWidth")
-		|| TEXT("bUseDeadZone") || TEXT("DeadZoneExtent") || TEXT("DeadZoneOffset") || TEXT("bPreviewDeadZone"))
+		/*|| TEXT("bUseDeadZone") || TEXT("DeadZoneExtent") || TEXT("DeadZoneOffset") || TEXT("bPreviewDeadZone")*/)
 	{
 		UpdateCameraComponent();
 	}
@@ -142,8 +117,8 @@ void UCameraVolumesCameraComponent::SetDefaultCameraRoll(float NewDefaultCameraR
 	DefaultCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(DefaultCameraLocation, DefaultCameraFocalPoint, DefaultCameraRoll);
 }
 
-#if WITH_EDITOR
-void UCameraVolumesCameraComponent::UpdateDeadZonePreview(FDeadZoneTransform& NewDeadZoneTransform)
+#if WITH_EDITOR && 0
+void UCameraVolumesCameraComponent::UpdateDeadZonePreview(const FDeadZoneTransform NewDeadZoneTransform)
 {
 	if (bPreviewDeadZone)
 	{
