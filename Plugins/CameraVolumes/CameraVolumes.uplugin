@@ -12,6 +12,7 @@
 	"SupportURL": "https://discord.gg/gVexAf",
 	"CanContainContent": true,
 	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
 	"Installed": true,
 	"Modules": [
 		{

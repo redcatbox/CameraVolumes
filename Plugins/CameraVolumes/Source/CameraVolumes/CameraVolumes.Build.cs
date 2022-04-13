@@ -24,7 +24,6 @@ public class CameraVolumes : ModuleRules
 			new string[]
 			{
 				"Core",
-				"Paper2D"
 			}
 			);
 
@@ -33,7 +32,8 @@ public class CameraVolumes : ModuleRules
 			new string[]
 			{
 				"CoreUObject",
-				"Engine"
+				"Engine",
+				"Paper2D",
 			}
 			);
 
