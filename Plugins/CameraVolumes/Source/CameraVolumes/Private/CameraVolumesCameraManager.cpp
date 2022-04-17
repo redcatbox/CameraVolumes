@@ -5,7 +5,6 @@
 #include "CameraVolumeDynamicActor.h"
 #include "Engine/Engine.h"
 #include "GameFramework/PlayerController.h"
-#include "drawdebughelpers.h"
 
 ACameraVolumesCameraManager::ACameraVolumesCameraManager(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
