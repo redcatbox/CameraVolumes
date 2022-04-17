@@ -24,6 +24,9 @@ public class CameraVolumes : ModuleRules
 			new string[]
 			{
 				"Core",
+				"CoreUObject",
+				"Engine",
+				"Paper2D",
 			}
 			);
 
@@ -31,9 +34,6 @@ public class CameraVolumes : ModuleRules
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"CoreUObject",
-				"Engine",
-				"Paper2D",
 			}
 			);
 
