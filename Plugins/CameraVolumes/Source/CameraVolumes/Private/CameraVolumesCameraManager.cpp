@@ -225,8 +225,6 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 	}
 #endif
 
-	bBroadcastOnCameraVolumeChanged = false;
-
 	// Active camera volume
 	if (CameraVolumeCurrent)
 	{
@@ -563,6 +561,7 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 	if (bBroadcastOnCameraVolumeChanged)
 	{
 		OnCameraVolumeChanged.Broadcast(BroadcastCameraVolume, BroadcastSideInfo);
+		bBroadcastOnCameraVolumeChanged = false;
 	}
 }
 
