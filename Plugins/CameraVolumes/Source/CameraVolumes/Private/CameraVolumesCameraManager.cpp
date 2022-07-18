@@ -368,7 +368,7 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 				const float CamFOVTangens = FMath::Tan(FMath::DegreesToRadians(CameraFOVOWNew * 0.5f));
 				float ScreenAspectRatio = CameraComponent->AspectRatio;
 
-				if (GEngine->GameViewport->Viewport)
+				if (GEngine && GEngine->GameViewport && GEngine->GameViewport->Viewport)
 				{
 					const FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 					if (ViewportSize.Y != 0)
