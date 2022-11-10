@@ -3,6 +3,7 @@
 #include "CameraVolumesCameraManager.h"
 #include "CameraVolumesCharacterInterface.h"
 #include "CameraVolumeDynamicActor.h"
+#include "CameraVolumesFunctionLibrary.h"
 #include "Engine/Engine.h"
 #include "GameFramework/PlayerController.h"
 
@@ -587,7 +588,7 @@ void ACameraVolumesCameraManager::SetTransitionBySideInfo(ACameraVolumeActor* Ca
 		bSmoothTransitionJustStarted = true;
 
 		SmoothTransitionSpeed = CameraVolume->CameraSmoothTransitionSpeed;
-		SmoothTransitionEasingFunc = CameraVolume->SmoothTransitionEasingFunc;
+		SmoothTransitionEasingFunc = (uint8)CameraVolume->SmoothTransitionEasingFunc;
 		EasingFuncBlendExp = CameraVolume->EasingFuncBlendExp;
 		EasingFuncSteps = CameraVolume->EasingFuncSteps;
 	}
@@ -624,7 +625,7 @@ void ACameraVolumesCameraManager::CalculateTransitions(float DeltaTime)
 		}
 #endif
 		SmoothTransitionAlpha = FMath::Clamp(SmoothTransitionAlpha + DeltaTime * SmoothTransitionSpeed, 0.f, 1.f);
-		SmoothTransitionAlphaEase = UKismetMathLibrary::Ease(0.f, 1.f, SmoothTransitionAlpha, SmoothTransitionEasingFunc, EasingFuncBlendExp, EasingFuncSteps);
+		SmoothTransitionAlphaEase = UKismetMathLibrary::Ease(0.f, 1.f, SmoothTransitionAlpha, (EEasingFunc::Type)SmoothTransitionEasingFunc, EasingFuncBlendExp, EasingFuncSteps);
 
 		if (CameraLocationNew.Equals(CameraLocationOld, 0.1f)
 			|| SmoothTransitionAlpha == 1.f)

@@ -9,7 +9,7 @@
 
 #include "CoreMinimal.h"
 #include "Camera/PlayerCameraManager.h"
-#include "CameraVolumesFunctionLibrary.h"
+#include "CameraVolumesTypes.h"
 #include "CameraVolumesCameraManager.generated.h"
 
 // Delegate for notification when camera volume is changed
@@ -209,7 +209,7 @@ protected:
 	float SmoothTransitionAlphaEase;
 
 	UPROPERTY()
-	TEnumAsByte<EEasingFunc::Type> SmoothTransitionEasingFunc;
+	uint8 SmoothTransitionEasingFunc;
 
 	UPROPERTY()
 	float EasingFuncBlendExp;
