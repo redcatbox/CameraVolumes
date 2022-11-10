@@ -5,6 +5,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Engine/CollisionProfile.h"
 #include "CameraVolumesCameraManager.h"
+#include "CameraVolumeActor.h"
 
 ACamVolExamplePawn::ACamVolExamplePawn()
 {

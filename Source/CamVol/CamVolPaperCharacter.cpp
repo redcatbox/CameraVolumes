@@ -4,7 +4,6 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
-#include "Camera/CameraComponent.h"
 
 ACamVolPaperCharacter::ACamVolPaperCharacter()
 {

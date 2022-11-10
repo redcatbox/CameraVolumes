@@ -12,7 +12,6 @@
 
 #include "CoreMinimal.h"
 #include "Camera/CameraComponent.h"
-#include "CameraVolumeActor.h"
 #include "CameraVolumesCameraComponent.generated.h"
 
 UCLASS(Config = CameraVolumes, AutoExpandCategories = (CameraSettings, "CameraSettings | DefaultParameters", "CameraSettings | AdditionalParameters", /*"CameraSettings | DeadZone",*/ "CameraSettings | CameraCollision", "CameraSettings | CameraControlRotation"))
@@ -194,7 +193,7 @@ public:
 
 	// Overlapping camera volumes
 	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
-	TSet<ACameraVolumeActor*> OverlappingCameraVolumes;
+	TSet<class ACameraVolumeActor*> OverlappingCameraVolumes;
 
 	// Should update camera parameters?
 	UPROPERTY(BlueprintReadWrite, Category = CameraVolumes)
