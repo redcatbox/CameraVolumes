@@ -5,6 +5,9 @@
 #include "CoreMinimal.h"
 #include "CameraVolumesTypes.generated.h"
 
+#define DEAD_ZONES 0
+#define DRAW_DEBUG 0
+
 // Camera mobility
 UENUM(BlueprintType)
 enum class ECameraMobility : uint8
@@ -64,7 +67,8 @@ struct FSideInfo
 		SideTransitionType = ESideTransitionType::ESTT_Normal;
 	}
 };
-#if 0
+
+#if 0 //DEAD_ZONES
 // Dead zone transform
 USTRUCT(BlueprintType)
 struct FDeadZoneTransform

@@ -36,11 +36,13 @@ protected:
 	// Calculate camera transitions and interpolations
 	UFUNCTION()
 	virtual void CalculateTransitions(float DeltaTime);
-#if 0
+
+#if 0 //DEAD_ZONES
 	// Process dead zone camera behavior
 	UFUNCTION()
-	virtual void ProcessDeadZone();
+	virtual void CalculateDeadZone();
 #endif
+
 public:
 	// Should perform camera updates?
 	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
@@ -53,18 +55,6 @@ public:
 	// Set perform camera updates.
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 	virtual void SetUpdateCamera(bool bShouldUpdateCamera);
-
-	/** Should check for camera volumes?
-	* @deprecated - Use bProcessCameraVolumes instead.
-	*/
-	UPROPERTY(Meta = (DeprecatedProperty, DeprecationMessage = "Use bProcessCameraVolumes instead."))
-	bool bCheckCameraVolumes_DEPRECATED;
-
-	/** Set check for camera volumes.
-	* @deprecated - Use SetProcessCameraVolumes() instead.
-	*/
-	UFUNCTION(Meta = (DeprecatedFunction, DeprecationMessage = "Use SetProcessCameraVolumes() instead."))
-	virtual void SetCheckCameraVolumes(bool bNewCheck);
 
 	// Should process camera volumes?
 	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
@@ -93,13 +83,7 @@ public:
 	// Get new calculated camera rotation.
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
 	virtual FRotator GetNewCameraRotation() { return CameraRotationNew.Rotator(); }
-#if 0
-	// Is location in dead zone?
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
-	virtual bool IsInDeadZone(const FVector& InWorldLocation, const FDeadZoneTransform DeadZoneTransform);
 
-	virtual FVector CalcLocationOnDeadZoneEdge();
-#endif
 	// Reset first pass calculations
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
 	virtual void ResetFirstPass() { bFirstPass = true; }
@@ -127,7 +111,7 @@ protected:
 	FVector CameraLocationSourceOld;
 
 	UPROPERTY()
-	FVector CameraLocationSource;
+	FVector CameraLocationSourceNew;
 
 	UPROPERTY()
 	FVector CameraLocationOld;
@@ -140,6 +124,9 @@ protected:
 
 	UPROPERTY()
 	FVector CameraLocationFinalNew;
+
+	UPROPERTY()
+	float CameraOffset;
 
 	UPROPERTY()
 	FVector CameraFocalPointNew;
@@ -165,7 +152,8 @@ protected:
 
 	UPROPERTY()
 	bool bFirstPass;
-#if 0
+
+#if 0 //DEAD_ZONES
 	UPROPERTY()
 	bool bUseDeadZone;
 
@@ -176,11 +164,18 @@ protected:
 	FVector2D DeadZoneOffset;
 
 	UPROPERTY()
+	bool bShouldCalculateDeadZoneRoll;
+
+	UPROPERTY()
 	float DeadZoneRoll;
 
 	UPROPERTY()
 	bool bIsInDeadZone;
+
+	UPROPERTY()
+	FVector DeadZoneEdgePoint;
 #endif
+
 	UPROPERTY()
 	bool bIsCameraStatic;
 
@@ -188,14 +183,22 @@ protected:
 	bool bIsCameraOrthographic;
 
 	UPROPERTY()
+	TEnumAsByte<ECameraProjectionMode::Type> CameraProjectionModeNew;
+
+	UPROPERTY()
+	TEnumAsByte<ECameraProjectionMode::Type> CameraProjectionModeOld;
+
+	UPROPERTY()
 	bool bNeedsSmoothTransition;
 
 	UPROPERTY()
 	bool bSmoothTransitionInterrupted;
-#if 0
+
+#if 0 //DEAD_ZONES
 	UPROPERTY()
 	bool bSmoothTransitionInDeadZone;
 #endif
+
 	UPROPERTY()
 	bool bSmoothTransitionJustStarted;
 

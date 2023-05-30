@@ -26,11 +26,19 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 	bInheritYawCV = true;
 	bInheritRollCV = true;
 
+#if DEAD_ZONES
+	// Dead zone
+	bUseDeadZone = false;
+	DeadZoneExtent = FVector2D::ZeroVector;
+	DeadZoneOffset = FVector2D::ZeroVector;
+	bShouldCalculateDeadZoneRoll = true;
+#endif
+
 	bUpdateCamera = true;
 
 	LoadConfig();
 
-#if WITH_EDITORONLY_DATA && 0
+#if WITH_EDITORONLY_DATA && DEAD_ZONES
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> MaterialObj(*DeadZonePreviewMaterialPath);
 	DeadZonePreviewMaterial = MaterialObj.Object;
 #endif
@@ -73,7 +81,8 @@ void UCameraVolumesCameraComponent::UpdateCameraComponent()
 
 #if WITH_EDITOR
 	RefreshVisualRepresentation();
-#if 0
+
+#if DEAD_ZONES
 	FDeadZoneTransform DeadZoneTransform(DeadZoneExtent, DeadZoneOffset, DefaultCameraRoll);
 	UpdateDeadZonePreview(DeadZoneTransform);
 #endif
@@ -91,7 +100,10 @@ void UCameraVolumesCameraComponent::PostEditChangeProperty(FPropertyChangedEvent
 		|| TEXT("DefaultCameraFocalPoint")
 		|| TEXT("DefaultCameraRoll")
 		|| TEXT("DefaultCameraFieldOfView") || TEXT("DefaultCameraOrthoWidth")
-		/*|| TEXT("bUseDeadZone") || TEXT("DeadZoneExtent") || TEXT("DeadZoneOffset") || TEXT("bPreviewDeadZone")*/)
+#if DEAD_ZONES
+		|| TEXT("bUseDeadZone") || TEXT("DeadZoneExtent") || TEXT("DeadZoneOffset") || TEXT("bPreviewDeadZone")
+#endif
+		)
 	{
 		UpdateCameraComponent();
 	}
@@ -117,8 +129,8 @@ void UCameraVolumesCameraComponent::SetDefaultCameraRoll(float NewDefaultCameraR
 	DefaultCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(DefaultCameraLocation, DefaultCameraFocalPoint, DefaultCameraRoll);
 }
 
-#if WITH_EDITOR && 0
-void UCameraVolumesCameraComponent::UpdateDeadZonePreview(const FDeadZoneTransform NewDeadZoneTransform)
+#if WITH_EDITOR && DEAD_ZONES
+void UCameraVolumesCameraComponent::UpdateDeadZonePreview(const FDeadZoneTransform InDeadZoneTransform)
 {
 	if (bPreviewDeadZone)
 	{
@@ -128,11 +140,11 @@ void UCameraVolumesCameraComponent::UpdateDeadZonePreview(const FDeadZoneTransfo
 			AddOrUpdateBlendable(DeadZonePreviewMID, 1.f);
 		}
 
-		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Size_X")), NewDeadZoneTransform.DeadZoneExtent.X);
-		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Size_Y")), NewDeadZoneTransform.DeadZoneExtent.Y);
-		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Offset_X")), NewDeadZoneTransform.DeadZoneOffset.X);
-		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Offset_Y")), NewDeadZoneTransform.DeadZoneOffset.Y);
-		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Roll")), NewDeadZoneTransform.DeadZoneRoll);
+		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Size_X")), InDeadZoneTransform.DeadZoneExtent.X);
+		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Size_Y")), InDeadZoneTransform.DeadZoneExtent.Y);
+		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Offset_X")), InDeadZoneTransform.DeadZoneOffset.X);
+		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Offset_Y")), InDeadZoneTransform.DeadZoneOffset.Y);
+		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Roll")), InDeadZoneTransform.DeadZoneRoll);
 	}
 	else
 	{

@@ -12,9 +12,14 @@
 
 #include "CoreMinimal.h"
 #include "Camera/CameraComponent.h"
+#include "CameraVolumesTypes.h"
 #include "CameraVolumesCameraComponent.generated.h"
 
-UCLASS(Config = CameraVolumes, AutoExpandCategories = (CameraSettings, "CameraSettings | DefaultParameters", "CameraSettings | AdditionalParameters", /*"CameraSettings | DeadZone",*/ "CameraSettings | CameraCollision", "CameraSettings | CameraControlRotation"))
+UCLASS(Config = CameraVolumes, AutoExpandCategories = (CameraSettings, "CameraSettings | DefaultParameters", "CameraSettings | AdditionalParameters", "CameraSettings | CameraCollision", "CameraSettings | CameraControlRotation"
+#if DEAD_ZONES
+	, "CameraSettings | DeadZone"
+#endif
+	))
 class CAMERAVOLUMES_API UCameraVolumesCameraComponent : public UCameraComponent
 {
 	GENERATED_BODY()
@@ -115,7 +120,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | AdditionalParameters", Meta = (EditCondition = "bUseAdditionalCameraParams"))
 	float AdditionalCameraOrthoWidth;
 
-#if 0
+
+#if 0 //DEAD_ZONES
 	// Dead zone
 public:
 	// Should use screen-space dead zone to toggle camera movement?
@@ -129,6 +135,10 @@ public:
 	// Dead zone offset from the center of the screen (in screen percentage)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone", Meta = (EditCondition = "bUseDeadZone"))
 	FVector2D DeadZoneOffset;
+
+	// Should automatically calculate dead zone roll?
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DeadZone", Meta = (EditCondition = "bUseDeadZone"))
+	bool bShouldCalculateDeadZoneRoll;
 
 #if WITH_EDITORONLY_DATA
 public:
@@ -149,7 +159,7 @@ protected:
 
 #if WITH_EDITOR
 public:
-	void UpdateDeadZonePreview(const FDeadZoneTransform NewDeadZoneTransform);
+	void UpdateDeadZonePreview(const FDeadZoneTransform InDeadZoneTransform);
 #endif
 #endif
 

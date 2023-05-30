@@ -14,7 +14,11 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "CameraVolumeActor.generated.h"
 
-UCLASS(Config = CameraVolumes, AutoExpandCategories = (Camera, "Camera|Location", "Camera|Rotation", "Camera|FOV/OW", "Camera|Utils", Volume, VolumeSides, "VolumeSides|SmoothTransition"/*, DeadZone*/))
+UCLASS(Config = CameraVolumes, AutoExpandCategories = ("Camera", "Camera|Location", "Camera|Rotation", "Camera|FOV/OW", "Camera|Utils", "Volume", "VolumeSides", "VolumeSides|SmoothTransition"
+#if DEAD_ZONES
+	, "DeadZone"
+#endif
+	))
 class CAMERAVOLUMES_API ACameraVolumeActor : public AActor
 {
 	GENERATED_BODY()
@@ -69,9 +73,11 @@ public:
 
 
 	// Depth extent
+#if WITH_EDITORONLY_DATA
 protected:
 	UPROPERTY()
 	bool bUseZeroDepthExtentEditCond;
+#endif
 
 public:
 	// (For 2D games) Should use zero volume extent (by depth) for camera blocking?
@@ -95,9 +101,11 @@ public:
 
 
 	// Camera blocking
+#if WITH_EDITORONLY_DATA
 protected:
 	UPROPERTY()
 	bool bPerformCameraBlockingEditCond;
+#endif
 
 public:
 	// Should perform camera blocking calculations in this volume?
@@ -118,7 +126,7 @@ public:
 
 #if WITH_EDITORONLY_DATA
 public:
-	// Camera projection mode (For camera frustrum preview only!)
+	// Camera projection mode (for camera frustrum preview only!)
 	UPROPERTY(Config, EditAnywhere, BlueprintReadWrite, Category = Camera)
 	TEnumAsByte<ECameraProjectionMode::Type> CameraProjectionMode;
 #endif
@@ -143,9 +151,11 @@ public:
 
 
 	// Camera rotation axis
+#if WITH_EDITORONLY_DATA
 protected:
 	UPROPERTY()
 	bool bUseCameraRotationAxisEditCond;
+#endif
 
 public:
 	// Should rotate camera around volume's central axis?
@@ -202,9 +212,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Camera)
 	virtual void SetCameraRoll(float NewCameraRoll);
 
+#if WITH_EDITORONLY_DATA
 protected:
 	UPROPERTY()
 	bool bFocalPointIsPlayerEditCond;
+#endif
 
 public:
 	// Should camera look at player character?
@@ -235,20 +247,20 @@ public:
 
 
 	// Camera lag
+#if WITH_EDITORONLY_DATA
 protected:
 	UPROPERTY()
 	bool bDisableCameraLocationLagEditCond;
+
+	UPROPERTY()
+	bool bDisableCameraRotationLagEditCond;
+#endif
 
 public:
 	// Should disable camera location lag in this particular volume?
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Utils", Meta = (EditCondition = "bDisableCameraLocationLagEditCond"))
 	bool bDisableCameraLocationLag;
 
-protected:
-	UPROPERTY()
-	bool bDisableCameraRotationLagEditCond;
-
-public:
 	// Should disable camera rotation lag in this particular volume?
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Utils", Meta = (EditCondition = "bDisableCameraRotationLagEditCond"))
 	bool bDisableCameraRotationLag;
@@ -271,9 +283,11 @@ public:
 
 
 	// Camera collision
+#if WITH_EDITORONLY_DATA
 protected:
 	UPROPERTY()
 	bool bDoCollisionTestEditCond;
+#endif
 
 public:
 	// Should do a camera collision test in this particular volume?
@@ -288,7 +302,7 @@ public:
 	FSideInfo RightSide;
 
 	// Set new RightSide info
-	UFUNCTION(BlueprintCallable, Category = VolumeSides)
+	UFUNCTION(BlueprintCallable, Category = VolumeSides, Meta=(DeprecatedFunction, DeprecationMessage = "Function SetRightSide has been deprecated, please use the new function SetSide"))
 	virtual void SetRightSide(FSideInfo NewRightSide);
 
 	// Left side info
@@ -296,7 +310,7 @@ public:
 	FSideInfo LeftSide;
 
 	// Set new LeftSide info
-	UFUNCTION(BlueprintCallable, Category = VolumeSides)
+	UFUNCTION(BlueprintCallable, Category = VolumeSides, Meta = (DeprecatedFunction, DeprecationMessage = "Function SetLeftSide has been deprecated, please use the new function SetSide"))
 	virtual void SetLeftSide(FSideInfo NewLeftSide);
 
 	// Top side info
@@ -304,7 +318,7 @@ public:
 	FSideInfo TopSide;
 
 	// Set new TopSide info
-	UFUNCTION(BlueprintCallable, Category = VolumeSides)
+	UFUNCTION(BlueprintCallable, Category = VolumeSides, Meta = (DeprecatedFunction, DeprecationMessage = "Function SetTopSide has been deprecated, please use the new function SetSide"))
 	virtual void SetTopSide(FSideInfo NewTopSide);
 
 	// Bottom side info
@@ -312,7 +326,7 @@ public:
 	FSideInfo BottomSide;
 
 	// Set new BottomSide info
-	UFUNCTION(BlueprintCallable, Category = VolumeSides)
+	UFUNCTION(BlueprintCallable, Category = VolumeSides, Meta = (DeprecatedFunction, DeprecationMessage = "Function SetBottomSide has been deprecated, please use the new function SetSide"))
 	virtual void SetBottomSide(FSideInfo NewBottomSide);
 
 	// Front side info
@@ -320,7 +334,7 @@ public:
 	FSideInfo FrontSide;
 
 	// Set new FrontSide info
-	UFUNCTION(BlueprintCallable, Category = VolumeSides)
+	UFUNCTION(BlueprintCallable, Category = VolumeSides, Meta = (DeprecatedFunction, DeprecationMessage = "Function SetFrontSide has been deprecated, please use the new function SetSide"))
 	virtual void SetFrontSide(FSideInfo NewFrontSide);
 
 	// Back side info
@@ -328,9 +342,12 @@ public:
 	FSideInfo BackSide;
 
 	// Set new BackSide info
-	UFUNCTION(BlueprintCallable, Category = VolumeSides)
+	UFUNCTION(BlueprintCallable, Category = VolumeSides, Meta = (DeprecatedFunction, DeprecationMessage = "Function SetBackSide has been deprecated, please use the new function SetSide"))
 	virtual void SetBackSide(FSideInfo NewBackSide);
 
+	// Set new side info
+	UFUNCTION(BlueprintCallable, Category = VolumeSides)
+	virtual void SetSide(ESide Side, FSideInfo NewSideInfo);
 
 	// In-editor all sides setters
 #if WITH_EDITOR
@@ -390,7 +407,7 @@ protected:
 	const FText Text_Cut = FText::FromString("CUT");
 #endif
 
-#if 0
+#if 0 //DEAD_ZONES
 	// Dead zone
 public:
 	// Should override dead zone settings?

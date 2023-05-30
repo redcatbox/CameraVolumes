@@ -38,8 +38,9 @@ ACameraVolumeActor::ACameraVolumeActor()
 	BoxComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 
 	// Default values
-	bUseZeroDepthExtentEditCond = true;
+#if WITH_EDITORONLY_DATA
 	bPerformCameraBlockingEditCond = true;
+#endif
 	bPerformCameraBlocking = true;
 
 #if WITH_EDITORONLY_DATA
@@ -57,8 +58,6 @@ ACameraVolumeActor::ACameraVolumeActor()
 	SmoothTransitionEasingFunc = EEasingFunc::SinusoidalInOut;
 	EasingFuncBlendExp = 2.f;
 	EasingFuncSteps = 2;
-
-	bUseCameraRotationAxisEditCond = true;
 
 #if WITH_EDITORONLY_DATA
 	TextSize = 50.f;
@@ -136,38 +135,47 @@ void ACameraVolumeActor::UpdateVolume()
 
 	if (bUse6DOFVolume)
 	{
+#if WITH_EDITORONLY_DATA
 		bUseZeroDepthExtentEditCond = false;
+#endif
 		bUseZeroDepthExtent = false;
 	}
+#if WITH_EDITORONLY_DATA
 	else
 	{
 		bUseZeroDepthExtentEditCond = true;
 	}
+#endif
 
 	switch (CameraMobility)
 	{
 	case ECameraMobility::ECM_Movable:
 		bIsCameraStatic = false;
-		bFocalPointIsPlayerEditCond = bUseCameraRotationAxis;
 		if (!bUseCameraRotationAxis)
 		{
 			bFocalPointIsPlayer = true;
 		}
+#if WITH_EDITORONLY_DATA
+		bFocalPointIsPlayerEditCond = bUseCameraRotationAxis;
 		bUseCameraRotationAxisEditCond = true;
+		bPerformCameraBlockingEditCond = true;
 		bDisableCameraLocationLagEditCond = true;
 		bDisableCameraRotationLagEditCond = true;
 		bDoCollisionTestEditCond = true;
+#endif
 		break;
 	case ECameraMobility::ECM_Static:
 		bIsCameraStatic = true;
-		bFocalPointIsPlayerEditCond = true;
 		bOverrideCameraLocation = true;
-		bPerformCameraBlocking = false;
-		bUseCameraRotationAxisEditCond = false;
 		bUseCameraRotationAxis = false;
+#if WITH_EDITORONLY_DATA
+		bFocalPointIsPlayerEditCond = true;
+		bUseCameraRotationAxisEditCond = false;
+		bPerformCameraBlockingEditCond = false;
 		bDisableCameraLocationLagEditCond = false;
 		bDisableCameraRotationLagEditCond = bFocalPointIsPlayer;
 		bDoCollisionTestEditCond = false;
+#endif
 		break;
 	}
 
@@ -206,7 +214,7 @@ void ACameraVolumeActor::UpdateVolume()
 
 	CameraPreview->DefaultCameraFieldOfView = CameraFieldOfView;
 	CameraPreview->DefaultCameraOrthoWidth = CameraOrthoWidth;
-#if 0
+#if DEAD_ZONES
 	CameraPreview->bUseDeadZone = bOverrideDeadZoneSettings;
 	CameraPreview->DeadZoneExtent = DeadZoneExtent;
 	CameraPreview->DeadZoneOffset = DeadZoneOffset;
@@ -513,7 +521,10 @@ void ACameraVolumeActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyC
 		|| TEXT("FrontSide") || TEXT("BackSide") || TEXT("RightSide") || TEXT("LeftSide") || TEXT("TopSide") || TEXT("BottomSide")
 		|| TEXT("TextSize")
 		|| TEXT("bUseCameraRotationAxis")
-		/*|| TEXT("bOverrideDeadZoneSettings") || TEXT("DeadZoneExtent") || TEXT("DeadZoneOffset")*/)
+#if DEAD_ZONES
+		|| TEXT("bOverrideDeadZoneSettings") || TEXT("DeadZoneExtent") || TEXT("DeadZoneOffset")
+#endif
+		)
 	{
 		UpdateVolume();
 	}
@@ -615,6 +626,27 @@ void ACameraVolumeActor::SetCameraRoll(float NewCameraRoll)
 {
 	CameraRoll = NewCameraRoll;
 	UpdateVolume();
+}
+
+void ACameraVolumeActor::SetSide(ESide Side, FSideInfo NewSideInfo)
+{
+	switch (Side)
+	{
+	case ESide::ES_Right:
+		RightSide = NewSideInfo;
+	case ESide::ES_Left:
+		LeftSide = NewSideInfo;
+	case ESide::ES_Top:
+		TopSide = NewSideInfo;
+	case ESide::ES_Bottom:
+		BottomSide = NewSideInfo;
+	case ESide::ES_Front:
+		FrontSide = NewSideInfo;
+	case ESide::ES_Back:
+		BackSide = NewSideInfo;
+	}
+
+	CalculateVolumeExtents();
 }
 
 void ACameraVolumeActor::SetRightSide(FSideInfo NewRightSide)
