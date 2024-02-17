@@ -1,4 +1,4 @@
-// redbox, 2021
+// redbox, 2024
 
 /**
  * Camera component that must be used with camera volumes.
@@ -16,9 +16,9 @@
 #include "CameraVolumesCameraComponent.generated.h"
 
 UCLASS(Config = CameraVolumes, AutoExpandCategories = (CameraSettings, "CameraSettings | DefaultParameters", "CameraSettings | AdditionalParameters", "CameraSettings | CameraCollision", "CameraSettings | CameraControlRotation"
-#if DEAD_ZONES
-	, "CameraSettings | DeadZone"
-#endif
+//#if 0 //DEAD_ZONES
+//	, "CameraSettings | DeadZone"
+//#endif
 	))
 class CAMERAVOLUMES_API UCameraVolumesCameraComponent : public UCameraComponent
 {
@@ -36,7 +36,7 @@ public:
 
 	// Set default camera location
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-	virtual void SetDefaultCameraLocation(FVector NewDefaultCameraLocation);
+	void SetDefaultCameraLocation(FVector NewDefaultCameraLocation);
 
 	// Default camera RELATIVE focal point
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CameraSettings | DefaultParameters")
@@ -44,7 +44,7 @@ public:
 
 	// Set default camera focal point
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-	virtual void SetDefaultCameraFocalPoint(FVector NewDefaultCameraFocalPoint);
+	void SetDefaultCameraFocalPoint(FVector NewDefaultCameraFocalPoint);
 
 	// Default camera roll
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CameraSettings | DefaultParameters")
@@ -52,10 +52,14 @@ public:
 
 	// Set default camera roll
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-	virtual void SetDefaultCameraRoll(float NewDefaultCameraRoll);
+	void SetDefaultCameraRoll(float NewDefaultCameraRoll);
 
+protected:
 	UPROPERTY()
 	FQuat DefaultCameraRotation;
+
+public:
+	const FQuat& GetDefaultCameraRotation() const { return DefaultCameraRotation; }
 
 	// Default camera FOV. For perspective cameras.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DefaultParameters", Meta = (UIMin = "5.0", UIMax = "170", ClampMin = "0.001", ClampMax = "360", Units = deg))
@@ -210,12 +214,11 @@ public:
 	bool bUpdateCamera;
 
 	// Updates camera by camera manager
-	UFUNCTION()
-	virtual void UpdateCamera(FVector& CameraLocation, FQuat& CameraRotation, float CameraFOV_OW);
+	void UpdateCamera(FMinimalViewInfo& InViewInfo);
 
 	// Update camera component parameters
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-	virtual void UpdateCameraComponent();
+	void UpdateCameraComponent();
 
 #if WITH_EDITOR
 public:

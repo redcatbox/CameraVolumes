@@ -1,4 +1,4 @@
-// redbox, 2021
+// redbox, 2024
 
 #include "CameraVolumesCameraComponent.h"
 #include "CameraVolumesFunctionLibrary.h"
@@ -46,21 +46,13 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 	UpdateCameraComponent();
 }
 
-void UCameraVolumesCameraComponent::UpdateCamera(FVector& CameraLocation, FQuat& CameraRotation, float CameraFOV_OW)
+void UCameraVolumesCameraComponent::UpdateCamera(FMinimalViewInfo& InViewInfo)
 {
 	if (bUpdateCamera)
 	{
-		SetWorldLocationAndRotation(CameraLocation, CameraRotation);
-
-		switch (ProjectionMode)
-		{
-		case ECameraProjectionMode::Orthographic:
-			SetOrthoWidth(CameraFOV_OW);
-			break;
-		default:
-			SetFieldOfView(CameraFOV_OW);
-			break;
-		}
+		SetWorldLocationAndRotation(InViewInfo.Location, InViewInfo.Rotation);
+		SetOrthoWidth(InViewInfo.OrthoWidth);
+		SetFieldOfView(InViewInfo.FOV);
 	}
 }
 
@@ -140,11 +132,11 @@ void UCameraVolumesCameraComponent::UpdateDeadZonePreview(const FDeadZoneTransfo
 			AddOrUpdateBlendable(DeadZonePreviewMID, 1.f);
 		}
 
-		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Size_X")), InDeadZoneTransform.DeadZoneExtent.X);
-		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Size_Y")), InDeadZoneTransform.DeadZoneExtent.Y);
-		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Offset_X")), InDeadZoneTransform.DeadZoneOffset.X);
-		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Offset_Y")), InDeadZoneTransform.DeadZoneOffset.Y);
-		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Roll")), InDeadZoneTransform.DeadZoneRoll);
+		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Size_X")), InDeadZoneTransform.Extent.X);
+		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Size_Y")), InDeadZoneTransform.Extent.Y);
+		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Offset_X")), InDeadZoneTransform.Offset.X);
+		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Offset_Y")), InDeadZoneTransform.Offset.Y);
+		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Roll")), InDeadZoneTransform.Roll);
 	}
 	else
 	{

@@ -1,4 +1,4 @@
-// redbox, 2021
+// redbox, 2024
 
 using UnrealBuildTool;
 
@@ -11,13 +11,13 @@ public class CameraVolumes : ModuleRules
 		PublicIncludePaths.AddRange(
 			new string[] {
 			}
-			);
+		);
 				
 		
 		PrivateIncludePaths.AddRange(
 			new string[] {
 			}
-			);
+		);
 
 
 		PublicDependencyModuleNames.AddRange(
@@ -28,20 +28,20 @@ public class CameraVolumes : ModuleRules
 				"Engine",
 				"Paper2D",
 			}
-			);
+		);
 
 
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
 			}
-			);
+		);
 
 
 		DynamicallyLoadedModuleNames.AddRange(
 			new string[]
 			{
 			}
-			);
+		);
 	}
 }

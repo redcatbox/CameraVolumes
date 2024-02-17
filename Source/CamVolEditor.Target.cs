@@ -7,7 +7,7 @@ public class CamVolEditorTarget : TargetRules
 	public CamVolEditorTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Editor;
-		DefaultBuildSettings = BuildSettingsVersion.V2;
+		DefaultBuildSettings = BuildSettingsVersion.Latest;
 		ExtraModuleNames.Add("CamVol");
 	}
 }

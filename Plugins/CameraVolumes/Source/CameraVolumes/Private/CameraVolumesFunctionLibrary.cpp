@@ -1,6 +1,8 @@
-// redbox, 2021
+// redbox, 2024
 
 #include "CameraVolumesFunctionLibrary.h"
+#include "CameraVolumesTypes.h"
+#include "CameraVolumeActor.h"
 
 ACameraVolumeActor* UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(TSet<ACameraVolumeActor*> InCameraVolumes, FVector& InPlayerPawnLocation)
 {

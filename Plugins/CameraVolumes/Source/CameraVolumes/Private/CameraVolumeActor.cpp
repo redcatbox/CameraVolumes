@@ -1,4 +1,4 @@
-// redbox, 2021
+// redbox, 2024
 
 #include "CameraVolumeActor.h"
 #include "CameraVolumesCameraComponent.h"
@@ -15,15 +15,17 @@ ACameraVolumeActor::ACameraVolumeActor()
 
 	// Default root
 	DefaultSceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultSceneRoot"));
-	DefaultSceneRoot->Mobility = EComponentMobility::Static;
-	DefaultSceneRoot->SetVisibility(false);
+	DefaultSceneRoot->SetMobility(EComponentMobility::Static);
+#if WITH_EDITORONLY_DATA
+	DefaultSceneRoot->bVisualizeComponent = false;
+#endif
 	RootComponent = DefaultSceneRoot;
 
 #if WITH_EDITORONLY_DATA
 	// Billboard
 	BillboardComponent = CreateDefaultSubobject<UBillboardComponent>(TEXT("BillboardComponent"));
+	BillboardComponent->SetIsVisualizationComponent(true);
 	BillboardComponent->SetupAttachment(RootComponent);
-	BillboardComponent->bHiddenInGame = true;
 
 	// CameraPreview
 	CameraPreview = CreateDefaultSubobject<UCameraVolumesCameraComponent>(TEXT("CameraPreview"));
@@ -125,6 +127,7 @@ void ACameraVolumeActor::UpdateVolume()
 	CalculateVolumeExtents();
 
 	//Components
+	BoxComponent->ResetRelativeTransform();
 	BoxComponent->SetBoxExtent(VolumeExtent);
 	SetDisableMainBoxCollision(bDisableMainBoxCollision);
 
@@ -593,11 +596,6 @@ void ACameraVolumeActor::SetCameraMobility(ECameraMobility NewCameraMobility)
 	UpdateVolume();
 }
 
-bool ACameraVolumeActor::GetIsCameraStatic() const
-{
-	return bIsCameraStatic;
-}
-
 void ACameraVolumeActor::SetOverrideCameraLocation(bool bNewOverrideCameraLocation)
 {
 	bOverrideCameraLocation = bNewOverrideCameraLocation;
@@ -646,42 +644,6 @@ void ACameraVolumeActor::SetSide(ESide Side, FSideInfo NewSideInfo)
 		BackSide = NewSideInfo;
 	}
 
-	CalculateVolumeExtents();
-}
-
-void ACameraVolumeActor::SetRightSide(FSideInfo NewRightSide)
-{
-	RightSide = NewRightSide;
-	CalculateVolumeExtents();
-}
-
-void ACameraVolumeActor::SetLeftSide(FSideInfo NewLeftSide)
-{
-	LeftSide = NewLeftSide;
-	CalculateVolumeExtents();
-}
-
-void ACameraVolumeActor::SetTopSide(FSideInfo NewTopSide)
-{
-	TopSide = NewTopSide;
-	CalculateVolumeExtents();
-}
-
-void ACameraVolumeActor::SetBottomSide(FSideInfo NewBottomSide)
-{
-	BottomSide = NewBottomSide;
-	CalculateVolumeExtents();
-}
-
-void ACameraVolumeActor::SetFrontSide(FSideInfo NewFrontSide)
-{
-	FrontSide = NewFrontSide;
-	CalculateVolumeExtents();
-}
-
-void ACameraVolumeActor::SetBackSide(FSideInfo NewBackSide)
-{
-	BackSide = NewBackSide;
 	CalculateVolumeExtents();
 }
 

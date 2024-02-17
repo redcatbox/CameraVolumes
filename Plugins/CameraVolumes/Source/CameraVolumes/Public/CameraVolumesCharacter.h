@@ -1,4 +1,4 @@
-// redbox, 2021
+// redbox, 2024
 
 /**
  * Player character stores Camera component.
@@ -19,6 +19,7 @@ class CAMERAVOLUMES_API ACameraVolumesCharacter : public ACharacter, public ICam
 
 public:
 	ACameraVolumesCharacter();
+	ACameraVolumesCharacter(const FObjectInitializer& ObjectInitializer);
 	virtual void PostInitializeComponents() override;
 	virtual class UCameraVolumesCameraComponent* GetCameraComponent() const override;
 	virtual class UPrimitiveComponent* GetCollisionPrimitiveComponent() const override;

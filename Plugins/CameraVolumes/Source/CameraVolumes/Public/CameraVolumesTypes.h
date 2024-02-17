@@ -1,4 +1,4 @@
-// redbox, 2021
+// redbox, 2024
 
 #pragma once
 
@@ -6,7 +6,6 @@
 #include "CameraVolumesTypes.generated.h"
 
 #define DEAD_ZONES 0
-#define DRAW_DEBUG 0
 
 // Camera mobility
 UENUM(BlueprintType)
@@ -77,28 +76,28 @@ struct FDeadZoneTransform
 
 	// Dead zone extent (in screen percentage)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DeadZone)
-	FVector2D DeadZoneExtent;
+	FVector2D Extent;
 
 	// Dead zone offset from the center of the screen (in screen percentage)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DeadZone)
-	FVector2D DeadZoneOffset;
+	FVector2D Offset;
 
 	// Dead zone roll (in degrees)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DeadZone)
-	float DeadZoneRoll;
+	float Roll;
 
 	FDeadZoneTransform()
 	{
-		DeadZoneExtent = FVector2D::ZeroVector;
-		DeadZoneOffset = FVector2D::ZeroVector;
-		DeadZoneRoll = 0.f;
+		Extent = FVector2D::ZeroVector;
+		Offset = FVector2D::ZeroVector;
+		Roll = 0.f;
 	}
 
-	FDeadZoneTransform(FVector2D InDeadZoneExtent, FVector2D InDeadZoneOffset, float InDeadZoneRoll)
+	FDeadZoneTransform(FVector2D InExtent, FVector2D InOffset, float InRoll)
 	{
-		DeadZoneExtent = InDeadZoneExtent;
-		DeadZoneOffset = InDeadZoneOffset;
-		DeadZoneRoll = InDeadZoneRoll;
+		Extent = InExtent;
+		Offset = InOffset;
+		Roll = InRoll;
 	}
 };
 #endif

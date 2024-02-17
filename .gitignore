@@ -32,7 +32,7 @@
 *.app
 
 #Other
-*.vs
+*.vs*
 *.sln
 Binaries
 Build
