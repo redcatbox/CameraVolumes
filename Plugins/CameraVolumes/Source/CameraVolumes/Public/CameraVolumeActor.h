@@ -228,7 +228,7 @@ protected:
 	FQuat CameraRotation;
 
 public:
-	FQuat GetCameraRotation() const { return CameraRotation; }
+	const FQuat& GetCameraRotation() const { return CameraRotation; }
 
 	// Camera FOV/OrthoWidth
 public:
