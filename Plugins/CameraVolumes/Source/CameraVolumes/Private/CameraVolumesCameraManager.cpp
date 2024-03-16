@@ -409,7 +409,7 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 				FVector NewCamVolMaxCorrected = CameraVolumeCurrent->GetCamVolMaxCorrected();
 
 				// Calculate delta volume extent with max +Y volume coordinate
-				if (!CameraVolumeCurrent->bUseZeroDepthExtent || !bIsOrthographic)
+				if (!bIsOrthographic && !CameraVolumeCurrent->bUseZeroDepthExtent)
 				{
 					FVector DeltaExtent(FVector::ZeroVector);
 					DeltaExtent.X = FMath::Abs((NewCamVolMaxCorrected.Y) * CamFOVTangens);
