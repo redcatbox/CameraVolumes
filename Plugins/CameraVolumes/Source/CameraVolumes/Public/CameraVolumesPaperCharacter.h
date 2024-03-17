@@ -1,4 +1,4 @@
-// redbox, 2021
+// redbox, 2024
 
 /**
  * Player character derived from PaperCharacter, stores default camera parameters and camera component.
@@ -19,6 +19,7 @@ class CAMERAVOLUMES_API ACameraVolumesPaperCharacter : public APaperCharacter, p
 
 public:
 	ACameraVolumesPaperCharacter();
+	ACameraVolumesPaperCharacter(const FObjectInitializer& ObjectInitializer);
 	virtual void PostInitializeComponents() override;
 	virtual class UCameraVolumesCameraComponent* GetCameraComponent() const override;
 	virtual class UPrimitiveComponent* GetCollisionPrimitiveComponent() const override;

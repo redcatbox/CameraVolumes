@@ -5,6 +5,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "CameraVolumesCameraManager.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(CamVolCharacter)
+
 ACamVolCharacter::ACamVolCharacter()
 {
 	// Set size for collision capsule

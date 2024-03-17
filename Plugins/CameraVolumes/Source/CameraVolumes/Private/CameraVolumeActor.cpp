@@ -1,4 +1,4 @@
-// redbox, 2021
+// redbox, 2024
 
 #include "CameraVolumeActor.h"
 #include "CameraVolumesCameraComponent.h"
@@ -9,21 +9,25 @@
 #include "Components/TextRenderComponent.h"
 #include "Materials/MaterialInterface.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(CameraVolumeActor)
+
 ACameraVolumeActor::ACameraVolumeActor()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
 	// Default root
 	DefaultSceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultSceneRoot"));
-	DefaultSceneRoot->Mobility = EComponentMobility::Static;
-	DefaultSceneRoot->SetVisibility(false);
+	DefaultSceneRoot->SetMobility(EComponentMobility::Static);
+#if WITH_EDITORONLY_DATA
+	DefaultSceneRoot->bVisualizeComponent = false;
+#endif
 	RootComponent = DefaultSceneRoot;
 
 #if WITH_EDITORONLY_DATA
 	// Billboard
 	BillboardComponent = CreateDefaultSubobject<UBillboardComponent>(TEXT("BillboardComponent"));
+	BillboardComponent->SetIsVisualizationComponent(true);
 	BillboardComponent->SetupAttachment(RootComponent);
-	BillboardComponent->bHiddenInGame = true;
 
 	// CameraPreview
 	CameraPreview = CreateDefaultSubobject<UCameraVolumesCameraComponent>(TEXT("CameraPreview"));
@@ -96,26 +100,6 @@ ACameraVolumeActor::ACameraVolumeActor()
 	UpdateVolume();
 }
 
-float ACameraVolumeActor::GetCamVolAspectRatio() const
-{
-	return CamVolAspectRatio;
-}
-
-FVector ACameraVolumeActor::GetCamVolMinCorrected() const
-{
-	return CamVolMinCorrected;
-}
-
-FVector ACameraVolumeActor::GetCamVolMaxCorrected() const
-{
-	return CamVolMaxCorrected;
-}
-
-FVector ACameraVolumeActor::GetCamVolExtentCorrected() const
-{
-	return CamVolExtentCorrected;
-}
-
 void ACameraVolumeActor::UpdateVolume()
 {
 	//Reset actor scale
@@ -125,6 +109,7 @@ void ACameraVolumeActor::UpdateVolume()
 	CalculateVolumeExtents();
 
 	//Components
+	BoxComponent->ResetRelativeTransform();
 	BoxComponent->SetBoxExtent(VolumeExtent);
 	SetDisableMainBoxCollision(bDisableMainBoxCollision);
 
@@ -278,7 +263,7 @@ void ACameraVolumeActor::CalculateVolumeExtents()
 	CamVolAspectRatio = CamVolExtentCorrected.X / CamVolExtentCorrected.Z;
 }
 
-FSideInfo ACameraVolumeActor::GetNearestVolumeSideInfo(FVector& PlayerPawnLocation)
+FSideInfo ACameraVolumeActor::GetNearestVolumeSideInfo(const FVector& PlayerPawnLocation) const
 {
 	ESide NearestSide = ESide::ES_Front;
 	TMap<ESide, float> Sides;
@@ -593,11 +578,6 @@ void ACameraVolumeActor::SetCameraMobility(ECameraMobility NewCameraMobility)
 	UpdateVolume();
 }
 
-bool ACameraVolumeActor::GetIsCameraStatic() const
-{
-	return bIsCameraStatic;
-}
-
 void ACameraVolumeActor::SetOverrideCameraLocation(bool bNewOverrideCameraLocation)
 {
 	bOverrideCameraLocation = bNewOverrideCameraLocation;
@@ -634,54 +614,24 @@ void ACameraVolumeActor::SetSide(ESide Side, FSideInfo NewSideInfo)
 	{
 	case ESide::ES_Right:
 		RightSide = NewSideInfo;
+		break;
 	case ESide::ES_Left:
 		LeftSide = NewSideInfo;
+		break;
 	case ESide::ES_Top:
 		TopSide = NewSideInfo;
+		break;
 	case ESide::ES_Bottom:
 		BottomSide = NewSideInfo;
+		break;
 	case ESide::ES_Front:
 		FrontSide = NewSideInfo;
+		break;
 	case ESide::ES_Back:
 		BackSide = NewSideInfo;
+		break;
 	}
 
-	CalculateVolumeExtents();
-}
-
-void ACameraVolumeActor::SetRightSide(FSideInfo NewRightSide)
-{
-	RightSide = NewRightSide;
-	CalculateVolumeExtents();
-}
-
-void ACameraVolumeActor::SetLeftSide(FSideInfo NewLeftSide)
-{
-	LeftSide = NewLeftSide;
-	CalculateVolumeExtents();
-}
-
-void ACameraVolumeActor::SetTopSide(FSideInfo NewTopSide)
-{
-	TopSide = NewTopSide;
-	CalculateVolumeExtents();
-}
-
-void ACameraVolumeActor::SetBottomSide(FSideInfo NewBottomSide)
-{
-	BottomSide = NewBottomSide;
-	CalculateVolumeExtents();
-}
-
-void ACameraVolumeActor::SetFrontSide(FSideInfo NewFrontSide)
-{
-	FrontSide = NewFrontSide;
-	CalculateVolumeExtents();
-}
-
-void ACameraVolumeActor::SetBackSide(FSideInfo NewBackSide)
-{
-	BackSide = NewBackSide;
 	CalculateVolumeExtents();
 }
 

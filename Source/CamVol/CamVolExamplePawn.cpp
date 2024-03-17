@@ -7,6 +7,8 @@
 #include "CameraVolumesCameraManager.h"
 #include "CameraVolumeActor.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(CamVolExamplePawn)
+
 ACamVolExamplePawn::ACamVolExamplePawn()
 {
 	PrimaryActorTick.bCanEverTick = true;

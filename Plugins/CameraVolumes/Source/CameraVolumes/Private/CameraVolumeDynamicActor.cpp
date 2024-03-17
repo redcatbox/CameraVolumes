@@ -1,11 +1,13 @@
-// redbox, 2021
+// redbox, 2024
 
 #include "CameraVolumeDynamicActor.h"
+
+#include UE_INLINE_GENERATED_CPP_BY_NAME(CameraVolumeDynamicActor)
 
 ACameraVolumeDynamicActor::ACameraVolumeDynamicActor()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Default root
-	DefaultSceneRoot->Mobility = EComponentMobility::Movable;
+	RootComponent->SetMobility(EComponentMobility::Movable);
 }

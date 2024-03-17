@@ -5,6 +5,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(CamVolPaperCharacter)
+
 ACamVolPaperCharacter::ACamVolPaperCharacter()
 {
 	// Set the size of our collision capsule.

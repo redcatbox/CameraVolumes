@@ -1,4 +1,4 @@
-// redbox, 2021
+// redbox, 2024
 
 /**
  * Camera volume actor stores desired camera parameters and volume information.
@@ -15,9 +15,9 @@
 #include "CameraVolumeActor.generated.h"
 
 UCLASS(Config = CameraVolumes, AutoExpandCategories = ("Camera", "Camera|Location", "Camera|Rotation", "Camera|FOV/OW", "Camera|Utils", "Volume", "VolumeSides", "VolumeSides|SmoothTransition"
-#if DEAD_ZONES
-	, "DeadZone"
-#endif
+//#if 0 //DEAD_ZONES
+//	, "DeadZone"
+//#endif
 	))
 class CAMERAVOLUMES_API ACameraVolumeActor : public AActor
 {
@@ -32,7 +32,7 @@ protected:
 	UPROPERTY()
 	class USceneComponent* DefaultSceneRoot;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, Category = Volume)
 	class UBoxComponent* BoxComponent;
 
 
@@ -69,7 +69,7 @@ public:
 
 	// Set new VolumeExtent
 	UFUNCTION(BlueprintCallable, Category = Volume)
-	virtual void SetVolumeExtent(FVector NewVolumeExtent);
+	void SetVolumeExtent(FVector NewVolumeExtent);
 
 
 	// Depth extent
@@ -86,7 +86,7 @@ public:
 
 	// Set new bUseZeroDepthExtent
 	UFUNCTION(BlueprintCallable, Category = Volume)
-	virtual void SetUseZeroDepthExtent(bool bNewUseZeroDepthExtent);
+	void SetUseZeroDepthExtent(bool bNewUseZeroDepthExtent);
 
 
 	// 6 DOF volume
@@ -97,7 +97,7 @@ public:
 
 	// Set new bUse6DOFVolume
 	UFUNCTION(BlueprintCallable, Category = Volume)
-	virtual void SetUse6DOFVolume(bool bNewUse6DOFVolume);
+	void SetUse6DOFVolume(bool bNewUse6DOFVolume);
 
 
 	// Camera blocking
@@ -121,7 +121,7 @@ public:
 
 	// Disable main box collision
 	UFUNCTION(BlueprintCallable, Category = Volume)
-	virtual void SetDisableMainBoxCollision(bool bNewDisableMainBoxCollision);
+	void SetDisableMainBoxCollision(bool bNewDisableMainBoxCollision);
 
 
 #if WITH_EDITORONLY_DATA
@@ -138,7 +138,7 @@ public:
 
 	// Set new CameraMobility
 	UFUNCTION(BlueprintCallable, Category = Camera)
-	virtual void SetCameraMobility(ECameraMobility NewCameraMobility);
+	void SetCameraMobility(ECameraMobility NewCameraMobility);
 
 protected:
 	UPROPERTY()
@@ -146,8 +146,8 @@ protected:
 
 public:
 	// Returns is volume uses static camera mobility
-	UFUNCTION(BlueprintCallable, Category = Camera)
-	bool GetIsCameraStatic() const;
+	UFUNCTION(BlueprintPure, Category = Camera)
+	bool GetIsCameraStatic() const { return bIsCameraStatic; }
 
 
 	// Camera rotation axis
@@ -171,7 +171,7 @@ public:
 
 	// Set new bOverrideCameraLocation
 	UFUNCTION(BlueprintCallable, Category = Camera)
-	virtual void SetOverrideCameraLocation(bool bNewOverrideCameraLocation);
+	void SetOverrideCameraLocation(bool bNewOverrideCameraLocation);
 
 	// New camera location
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera|Location", Meta = (EditCondition = "bOverrideCameraLocation", MakeEditWidget = true))
@@ -179,7 +179,7 @@ public:
 
 	// Set new CameraLocation
 	UFUNCTION(BlueprintCallable, Category = Camera)
-	virtual void SetCameraLocation(FVector NewCameraLocation);
+	void SetCameraLocation(FVector NewCameraLocation);
 
 	// Should camera location be relative to volume or to player character?
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Location")
@@ -194,7 +194,7 @@ public:
 
 	// Set new bOverrideCameraRotation
 	UFUNCTION(BlueprintCallable, Category = Camera)
-	virtual void SetOverrideCameraRotation(bool bNewOverrideCameraRotation);
+	void SetOverrideCameraRotation(bool bNewOverrideCameraRotation);
 
 	// New camera focal point
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera|Rotation", Meta = (EditCondition = "bOverrideCameraRotation", MakeEditWidget = true))
@@ -202,7 +202,7 @@ public:
 
 	// Set new CameraFocalPoint
 	UFUNCTION(BlueprintCallable, Category = Camera)
-	virtual void SetCameraFocalPoint(FVector NewCameraFocalPoint);
+	void SetCameraFocalPoint(FVector NewCameraFocalPoint);
 
 	// New camera roll
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera|Rotation", Meta = (EditCondition = "bOverrideCameraRotation"))
@@ -210,7 +210,7 @@ public:
 
 	// Set new CameraRoll
 	UFUNCTION(BlueprintCallable, Category = Camera)
-	virtual void SetCameraRoll(float NewCameraRoll);
+	void SetCameraRoll(float NewCameraRoll);
 
 #if WITH_EDITORONLY_DATA
 protected:
@@ -223,9 +223,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Rotation", Meta = (EditCondition = "bFocalPointIsPlayerEditCond"))
 	bool bFocalPointIsPlayer;
 
+protected:
 	UPROPERTY()
 	FQuat CameraRotation;
 
+public:
+	const FQuat& GetCameraRotation() const { return CameraRotation; }
 
 	// Camera FOV/OrthoWidth
 public:
@@ -301,87 +304,60 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = VolumeSides, Meta = (ShowOnlyInnerProperties))
 	FSideInfo RightSide;
 
-	// Set new RightSide info
-	UFUNCTION(BlueprintCallable, Category = VolumeSides, Meta=(DeprecatedFunction, DeprecationMessage = "Function SetRightSide has been deprecated, please use the new function SetSide"))
-	virtual void SetRightSide(FSideInfo NewRightSide);
-
 	// Left side info
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = VolumeSides, Meta = (ShowOnlyInnerProperties))
 	FSideInfo LeftSide;
-
-	// Set new LeftSide info
-	UFUNCTION(BlueprintCallable, Category = VolumeSides, Meta = (DeprecatedFunction, DeprecationMessage = "Function SetLeftSide has been deprecated, please use the new function SetSide"))
-	virtual void SetLeftSide(FSideInfo NewLeftSide);
 
 	// Top side info
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = VolumeSides, Meta = (ShowOnlyInnerProperties))
 	FSideInfo TopSide;
 
-	// Set new TopSide info
-	UFUNCTION(BlueprintCallable, Category = VolumeSides, Meta = (DeprecatedFunction, DeprecationMessage = "Function SetTopSide has been deprecated, please use the new function SetSide"))
-	virtual void SetTopSide(FSideInfo NewTopSide);
-
 	// Bottom side info
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = VolumeSides, Meta = (ShowOnlyInnerProperties))
 	FSideInfo BottomSide;
-
-	// Set new BottomSide info
-	UFUNCTION(BlueprintCallable, Category = VolumeSides, Meta = (DeprecatedFunction, DeprecationMessage = "Function SetBottomSide has been deprecated, please use the new function SetSide"))
-	virtual void SetBottomSide(FSideInfo NewBottomSide);
 
 	// Front side info
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = VolumeSides, Meta = (ShowOnlyInnerProperties))
 	FSideInfo FrontSide;
 
-	// Set new FrontSide info
-	UFUNCTION(BlueprintCallable, Category = VolumeSides, Meta = (DeprecatedFunction, DeprecationMessage = "Function SetFrontSide has been deprecated, please use the new function SetSide"))
-	virtual void SetFrontSide(FSideInfo NewFrontSide);
-
 	// Back side info
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = VolumeSides, Meta = (ShowOnlyInnerProperties))
 	FSideInfo BackSide;
 
-	// Set new BackSide info
-	UFUNCTION(BlueprintCallable, Category = VolumeSides, Meta = (DeprecatedFunction, DeprecationMessage = "Function SetBackSide has been deprecated, please use the new function SetSide"))
-	virtual void SetBackSide(FSideInfo NewBackSide);
-
 	// Set new side info
 	UFUNCTION(BlueprintCallable, Category = VolumeSides)
-	virtual void SetSide(ESide Side, FSideInfo NewSideInfo);
+	void SetSide(ESide Side, FSideInfo NewSideInfo);
 
 	// In-editor all sides setters
 #if WITH_EDITOR
 public:
 	// Set all open
 	UFUNCTION(CallInEditor, Category = VolumeSides)
-	virtual void SetAllOpen();
+	void SetAllOpen();
 
 	// Set all closed
 	UFUNCTION(CallInEditor, Category = VolumeSides)
-	virtual void SetAllClosed();
+	void SetAllClosed();
 
 	// Set all normal
 	UFUNCTION(CallInEditor, Category = VolumeSides)
-	virtual void SetAllNormal();
+	void SetAllNormal();
 
 	// Set all smooth
 	UFUNCTION(CallInEditor, Category = VolumeSides)
-	virtual void SetAllSmooth();
+	void SetAllSmooth();
 
 	// Set all cut
 	UFUNCTION(CallInEditor, Category = VolumeSides)
-	virtual void SetAllCut();
+	void SetAllCut();
 #endif
 
 
 	// Text indicators
 #if WITH_EDITOR
 protected:
-	UFUNCTION()
-	virtual void CreateSidesIndicators();
-
-	UFUNCTION()
-	virtual void UpdateSidesIndicators();
+	void CreateSidesIndicators();
+	void UpdateSidesIndicators();
 #endif
 
 #if WITH_EDITORONLY_DATA
@@ -437,22 +413,22 @@ protected:
 	FVector CamVolExtentCorrected;
 
 public:
-	float GetCamVolAspectRatio() const;
-	FVector GetCamVolMinCorrected() const;
-	FVector GetCamVolMaxCorrected() const;
-	FVector GetCamVolExtentCorrected() const;
+	float GetCamVolAspectRatio() const { return CamVolAspectRatio; }
+	const FVector& GetCamVolMinCorrected() const { return CamVolMinCorrected; }
+	const FVector& GetCamVolMaxCorrected() const { return CamVolMaxCorrected; }
+	const FVector& GetCamVolExtentCorrected() const { return CamVolExtentCorrected; }
 
 	// Use this to update volume after made changes in editor, if they are not applied automatically
 	UFUNCTION(CallInEditor, Category = Volume)
-	virtual void UpdateVolume();
+	void UpdateVolume();
 
 	// Calculate volume extents
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-	virtual void CalculateVolumeExtents();
+	void CalculateVolumeExtents();
 
 	// Get side info for the volume side nearest to player location
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-	virtual FSideInfo GetNearestVolumeSideInfo(FVector& PlayerPawnLocation);
+	FSideInfo GetNearestVolumeSideInfo(const FVector& PlayerPawnLocation) const;
 
 #if WITH_EDITOR
 public:

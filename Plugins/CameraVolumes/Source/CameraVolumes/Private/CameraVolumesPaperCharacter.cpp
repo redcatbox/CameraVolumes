@@ -1,13 +1,30 @@
-// redbox, 2021
+// redbox, 2024
 
 #include "CameraVolumesPaperCharacter.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
-#include "CameraVolumesFunctionLibrary.h"
+#include "CameraVolumeActor.h"
 #include "CameraVolumesCameraManager.h"
+#include "CameraVolumesFunctionLibrary.h"
+
+#include UE_INLINE_GENERATED_CPP_BY_NAME(CameraVolumesPaperCharacter)
 
 ACameraVolumesPaperCharacter::ACameraVolumesPaperCharacter()
+{
+	// Create a camera
+	CameraComponent = CreateDefaultSubobject<UCameraVolumesCameraComponent>(TEXT("Camera"));
+	CameraComponent->bUsePawnControlRotation = false; // We don't want the controller rotating the camera
+
+	// Configure character movement
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = true;
+	bUseControllerRotationRoll = false;
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+}
+
+ACameraVolumesPaperCharacter::ACameraVolumesPaperCharacter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	// Create a camera
 	CameraComponent = CreateDefaultSubobject<UCameraVolumesCameraComponent>(TEXT("Camera"));

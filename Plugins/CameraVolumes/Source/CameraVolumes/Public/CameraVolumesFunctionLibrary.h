@@ -1,4 +1,4 @@
-// redbox, 2021
+// redbox, 2024
 
 #pragma once
 
@@ -14,7 +14,7 @@ class CAMERAVOLUMES_API UCameraVolumesFunctionLibrary : public UBlueprintFunctio
 public:
 	// Get current camera volume from array of volumes according to 6 sides, coordinates and priority
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-	static class ACameraVolumeActor* GetCurrentCameraVolume(TSet<class ACameraVolumeActor*> InCameraVolumes, FVector& InPlayerPawnLocation);
+	static const class ACameraVolumeActor* GetCurrentCameraVolume(const TSet<class ACameraVolumeActor*>& InCameraVolumes, const FVector& InPlayerPawnLocation);
 
 	// Check is sides are in pair Front/Back, Right/Left, Top/Bottom
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
@@ -22,5 +22,5 @@ public:
 
 	// Calculate camera rotation from camera position, focal point and roll
 	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-	static FQuat CalculateCameraRotation(FVector& InCameraLocation, FVector& InCameraFocalPoint, float InCameraRoll);
+	static FQuat CalculateCameraRotation(const FVector& InCameraLocation, const FVector& InCameraFocalPoint, float InCameraRoll);
 };

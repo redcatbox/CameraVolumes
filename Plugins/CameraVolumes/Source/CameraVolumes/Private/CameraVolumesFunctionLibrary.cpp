@@ -1,40 +1,45 @@
-// redbox, 2021
+// redbox, 2024
 
 #include "CameraVolumesFunctionLibrary.h"
+#include "CameraVolumesTypes.h"
+#include "CameraVolumeActor.h"
 
-ACameraVolumeActor* UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(TSet<ACameraVolumeActor*> InCameraVolumes, FVector& InPlayerPawnLocation)
+#include UE_INLINE_GENERATED_CPP_BY_NAME(CameraVolumesFunctionLibrary)
+
+const ACameraVolumeActor* UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(const TSet<ACameraVolumeActor*>& InCameraVolumes, const FVector& InPlayerPawnLocation)
 {
-	ACameraVolumeActor* Result = nullptr;
-	int8 MaxPriorityIndex = -101; // ACameraVolumeActor->Priority is clamped to (-100, 100)
-	bool Condition = false;
+	const ACameraVolumeActor* Result = nullptr;
+	int32 MaxPriority = -101;
+	bool bInside = false;
 
-	for (ACameraVolumeActor* CameraVolume : InCameraVolumes)
+	for (const ACameraVolumeActor* CameraVolume : InCameraVolumes)
 	{
 		if (CameraVolume)
 		{
-			FVector PlayerPawnLocationTransformed = CameraVolume->GetActorTransform().InverseTransformPositionNoScale(InPlayerPawnLocation);
+			FVector LocalPlayerPawnLocation = CameraVolume->GetActorTransform().InverseTransformPositionNoScale(InPlayerPawnLocation);
 
 			if (CameraVolume->bUse6DOFVolume)
 			{
-				Condition = -CameraVolume->VolumeExtent.X < PlayerPawnLocationTransformed.X
-					&& PlayerPawnLocationTransformed.X <= CameraVolume->VolumeExtent.X
-					&& -CameraVolume->VolumeExtent.Y < PlayerPawnLocationTransformed.Y
-					&& PlayerPawnLocationTransformed.Y <= CameraVolume->VolumeExtent.Y
-					&& -CameraVolume->VolumeExtent.Z < PlayerPawnLocationTransformed.Z
-					&& PlayerPawnLocationTransformed.Z <= CameraVolume->VolumeExtent.Z;
+				bInside = -CameraVolume->VolumeExtent.X <= LocalPlayerPawnLocation.X
+					&& LocalPlayerPawnLocation.X <= CameraVolume->VolumeExtent.X
+					&& -CameraVolume->VolumeExtent.Y <= LocalPlayerPawnLocation.Y
+					&& LocalPlayerPawnLocation.Y <= CameraVolume->VolumeExtent.Y
+					&& -CameraVolume->VolumeExtent.Z <= LocalPlayerPawnLocation.Z
+					&& LocalPlayerPawnLocation.Z <= CameraVolume->VolumeExtent.Z;
 			}
 			else
 			{
-				Condition = -CameraVolume->VolumeExtent.X < PlayerPawnLocationTransformed.X
-					&& PlayerPawnLocationTransformed.X <= CameraVolume->VolumeExtent.X
-					&& -CameraVolume->VolumeExtent.Z < PlayerPawnLocationTransformed.Z
-					&& PlayerPawnLocationTransformed.Z <= CameraVolume->VolumeExtent.Z;
+				bInside = -CameraVolume->VolumeExtent.X <= LocalPlayerPawnLocation.X
+					&& LocalPlayerPawnLocation.X <= CameraVolume->VolumeExtent.X
+					&& -CameraVolume->VolumeExtent.Z <= LocalPlayerPawnLocation.Z
+					&& LocalPlayerPawnLocation.Z <= CameraVolume->VolumeExtent.Z;
 			}
 		}
 
-		if (Condition && (CameraVolume->Priority > MaxPriorityIndex))
+		if (bInside
+			&& CameraVolume->Priority > MaxPriority)
 		{
-			MaxPriorityIndex = CameraVolume->Priority;
+			MaxPriority = CameraVolume->Priority;
 			Result = CameraVolume;
 		}
 	}
@@ -70,7 +75,7 @@ bool UCameraVolumesFunctionLibrary::CompareSidesPairs(ESide SideA, ESide SideB, 
 	return false;
 }
 
-FQuat UCameraVolumesFunctionLibrary::CalculateCameraRotation(FVector& InCameraLocation, FVector& InCameraFocalPoint, float InCameraRoll)
+FQuat UCameraVolumesFunctionLibrary::CalculateCameraRotation(const FVector& InCameraLocation, const FVector& InCameraFocalPoint, float InCameraRoll)
 {
 	FQuat CameraRotation = FRotationMatrix::MakeFromX(InCameraFocalPoint - InCameraLocation).ToQuat();
 	CameraRotation = FQuat(CameraRotation.GetAxisX(), FMath::DegreesToRadians(InCameraRoll)) * CameraRotation;
