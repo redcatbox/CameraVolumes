@@ -14,11 +14,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "CameraVolumeActor.generated.h"
 
-UCLASS(Config = CameraVolumes, AutoExpandCategories = ("Camera", "Camera|Location", "Camera|Rotation", "Camera|FOV/OW", "Camera|Utils", "Volume", "VolumeSides", "VolumeSides|SmoothTransition"
-//#if 0 //DEAD_ZONES
-//	, "DeadZone"
-//#endif
-	))
+UCLASS(Config = CameraVolumes, AutoExpandCategories = ("Camera", "Camera|Location", "Camera|Rotation", "Camera|FOV/OrthoWidth", "Camera|Utils", "Volume", "VolumeSides", "VolumeSides|SmoothTransition"))
 class CAMERAVOLUMES_API ACameraVolumeActor : public AActor
 {
 	GENERATED_BODY()
@@ -233,19 +229,19 @@ public:
 	// Camera FOV/OrthoWidth
 public:
 	// Should override camera FOV? For perspective cameras.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|FOV/OW", Meta = (EditCondition = "CameraProjectionMode == ECameraProjectionMode::Perspective"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|FOV/OrthoWidth", Meta = (EditCondition = "CameraProjectionMode == ECameraProjectionMode::Perspective"))
 	bool bOverrideCameraFieldOfView;
 
 	// New camera FOV. For perspective cameras.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|FOV/OW", Meta = (EditCondition = "bOverrideCameraFieldOfView", UIMin = "5", UIMax = "170", ClampMin = "0.001", ClampMax = "360", Units = deg))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|FOV/OrthoWidth", Meta = (EditCondition = "bOverrideCameraFieldOfView", UIMin = "5", UIMax = "170", ClampMin = "0.001", ClampMax = "360", Units = deg))
 	float CameraFieldOfView;
 
 	// Should override camera OrthoWidth? For orthographic cameras.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|FOV/OW", Meta = (EditCondition = "CameraProjectionMode == ECameraProjectionMode::Orthographic"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|FOV/OrthoWidth", Meta = (EditCondition = "CameraProjectionMode == ECameraProjectionMode::Orthographic"))
 	bool bOverrideCameraOrthoWidth;
 
 	// New camera OrthoWidth. For orthographic cameras.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|FOV/OW", Meta = (EditCondition = "bOverrideCameraOrthoWidth"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|FOV/OrthoWidth", Meta = (EditCondition = "bOverrideCameraOrthoWidth"))
 	float CameraOrthoWidth;
 
 
@@ -381,22 +377,6 @@ protected:
 	const FText Text_Normal = FText::FromString("NORMAL");
 	const FText Text_Smooth = FText::FromString("SMOOTH");
 	const FText Text_Cut = FText::FromString("CUT");
-#endif
-
-#if 0 //DEAD_ZONES
-	// Dead zone
-public:
-	// Should override dead zone settings?
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DeadZone)
-	bool bOverrideDeadZoneSettings;
-
-	// Dead zone extent (in screen percentage)
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DeadZone, Meta = (EditCondition = "bOverrideDeadZoneSettings"))
-	FVector2D DeadZoneExtent;
-
-	// Dead zone offset from the center of the screen (in screen percentage)
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DeadZone, Meta = (EditCondition = "bOverrideDeadZoneSettings"))
-	FVector2D DeadZoneOffset;
 #endif
 
 protected:

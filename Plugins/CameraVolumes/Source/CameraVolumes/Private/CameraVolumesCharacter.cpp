@@ -42,35 +42,49 @@ void ACameraVolumesCharacter::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	// Bind overlap events
-	GetCollisionPrimitiveComponent()->OnComponentBeginOverlap.AddDynamic(this, &ACameraVolumesCharacter::OnCollisionPrimitiveComponentBeginOverlap);
-	GetCollisionPrimitiveComponent()->OnComponentEndOverlap.AddDynamic(this, &ACameraVolumesCharacter::OnCollisionPrimitiveComponentEndOverlap);
+	UPrimitiveComponent* CollisionPrimitiveComponent = GetCollisionPrimitiveComponent();
+	if (IsValid(CollisionPrimitiveComponent))
+	{
+		CollisionPrimitiveComponent->OnComponentBeginOverlap.AddDynamic(this, &ACameraVolumesCharacter::OnCollisionPrimitiveComponentBeginOverlap);
+		CollisionPrimitiveComponent->OnComponentEndOverlap.AddDynamic(this, &ACameraVolumesCharacter::OnCollisionPrimitiveComponentEndOverlap);
+	}
 }
 
 void ACameraVolumesCharacter::OnCollisionPrimitiveComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (ACameraVolumeActor* CameraVolume = Cast<ACameraVolumeActor>(OtherActor))
+	ACameraVolumeActor* CameraVolume = Cast<ACameraVolumeActor>(OtherActor);
+	if (IsValid(CameraVolume))
 	{
-		if (GetCameraComponent()->OverlappingCameraVolumes.Num() == 0)
+		if (IsValid(CameraComponent))
 		{
-			// Update camera volumes check condition in PlayerCameraManager
-			if (APlayerController* PC = Cast<APlayerController>(GetController()))
+			if (CameraComponent->OverlappingCameraVolumes.Num() == 0)
 			{
-				if (ACameraVolumesCameraManager* CameraVolumePCM = Cast<ACameraVolumesCameraManager>(PC->PlayerCameraManager))
+				// Update camera volumes check condition in PlayerCameraManager
+				APlayerController* PC = Cast<APlayerController>(GetController());
+				if (IsValid(PC))
 				{
-					CameraVolumePCM->SetProcessCameraVolumes(true);
+					ACameraVolumesCameraManager* CameraVolumePCM = Cast<ACameraVolumesCameraManager>(PC->PlayerCameraManager);
+					if (IsValid(CameraVolumePCM))
+					{
+						CameraVolumePCM->SetProcessCameraVolumes(true);
+					}
 				}
 			}
-		}
 
-		GetCameraComponent()->OverlappingCameraVolumes.Emplace(CameraVolume);
+			CameraComponent->OverlappingCameraVolumes.Emplace(CameraVolume);
+		}
 	}
 }
 
 void ACameraVolumesCharacter::OnCollisionPrimitiveComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (ACameraVolumeActor* CameraVolume = Cast<ACameraVolumeActor>(OtherActor))
+	ACameraVolumeActor* CameraVolume = Cast<ACameraVolumeActor>(OtherActor);
+	if (IsValid(CameraVolume))
 	{
-		GetCameraComponent()->OverlappingCameraVolumes.Remove(CameraVolume);
+		if (IsValid(CameraComponent))
+		{
+			CameraComponent->OverlappingCameraVolumes.Remove(CameraVolume);
+		}
 	}
 }
 

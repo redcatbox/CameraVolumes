@@ -1,6 +1,6 @@
 // redbox, 2024
 
-#include "CameraVolumes.h"
+#include "CameraVolumesModule.h"
 
 #define LOCTEXT_NAMESPACE "FCameraVolumesModule"
 

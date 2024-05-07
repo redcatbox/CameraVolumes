@@ -14,7 +14,7 @@ const ACameraVolumeActor* UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(
 
 	for (const ACameraVolumeActor* CameraVolume : InCameraVolumes)
 	{
-		if (CameraVolume)
+		if (IsValid(CameraVolume))
 		{
 			FVector LocalPlayerPawnLocation = CameraVolume->GetActorTransform().InverseTransformPositionNoScale(InPlayerPawnLocation);
 

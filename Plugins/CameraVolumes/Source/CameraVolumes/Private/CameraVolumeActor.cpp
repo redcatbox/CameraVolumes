@@ -199,12 +199,6 @@ void ACameraVolumeActor::UpdateVolume()
 
 	CameraPreview->DefaultCameraFieldOfView = CameraFieldOfView;
 	CameraPreview->DefaultCameraOrthoWidth = CameraOrthoWidth;
-#if DEAD_ZONES
-	CameraPreview->bUseDeadZone = bOverrideDeadZoneSettings;
-	CameraPreview->DeadZoneExtent = DeadZoneExtent;
-	CameraPreview->DeadZoneOffset = DeadZoneOffset;
-	CameraPreview->bPreviewDeadZone = bOverrideDeadZoneSettings;
-#endif
 #endif
 
 #if WITH_EDITOR
@@ -348,7 +342,7 @@ void ACameraVolumeActor::UpdateSidesIndicators()
 	//Priority
 	Text_Indicators[0]->SetText(FText::FromString(FString::FromInt(Priority)));
 	Text_Indicators[0]->SetWorldSize(2.f * TextSize);
-	Text_Indicators[0]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y + 5.f, TextSize), FRotator(0.f, 90.f, 0.f));
+	Text_Indicators[0]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y + 5.f, 0.f), FRotator(0.f, 90.f, 0.f));
 
 	//Sides
 	for (uint8 i = 1; i <= 18; i = i + 3)
@@ -506,9 +500,6 @@ void ACameraVolumeActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyC
 		|| TEXT("FrontSide") || TEXT("BackSide") || TEXT("RightSide") || TEXT("LeftSide") || TEXT("TopSide") || TEXT("BottomSide")
 		|| TEXT("TextSize")
 		|| TEXT("bUseCameraRotationAxis")
-#if DEAD_ZONES
-		|| TEXT("bOverrideDeadZoneSettings") || TEXT("DeadZoneExtent") || TEXT("DeadZoneOffset")
-#endif
 		)
 	{
 		UpdateVolume();

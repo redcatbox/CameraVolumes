@@ -5,8 +5,6 @@
 #include "CoreMinimal.h"
 #include "CameraVolumesTypes.generated.h"
 
-#define DEAD_ZONES 0
-
 // Camera mobility
 UENUM(BlueprintType)
 enum class ECameraMobility : uint8
@@ -66,38 +64,3 @@ struct FSideInfo
 		SideTransitionType = ESideTransitionType::ESTT_Normal;
 	}
 };
-
-#if 0 //DEAD_ZONES
-// Dead zone transform
-USTRUCT(BlueprintType)
-struct FDeadZoneTransform
-{
-	GENERATED_BODY()
-
-	// Dead zone extent (in screen percentage)
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DeadZone)
-	FVector2D Extent;
-
-	// Dead zone offset from the center of the screen (in screen percentage)
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DeadZone)
-	FVector2D Offset;
-
-	// Dead zone roll (in degrees)
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DeadZone)
-	float Roll;
-
-	FDeadZoneTransform()
-	{
-		Extent = FVector2D::ZeroVector;
-		Offset = FVector2D::ZeroVector;
-		Roll = 0.f;
-	}
-
-	FDeadZoneTransform(FVector2D InExtent, FVector2D InOffset, float InRoll)
-	{
-		Extent = InExtent;
-		Offset = InOffset;
-		Roll = InRoll;
-	}
-};
-#endif

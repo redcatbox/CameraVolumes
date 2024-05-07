@@ -34,11 +34,6 @@ protected:
 	// Calculate camera transitions and interpolations
 	void CalculateTransitions(float DeltaTime);
 
-#if 0 //DEAD_ZONES
-	// Process dead zone camera behavior
-	void CalculateDeadZone();
-#endif
-
 public:
 	// Should perform camera updates?
 	UPROPERTY(BlueprintReadOnly, Category = CameraVolumes)
@@ -78,7 +73,7 @@ public:
 
 	// Get new calculated camera rotation.
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
-	const FRotator GetCameraRotationNew() const { return CameraRotationNew.Rotator(); }
+	const FRotator GetCameraRotationNew() const { return CameraQuatNew.Rotator(); }
 
 	// Get new calculated camera FOV.
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
@@ -94,7 +89,7 @@ public:
 
 	// Get new calculated camera rotation (including additional camera params).
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
-	const FRotator GetCameraRotationFinal() const { return CameraRotationFinal.Rotator(); }
+	const FRotator GetCameraRotationFinal() const { return CameraQuatFinal.Rotator(); }
 
 	// Get new calculated camera FOV (including additional camera params).
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = CameraVolumes)
@@ -116,10 +111,8 @@ protected:
 	UPROPERTY()
 	class APawn* PlayerPawn;
 
-	bool bUsePlayerPawnControlRotation;
-
-	FVector PlayerPawnLocationOld;
 	FVector PlayerPawnLocation;
+	bool bUsePlayerPawnControlRotation;
 
 	UPROPERTY()
 	class UCameraVolumesCameraComponent* CameraComponent;
@@ -139,12 +132,11 @@ protected:
 	FVector CameraLocationNew;
 	FVector CameraLocationNewFixed;
 	FVector CameraLocationFinal;
-	float CameraOffset;
 
 	FVector CameraFocalPointNew;
-	FQuat CameraRotationOld;
-	FQuat CameraRotationNew;
-	FQuat CameraRotationFinal;
+	FQuat CameraQuatOld;
+	FQuat CameraQuatNew;
+	FQuat CameraQuatFinal;
 
 	float CameraFOVOld;
 	float CameraFOVNew;
@@ -156,30 +148,13 @@ protected:
 
 	bool bFirstPass;
 
-#if 0 //DEAD_ZONES
-	bool bUseDeadZone;
-
-	FVector2D DeadZoneExtent;
-	FVector2D DeadZoneOffset;
-
-	bool bShouldCalculateDeadZoneRoll;
-	float DeadZoneRoll;
-
-	bool bIsInDeadZone;
-	FVector DeadZoneEdgePoint;
-#endif
-
 	bool bIsCameraStatic;
 
-	TEnumAsByte<ECameraProjectionMode::Type> CameraProjectionModeNew;
 	TEnumAsByte<ECameraProjectionMode::Type> CameraProjectionModeOld;
+	TEnumAsByte<ECameraProjectionMode::Type> CameraProjectionModeNew;
 
 	bool bNeedsSmoothTransition;
 	bool bSmoothTransitionInterrupted;
-
-#if 0 //DEAD_ZONES
-	bool bSmoothTransitionInDeadZone;
-#endif
 
 	bool bSmoothTransitionJustStarted;
 	float SmoothTransitionSpeed;

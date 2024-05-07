@@ -28,22 +28,9 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 	bInheritYawCV = true;
 	bInheritRollCV = true;
 
-#if DEAD_ZONES
-	// Dead zone
-	bUseDeadZone = false;
-	DeadZoneExtent = FVector2D::ZeroVector;
-	DeadZoneOffset = FVector2D::ZeroVector;
-	bShouldCalculateDeadZoneRoll = true;
-#endif
-
 	bUpdateCamera = true;
 
 	LoadConfig();
-
-#if WITH_EDITORONLY_DATA && DEAD_ZONES
-	static ConstructorHelpers::FObjectFinder<UMaterialInterface> MaterialObj(*DeadZonePreviewMaterialPath);
-	DeadZonePreviewMaterial = MaterialObj.Object;
-#endif
 
 	UpdateCameraComponent();
 }
@@ -75,11 +62,6 @@ void UCameraVolumesCameraComponent::UpdateCameraComponent()
 
 #if WITH_EDITOR
 	RefreshVisualRepresentation();
-
-#if DEAD_ZONES
-	FDeadZoneTransform DeadZoneTransform(DeadZoneExtent, DeadZoneOffset, DefaultCameraRoll);
-	UpdateDeadZonePreview(DeadZoneTransform);
-#endif
 #endif
 }
 
@@ -94,9 +76,6 @@ void UCameraVolumesCameraComponent::PostEditChangeProperty(FPropertyChangedEvent
 		|| TEXT("DefaultCameraFocalPoint")
 		|| TEXT("DefaultCameraRoll")
 		|| TEXT("DefaultCameraFieldOfView") || TEXT("DefaultCameraOrthoWidth")
-#if DEAD_ZONES
-		|| TEXT("bUseDeadZone") || TEXT("DeadZoneExtent") || TEXT("DeadZoneOffset") || TEXT("bPreviewDeadZone")
-#endif
 		)
 	{
 		UpdateCameraComponent();
@@ -122,31 +101,3 @@ void UCameraVolumesCameraComponent::SetDefaultCameraRoll(float NewDefaultCameraR
 	DefaultCameraRoll = NewDefaultCameraRoll;
 	DefaultCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(DefaultCameraLocation, DefaultCameraFocalPoint, DefaultCameraRoll);
 }
-
-#if WITH_EDITOR && DEAD_ZONES
-void UCameraVolumesCameraComponent::UpdateDeadZonePreview(const FDeadZoneTransform InDeadZoneTransform)
-{
-	if (bPreviewDeadZone)
-	{
-		if (!DeadZonePreviewMID)
-		{
-			DeadZonePreviewMID = UMaterialInstanceDynamic::Create(DeadZonePreviewMaterial, this);
-			AddOrUpdateBlendable(DeadZonePreviewMID, 1.f);
-		}
-
-		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Size_X")), InDeadZoneTransform.Extent.X);
-		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Size_Y")), InDeadZoneTransform.Extent.Y);
-		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Offset_X")), InDeadZoneTransform.Offset.X);
-		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Offset_Y")), InDeadZoneTransform.Offset.Y);
-		DeadZonePreviewMID->SetScalarParameterValue(FName(TEXT("Roll")), InDeadZoneTransform.Roll);
-	}
-	else
-	{
-		if (DeadZonePreviewMID)
-		{
-			RemoveBlendable(DeadZonePreviewMID);
-			DeadZonePreviewMID = nullptr;
-		}
-	}
-}
-#endif
