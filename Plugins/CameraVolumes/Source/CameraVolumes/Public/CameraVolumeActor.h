@@ -14,7 +14,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "CameraVolumeActor.generated.h"
 
-UCLASS(Config = CameraVolumes, AutoExpandCategories = ("Camera", "Camera|Location", "Camera|Rotation", "Camera|FOV/OrthoWidth", "Camera|Utils", "Volume", "VolumeSides", "VolumeSides|SmoothTransition"))
+UCLASS(Config = CameraVolumes, AutoExpandCategories = ("Camera", "Camera|Location", "Camera|Rotation", "Camera|FOV/OrthoWidth", "Camera|Utils", "Volume", "VolumeSides", "VolumeSides|SmoothTransition", "VolumeSides|Right", "VolumeSides|Left", "VolumeSides|Top", "VolumeSides|Bottom", "VolumeSides|Front", "VolumeSides|Back"))
 class CAMERAVOLUMES_API ACameraVolumeActor : public AActor
 {
 	GENERATED_BODY()
@@ -297,27 +297,27 @@ public:
 	// Sides info
 public:
 	// Right side info
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = VolumeSides, Meta = (ShowOnlyInnerProperties))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "VolumeSides|Right", Meta = (ShowOnlyInnerProperties))
 	FSideInfo RightSide;
 
 	// Left side info
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = VolumeSides, Meta = (ShowOnlyInnerProperties))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "VolumeSides|Left", Meta = (ShowOnlyInnerProperties))
 	FSideInfo LeftSide;
 
 	// Top side info
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = VolumeSides, Meta = (ShowOnlyInnerProperties))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "VolumeSides|Top", Meta = (ShowOnlyInnerProperties))
 	FSideInfo TopSide;
 
 	// Bottom side info
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = VolumeSides, Meta = (ShowOnlyInnerProperties))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "VolumeSides|Bottom", Meta = (ShowOnlyInnerProperties))
 	FSideInfo BottomSide;
 
 	// Front side info
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = VolumeSides, Meta = (ShowOnlyInnerProperties))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "VolumeSides|Front", Meta = (ShowOnlyInnerProperties))
 	FSideInfo FrontSide;
 
 	// Back side info
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = VolumeSides, Meta = (ShowOnlyInnerProperties))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "VolumeSides|Back", Meta = (ShowOnlyInnerProperties))
 	FSideInfo BackSide;
 
 	// Set new side info

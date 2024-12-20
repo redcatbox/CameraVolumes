@@ -48,13 +48,13 @@ struct FSideInfo
 {
 	GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadOnly, Category = VolumeSides)
+	UPROPERTY(BlueprintReadOnly)
 	ESide Side;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = VolumeSides)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ESideType SideType;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = VolumeSides)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ESideTransitionType SideTransitionType;
 
 	FSideInfo()
