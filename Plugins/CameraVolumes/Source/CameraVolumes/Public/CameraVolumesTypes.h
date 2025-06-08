@@ -1,4 +1,4 @@
-// redbox, 2024
+// redbox, 2025
 
 #pragma once
 
@@ -48,13 +48,13 @@ struct FSideInfo
 {
 	GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Category = "SideInfo")
 	ESide Side;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SideInfo")
 	ESideType SideType;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SideInfo")
 	ESideTransitionType SideTransitionType;
 
 	FSideInfo()

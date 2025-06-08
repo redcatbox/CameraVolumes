@@ -1,4 +1,4 @@
-// redbox, 2024
+// redbox, 2025
 
 #include "CameraVolumesPaperCharacter.h"
 #include "Components/CapsuleComponent.h"

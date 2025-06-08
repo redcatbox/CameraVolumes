@@ -1,4 +1,4 @@
-// redbox, 2024
+// redbox, 2025
 
 /**
  * Player character stores Camera component.

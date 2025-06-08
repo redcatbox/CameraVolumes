@@ -1,4 +1,4 @@
-// redbox, 2024
+// redbox, 2025
 
 /**
  * Camera component that must be used with camera volumes.
