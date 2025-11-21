@@ -24,6 +24,10 @@ public:
 	ACameraVolumesCameraManager(const FObjectInitializer& ObjectInitializer);
 	virtual void UpdateCamera(float DeltaTime) override;
 
+#if SHOWDEBUG
+	void ShowDebugInfo(UCanvas* Canvas) const;
+#endif
+
 protected:
 	// Calculate new camera parameters
 	void CalculateCameraParams(float DeltaTime);

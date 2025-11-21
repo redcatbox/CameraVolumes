@@ -9,6 +9,11 @@
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/Pawn.h"
+#if SHOWDEBUG
+#include "Engine/Engine.h"
+#include "Engine/Canvas.h"
+#include "DrawDebugHelpers.h"
+#endif
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(CameraVolumesCameraManager)
 
@@ -724,3 +729,81 @@ FVector2D ACameraVolumesCameraManager::CalculateScreenWorldExtentAtDepth(float D
 
 	return ScreenExtentResult;
 }
+
+#if SHOWDEBUG
+static FString StringTrue = TEXT("True");
+static FString StringFalse = TEXT("False");
+
+void ACameraVolumesCameraManager::ShowDebugInfo(UCanvas* Canvas) const
+{
+	FDisplayDebugManager& DisplayDebugManager = Canvas->DisplayDebugManager;
+	DisplayDebugManager.SetFont(GEngine->GetSmallFont());
+	DisplayDebugManager.SetDrawColor(FColor::Green);
+
+	UWorld* World = GetWorld();
+
+	if (IsValid(CameraVolumePrevious))
+	{
+		DrawDebugBox(World,
+			CameraVolumePrevious->GetActorLocation(),
+			CameraVolumePrevious->VolumeExtent,
+			CameraVolumePrevious->GetActorQuat(),
+			FColor::Red, false, -1.f, 0, 5.f);
+
+		DisplayDebugManager.DrawString(TEXT("<<< CAMERA VOLUME PREVIOUS >>>"));
+		DisplayDebugManager.DrawString(TEXT("Name = ") + CameraVolumePrevious->GetName());
+		DisplayDebugManager.DrawString(TEXT("Priority = ") + FString::FromInt(CameraVolumePrevious->Priority));
+	}
+
+	if (IsValid(CameraVolumeCurrent))
+	{
+		DrawDebugBox(World,
+			CameraVolumeCurrent->GetActorLocation(),
+			CameraVolumeCurrent->VolumeExtent,
+			CameraVolumeCurrent->GetActorQuat(),
+			FColor::Green, false, -1.f, 0, 5.f);
+
+		DisplayDebugManager.DrawString(TEXT("<<< CAMERA VOLUME CURRENT >>>"));
+		DisplayDebugManager.DrawString(TEXT("Name = ") + CameraVolumeCurrent->GetName());
+		DisplayDebugManager.DrawString(TEXT("Priority = ") + FString::FromInt(CameraVolumeCurrent->Priority));
+	}
+
+	{
+		DisplayDebugManager.DrawString(TEXT("<<< CAMERA >>>"));
+		DisplayDebugManager.DrawString(TEXT("Camera Location Source = ") + CameraLocationSourceNew.ToString());
+		DrawDebugPoint(World, CameraLocationSourceNew, 5.f, FColor::Green);
+
+		DisplayDebugManager.DrawString(TEXT("Camera Location = ") + CameraLocationNew.ToString());
+		DisplayDebugManager.DrawString(TEXT("Camera Location Final = ") + CameraLocationFinal.ToString());
+
+		DisplayDebugManager.DrawString(TEXT("Camera Focal Point = ") + CameraFocalPointNew.ToString());
+		DrawDebugPoint(World, CameraFocalPointNew, 5.f, FColor::Yellow);
+
+		DisplayDebugManager.DrawString(TEXT("Camera Rotation = ") + CameraQuatNew.Rotator().ToString());
+		DisplayDebugManager.DrawString(TEXT("Camera Rotation Final = ") + CameraQuatFinal.Rotator().ToString());
+
+		DisplayDebugManager.DrawString(TEXT("FOV = ") + FString::SanitizeFloat(CameraFOVNew));
+		DisplayDebugManager.DrawString(TEXT("FOV + Adds = ") + FString::SanitizeFloat(CameraFOVFinal));
+
+		DisplayDebugManager.DrawString(TEXT("OrthoWidth = ") + FString::SanitizeFloat(CameraOrthoWidthNew));
+		DisplayDebugManager.DrawString(TEXT("OrthoWidth + Adds = ") + FString::SanitizeFloat(CameraOrthoWidthFinal));
+
+		DisplayDebugManager.DrawString(TEXT("Camera Mobility = ") + FString(bIsCameraStatic ? TEXT("Static") : TEXT("Movable")));
+
+		DisplayDebugManager.DrawString(TEXT("BlockingCalculations = ") + FString(bBlockingCalculations ? StringTrue : StringFalse));
+
+		DisplayDebugManager.DrawString(TEXT("<<< SMOOTH TRANSITION >>>"));
+		DisplayDebugManager.DrawString(TEXT("NeedsSmoothTransition = ") + FString(bNeedsSmoothTransition ? StringTrue : StringFalse));
+
+		DisplayDebugManager.DrawString(TEXT("SmoothTransitionInterrupted = ") + FString(bSmoothTransitionInterrupted ? StringTrue : StringFalse));
+		DisplayDebugManager.DrawString(TEXT("SmoothTransitionJustStarted = ") + FString(bSmoothTransitionJustStarted ? StringTrue : StringFalse));
+
+		DisplayDebugManager.DrawString(TEXT("SmoothTransitionSpeed = ") + FString::SanitizeFloat(SmoothTransitionSpeed));
+		DisplayDebugManager.DrawString(TEXT("SmoothTransitionAlpha = ") + FString::SanitizeFloat(SmoothTransitionAlpha));
+		DisplayDebugManager.DrawString(TEXT("SmoothTransitionAlphaEase = ") + FString::SanitizeFloat(SmoothTransitionAlphaEase));
+
+		DisplayDebugManager.DrawString(TEXT("<<< CUT TRANSITION >>>"));
+		DisplayDebugManager.DrawString(TEXT("NeedsCutTransition = ") + FString(bNeedsCutTransition ? StringTrue : StringFalse));
+	}
+}
+#endif

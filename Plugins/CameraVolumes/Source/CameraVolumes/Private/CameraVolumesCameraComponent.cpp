@@ -32,7 +32,9 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 
 	LoadConfig();
 
+#if WITH_EDITOR
 	UpdateCameraComponent();
+#endif
 }
 
 void UCameraVolumesCameraComponent::UpdateCamera(FMinimalViewInfo& InViewInfo)
@@ -45,6 +47,7 @@ void UCameraVolumesCameraComponent::UpdateCamera(FMinimalViewInfo& InViewInfo)
 	}
 }
 
+#if WITH_EDITOR
 void UCameraVolumesCameraComponent::UpdateCameraComponent()
 {
 	switch (ProjectionMode)
@@ -60,10 +63,9 @@ void UCameraVolumesCameraComponent::UpdateCameraComponent()
 	DefaultCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(DefaultCameraLocation, DefaultCameraFocalPoint, DefaultCameraRoll);
 	SetRelativeLocationAndRotation(DefaultCameraLocation, DefaultCameraRotation);
 
-#if WITH_EDITOR
 	RefreshVisualRepresentation();
-#endif
 }
+#endif
 
 //Update with changed property
 #if WITH_EDITOR

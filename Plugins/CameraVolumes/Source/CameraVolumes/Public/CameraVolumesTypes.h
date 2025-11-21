@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "CameraVolumesTypes.generated.h"
 
+#define SHOWDEBUG (!UE_BUILD_TEST && !UE_BUILD_SHIPPING)
+
 // Camera mobility
 UENUM(BlueprintType)
 enum class ECameraMobility : uint8

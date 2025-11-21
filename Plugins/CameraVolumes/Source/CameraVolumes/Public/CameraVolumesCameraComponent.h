@@ -169,12 +169,10 @@ public:
 	// Updates camera by camera manager
 	void UpdateCamera(FMinimalViewInfo& InViewInfo);
 
-	// Update camera component parameters
-	UFUNCTION(BlueprintCallable, Category = CameraVolumes)
-	void UpdateCameraComponent();
-
 #if WITH_EDITOR
 public:
+	void UpdateCameraComponent();
+
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
 };
