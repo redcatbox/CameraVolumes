@@ -15,7 +15,7 @@
 #include "CameraVolumesTypes.h"
 #include "CameraVolumesCameraComponent.generated.h"
 
-UCLASS(Config = CameraVolumes, AutoExpandCategories = (CameraSettings, "CameraSettings | DefaultParameters", "CameraSettings | AdditionalParameters", "CameraSettings | CameraCollision", "CameraSettings | CameraControlRotation"))
+UCLASS(Config = CameraVolumes, AutoExpandCategories = (CameraSettings, "CameraSettings | DefaultParameters", "CameraSettings | Lag", "CameraSettings | AdditionalParameters", "CameraSettings | CameraCollision", "CameraSettings | CameraControlRotation"))
 class CAMERAVOLUMES_API UCameraVolumesCameraComponent : public UCameraComponent
 {
 	GENERATED_BODY()
@@ -65,21 +65,49 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DefaultParameters")
 	float DefaultCameraOrthoWidth;
 
+
 	// Should camera use location lag?
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DefaultParameters")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | Lag")
 	bool bEnableCameraLocationLag;
 
 	// Camera location lag speed
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DefaultParameters", Meta = (EditCondition = "bEnableCameraLocationLag", ClampMin = "0", ClampMax = "1000", UIMin = "0", UIMax = "1000"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | Lag", Meta = (EditCondition = "bEnableCameraLocationLag", ClampMin = "0", ClampMax = "1000", UIMin = "0", UIMax = "1000"))
 	float CameraLocationLagSpeed;
 
 	// Should camera use rotation lag?
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DefaultParameters")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | Lag")
 	bool bEnableCameraRotationLag;
 
 	// Camera rotation lag speed
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DefaultParameters", Meta = (EditCondition = "bEnableCameraRotationLag", ClampMin = "0", ClampMax = "1000", UIMin = "0", UIMax = "1000"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | Lag", Meta = (EditCondition = "bEnableCameraRotationLag", ClampMin = "0", ClampMax = "1000", UIMin = "0", UIMax = "1000"))
 	float CameraRotationLagSpeed;
+
+	/**
+	 * If bUseCameraLagSubstepping is true, sub-step camera damping so that it handles fluctuating frame rates well (though this comes at a cost).
+	 * @see CameraLagMaxTimeStep
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings", AdvancedDisplay)
+	bool bUseCameraLagSubstepping;
+
+	/**
+	 * If true and camera location lag is enabled, draws markers at the camera target (in green) and the lagged position (in yellow).
+	 * A line is drawn between the two locations, in green normally but in red if the distance to the lag target has been clamped (by CameraLagMaxDistance).
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | Lag")
+	bool bDrawDebugLagMarkers;
+
+	/** Max time step used when sub-stepping camera lag. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | Lag", AdvancedDisplay, meta = (editcondition = "bUseCameraLagSubstepping", ClampMin = "0.005", ClampMax = "0.5", UIMin = "0.005", UIMax = "0.5"))
+	float CameraLagMaxTimeStep;
+
+	/** Max distance the camera target may lag behind the current location. If set to zero, no max distance is enforced. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | Lag", meta = (editcondition = "bEnableCameraLag", ClampMin = "0.0", UIMin = "0.0"))
+	float CameraLagMaxDistance;
+
+	/** If true AND the view target is simulating using physics then use the same max timestep cap as the physics system. Prevents camera jitter when delta time is clamped within Chaos Physics. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | Lag")
+	uint32 bClampToMaxPhysicsDeltaTime : 1;
+
 
 	// Should camera use FOV interpolation? For perspective cameras.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | DefaultParameters")

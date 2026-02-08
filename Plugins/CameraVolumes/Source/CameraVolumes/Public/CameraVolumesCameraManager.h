@@ -26,6 +26,7 @@ public:
 
 #if SHOWDEBUG
 	void ShowDebugInfo(UCanvas* Canvas) const;
+	void DrawDebugLagMarkers(const FVector& From, const FVector& To, bool bClamped) const;
 #endif
 
 protected:
@@ -151,8 +152,8 @@ protected:
 	float CameraOrthoWidthFinal;
 
 	bool bFirstPass;
-
 	bool bIsCameraStatic;
+	bool bClampedDist;
 
 	TEnumAsByte<ECameraProjectionMode::Type> CameraProjectionModeOld;
 	TEnumAsByte<ECameraProjectionMode::Type> CameraProjectionModeNew;

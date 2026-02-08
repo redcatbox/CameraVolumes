@@ -17,6 +17,10 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 	CameraRotationLagSpeed = 10.0f;
 	CameraFOVInterpSpeed = 10.f;
 	CameraOrthoWidthInterpSpeed = 10.f;
+	bUseCameraLagSubstepping = true;
+	CameraLagMaxTimeStep = 1.f / 60.f;
+	CameraLagMaxDistance = 0.f;
+	bClampToMaxPhysicsDeltaTime = false;
 
 	// Camera collision
 	ProbeSize = 12.f;

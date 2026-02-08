@@ -9,6 +9,7 @@
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/Pawn.h"
+#include "PhysicsEngine/PhysicsSettings.h"
 #if SHOWDEBUG
 #include "Engine/Engine.h"
 #include "Engine/Canvas.h"
@@ -126,6 +127,13 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 							const FSideInfo& PassedSideInfoPrevious = CameraVolumePrevious->GetNearestVolumeSideInfo(PlayerPawnLocation);
 							SetTransitionBySideInfo(CameraVolumePrevious, PassedSideInfoPrevious);
 						}
+					}
+
+					// If our viewtarget is simulating using physics, we may need to clamp deltatime
+					if (CameraComponent->bClampToMaxPhysicsDeltaTime)
+					{
+						// Use the same max timestep cap as the physics system to avoid camera jitter when the viewtarget simulates less time than the camera
+						DeltaTime = FMath::Min(DeltaTime, UPhysicsSettings::Get()->MaxPhysicsDeltaTime);
 					}
 
 					CalculateCameraParams(DeltaTime);
@@ -474,19 +482,77 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 
 			CameraQuatNew = PawnViewRot.Quaternion();
 
-			if (CameraComponent->bEnableCameraRotationLag)
+			if (CameraComponent->bEnableCameraRotationLag && !bFirstPass)
 			{
-				CameraQuatNew = FMath::QInterpTo(CameraQuatOld, CameraQuatNew, DeltaTime, CameraComponent->CameraRotationLagSpeed);
+				if (CameraComponent->bUseCameraLagSubstepping
+					&& DeltaTime > CameraComponent->CameraLagMaxTimeStep
+					&& CameraComponent->CameraRotationLagSpeed > 0.f)
+				{
+					const FRotator RotStep = (CameraQuatNew.Rotator() - CameraQuatOld.Rotator()).GetNormalized() * (1.f / DeltaTime);
+					FRotator LerpTarget = CameraQuatOld.Rotator();
+					float RemainingTime = DeltaTime;
+					while (RemainingTime > UE_KINDA_SMALL_NUMBER)
+					{
+						const float LerpAmount = FMath::Min(CameraComponent->CameraLagMaxTimeStep, RemainingTime);
+						LerpTarget += RotStep * LerpAmount;
+						RemainingTime -= LerpAmount;
+
+						CameraQuatNew = FMath::QInterpTo(CameraQuatOld, FQuat(LerpTarget), LerpAmount, CameraComponent->CameraRotationLagSpeed);
+					}
+				}
+				else
+				{
+					CameraQuatNew = FMath::QInterpTo(CameraQuatOld, CameraQuatNew, DeltaTime, CameraComponent->CameraRotationLagSpeed);
+				}
 			}
 
-			if (CameraComponent->bEnableCameraLocationLag)
+			if (CameraComponent->bEnableCameraLocationLag && !bFirstPass)
 			{
-				CameraLocationNew = FMath::VInterpTo(CameraLocationSourceOld, CameraLocationSourceNew, DeltaTime, CameraComponent->CameraLocationLagSpeed);
+				if (CameraComponent->bUseCameraLagSubstepping
+					&& DeltaTime > CameraComponent->CameraLagMaxTimeStep
+					&& CameraComponent->CameraLocationLagSpeed > 0.f)
+				{
+					const FVector MovementStep = (CameraLocationSourceNew - CameraLocationSourceOld) * (1.f / DeltaTime);
+					FVector LerpTarget = CameraLocationSourceOld;
+
+					float RemainingTime = DeltaTime;
+					while (RemainingTime > UE_KINDA_SMALL_NUMBER)
+					{
+						const float LerpAmount = FMath::Min(CameraComponent->CameraLagMaxTimeStep, RemainingTime);
+						LerpTarget += MovementStep * LerpAmount;
+						RemainingTime -= LerpAmount;
+
+						CameraLocationSourceNew = FMath::VInterpTo(CameraLocationSourceOld, LerpTarget, LerpAmount, CameraComponent->CameraLocationLagSpeed);
+					}
+				}
+				else
+				{
+					CameraLocationSourceNew = FMath::VInterpTo(CameraLocationSourceOld, CameraLocationSourceNew, DeltaTime, CameraComponent->CameraLocationLagSpeed);
+				}
 			}
 
 			// Final world-space values
 			CameraFocalPointNew = CameraLocationSourceNew + PlayerPawn->GetActorQuat().RotateVector(CameraComponent->DefaultCameraFocalPoint);
 			CameraLocationNew = CameraFocalPointNew + CameraQuatNew.RotateVector(CameraComponent->DefaultCameraLocation - CameraComponent->DefaultCameraFocalPoint);
+
+			// Clamp distance if requested
+			bClampedDist = false;
+			if (CameraComponent->CameraLagMaxDistance > 0.f)
+			{
+				const FVector FromOrigin = CameraLocationNew - CameraLocationSourceOld;
+				if (FromOrigin.SizeSquared() > FMath::Square(CameraComponent->CameraLagMaxDistance))
+				{
+					CameraLocationNew = CameraLocationSourceOld + FromOrigin.GetClampedToMaxSize(CameraComponent->CameraLagMaxDistance);
+					bClampedDist = true;
+				}
+			}
+
+#if SHOWDEBUG
+			if (CameraComponent->bDrawDebugLagMarkers)
+			{
+				DrawDebugLagMarkers(CameraLocationSourceOld, CameraLocationSourceNew, bClampedDist);
+			}
+#endif
 		}
 	}
 
@@ -538,7 +604,10 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 		}
 	}
 
-	bFirstPass = false;
+	if (bFirstPass)
+	{
+		bFirstPass = false;
+	}
 
 	// Broadcast volume changed event
 	if (bBroadcastOnCameraVolumeChanged)
@@ -640,6 +709,7 @@ void ACameraVolumesCameraManager::CalculateTransitions(float DeltaTime)
 		// Camera lags
 		bool bUseCameraLocationLag = CameraComponent->bEnableCameraLocationLag && !bUsePlayerPawnControlRotation;
 		bool bUseCameraRotationLag = CameraComponent->bEnableCameraRotationLag && !bUsePlayerPawnControlRotation;
+
 		if (IsValid(CameraVolumeCurrent))
 		{
 			bUseCameraLocationLag = CameraVolumeCurrent->bDisableCameraLocationLag ? false : bUseCameraLocationLag;
@@ -648,13 +718,71 @@ void ACameraVolumesCameraManager::CalculateTransitions(float DeltaTime)
 
 		if (bUseCameraLocationLag)
 		{
-			CameraLocationNew = FMath::VInterpTo(CameraLocationOld, CameraLocationNew, DeltaTime, CameraComponent->CameraLocationLagSpeed);
+			if (CameraComponent->bUseCameraLagSubstepping
+				&& DeltaTime > CameraComponent->CameraLagMaxTimeStep
+				&& CameraComponent->CameraLocationLagSpeed > 0.f)
+			{
+				const FVector MovementStep = (CameraLocationNew - CameraLocationOld) * (1.f / DeltaTime);
+				FVector LerpTarget = CameraLocationOld;
+
+				float RemainingTime = DeltaTime;
+				while (RemainingTime > UE_KINDA_SMALL_NUMBER)
+				{
+					const float LerpAmount = FMath::Min(CameraComponent->CameraLagMaxTimeStep, RemainingTime);
+					LerpTarget += MovementStep * LerpAmount;
+					RemainingTime -= LerpAmount;
+
+					CameraLocationNew = FMath::VInterpTo(CameraLocationOld, LerpTarget, LerpAmount, CameraComponent->CameraLocationLagSpeed);
+				}
+			}
+			else
+			{
+				CameraLocationNew = FMath::VInterpTo(CameraLocationOld, CameraLocationNew, DeltaTime, CameraComponent->CameraLocationLagSpeed);
+			}
 		}
 
 		if (bUseCameraRotationLag)
 		{
-			CameraQuatNew = FMath::QInterpTo(CameraQuatOld, CameraQuatNew, DeltaTime, CameraComponent->CameraRotationLagSpeed);
+			if (CameraComponent->bUseCameraLagSubstepping
+				&& DeltaTime > CameraComponent->CameraLagMaxTimeStep
+				&& CameraComponent->CameraRotationLagSpeed > 0.f)
+			{
+				const FRotator RotStep = (CameraQuatNew.Rotator() - CameraQuatOld.Rotator()).GetNormalized() * (1.f / DeltaTime);
+				FRotator LerpTarget = CameraQuatOld.Rotator();
+				float RemainingTime = DeltaTime;
+				while (RemainingTime > UE_KINDA_SMALL_NUMBER)
+				{
+					const float LerpAmount = FMath::Min(CameraComponent->CameraLagMaxTimeStep, RemainingTime);
+					LerpTarget += RotStep * LerpAmount;
+					RemainingTime -= LerpAmount;
+
+					CameraQuatNew = FMath::QInterpTo(CameraQuatOld, FQuat(LerpTarget), LerpAmount, CameraComponent->CameraRotationLagSpeed);
+				}
+			}
+			else
+			{
+				CameraQuatNew = FMath::QInterpTo(CameraQuatOld, CameraQuatNew, DeltaTime, CameraComponent->CameraRotationLagSpeed);
+			}
 		}
+
+		// Clamp distance if requested
+		bClampedDist = false;
+		if (CameraComponent->CameraLagMaxDistance > 0.f)
+		{
+			const FVector FromOrigin = CameraLocationNew - CameraLocationSourceOld;
+			if (FromOrigin.SizeSquared() > FMath::Square(CameraComponent->CameraLagMaxDistance))
+			{
+				CameraLocationNew = CameraLocationSourceOld + FromOrigin.GetClampedToMaxSize(CameraComponent->CameraLagMaxDistance);
+				bClampedDist = true;
+			}
+		}
+
+#if SHOWDEBUG
+		if (CameraComponent->bDrawDebugLagMarkers)
+		{
+			DrawDebugLagMarkers(CameraLocationSourceOld, CameraLocationSourceNew, bClampedDist);
+		}
+#endif
 
 		// Camera FOV/OW interpolation
 		if (bIsOrthographic)
@@ -750,6 +878,7 @@ void ACameraVolumesCameraManager::ShowDebugInfo(UCanvas* Canvas) const
 			CameraVolumePrevious->GetActorQuat(),
 			FColor::Red, false, -1.f, 0, 5.f);
 
+		DisplayDebugManager.DrawString(TEXT("\n"));
 		DisplayDebugManager.DrawString(TEXT("<<< CAMERA VOLUME PREVIOUS >>>"));
 		DisplayDebugManager.DrawString(TEXT("Name = ") + CameraVolumePrevious->GetName());
 		DisplayDebugManager.DrawString(TEXT("Priority = ") + FString::FromInt(CameraVolumePrevious->Priority));
@@ -763,12 +892,14 @@ void ACameraVolumesCameraManager::ShowDebugInfo(UCanvas* Canvas) const
 			CameraVolumeCurrent->GetActorQuat(),
 			FColor::Green, false, -1.f, 0, 5.f);
 
+		DisplayDebugManager.DrawString(TEXT("\n"));
 		DisplayDebugManager.DrawString(TEXT("<<< CAMERA VOLUME CURRENT >>>"));
 		DisplayDebugManager.DrawString(TEXT("Name = ") + CameraVolumeCurrent->GetName());
 		DisplayDebugManager.DrawString(TEXT("Priority = ") + FString::FromInt(CameraVolumeCurrent->Priority));
 	}
 
 	{
+		DisplayDebugManager.DrawString(TEXT("\n"));
 		DisplayDebugManager.DrawString(TEXT("<<< CAMERA >>>"));
 		DisplayDebugManager.DrawString(TEXT("Camera Location Source = ") + CameraLocationSourceNew.ToString());
 		DrawDebugPoint(World, CameraLocationSourceNew, 5.f, FColor::Green);
@@ -792,6 +923,7 @@ void ACameraVolumesCameraManager::ShowDebugInfo(UCanvas* Canvas) const
 
 		DisplayDebugManager.DrawString(TEXT("BlockingCalculations = ") + FString(bBlockingCalculations ? StringTrue : StringFalse));
 
+		DisplayDebugManager.DrawString(TEXT("\n"));
 		DisplayDebugManager.DrawString(TEXT("<<< SMOOTH TRANSITION >>>"));
 		DisplayDebugManager.DrawString(TEXT("NeedsSmoothTransition = ") + FString(bNeedsSmoothTransition ? StringTrue : StringFalse));
 
@@ -802,8 +934,24 @@ void ACameraVolumesCameraManager::ShowDebugInfo(UCanvas* Canvas) const
 		DisplayDebugManager.DrawString(TEXT("SmoothTransitionAlpha = ") + FString::SanitizeFloat(SmoothTransitionAlpha));
 		DisplayDebugManager.DrawString(TEXT("SmoothTransitionAlphaEase = ") + FString::SanitizeFloat(SmoothTransitionAlphaEase));
 
+		DisplayDebugManager.DrawString(TEXT("\n"));
 		DisplayDebugManager.DrawString(TEXT("<<< CUT TRANSITION >>>"));
 		DisplayDebugManager.DrawString(TEXT("NeedsCutTransition = ") + FString(bNeedsCutTransition ? StringTrue : StringFalse));
 	}
+
+	if (CameraComponent && !CameraComponent->bDrawDebugLagMarkers)
+	{
+		DrawDebugLagMarkers(CameraLocationSourceOld, CameraLocationSourceNew, bClampedDist);
+	}
+}
+
+void ACameraVolumesCameraManager::DrawDebugLagMarkers(const FVector& From, const FVector& To, bool bClamped) const
+{
+	DrawDebugSphere(GetWorld(), From, 5.f, 8, FColor::Green);
+	DrawDebugSphere(GetWorld(), To, 5.f, 8, FColor::Yellow);
+
+	const FVector ToOrigin = From - To;
+	DrawDebugDirectionalArrow(GetWorld(), To, To + ToOrigin * 0.5f, 7.5f, bClamped ? FColor::Red : FColor::Green);
+	DrawDebugDirectionalArrow(GetWorld(), To + ToOrigin * 0.5f, From, 7.5f, bClamped ? FColor::Red : FColor::Green);
 }
 #endif
