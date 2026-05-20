@@ -1,4 +1,4 @@
-// redbox, 2025
+// redbox, 2026
 
 /**
  * Player camera manager performs camera calculations according to camera parameters from camera component or camera volume.

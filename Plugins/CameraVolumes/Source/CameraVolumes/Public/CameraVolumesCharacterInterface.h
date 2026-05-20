@@ -1,4 +1,4 @@
-// redbox, 2025
+// redbox, 2026
 
 /**
  * Interface for characters using camera volumes.

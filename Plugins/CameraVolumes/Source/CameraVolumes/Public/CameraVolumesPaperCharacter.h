@@ -1,4 +1,4 @@
-// redbox, 2025
+// redbox, 2026
 
 /**
  * Player character derived from PaperCharacter, stores default camera parameters and camera component.
