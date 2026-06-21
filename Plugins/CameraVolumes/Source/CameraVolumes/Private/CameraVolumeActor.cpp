@@ -265,27 +265,30 @@ FSideInfo ACameraVolumeActor::GetNearestVolumeSideInfo(const FVector& PlayerPawn
 
 	if (bUse6DOFVolume)
 	{
-		Sides.Add(ESide::ES_Front, FMath::Abs(PlayerPawnLocationTransformed.Y - VolumeExtent.Y));
-		Sides.Add(ESide::ES_Back, FMath::Abs(PlayerPawnLocationTransformed.Y + VolumeExtent.Y));
-		Sides.Add(ESide::ES_Right, FMath::Abs(PlayerPawnLocationTransformed.X - VolumeExtent.X));
-		Sides.Add(ESide::ES_Left, FMath::Abs(PlayerPawnLocationTransformed.X + VolumeExtent.X));
-		Sides.Add(ESide::ES_Top, FMath::Abs(PlayerPawnLocationTransformed.Z - VolumeExtent.Z));
-		Sides.Add(ESide::ES_Bottom, FMath::Abs(PlayerPawnLocationTransformed.Z + VolumeExtent.Z));
+		Sides.Add(ESide::ES_Front,	FMath::Abs(PlayerPawnLocationTransformed.Y - VolumeExtent.Y));
+		Sides.Add(ESide::ES_Back,	FMath::Abs(PlayerPawnLocationTransformed.Y + VolumeExtent.Y));
+		Sides.Add(ESide::ES_Right,	FMath::Abs(PlayerPawnLocationTransformed.X - VolumeExtent.X));
+		Sides.Add(ESide::ES_Left,	FMath::Abs(PlayerPawnLocationTransformed.X + VolumeExtent.X));
+		Sides.Add(ESide::ES_Top,	FMath::Abs(PlayerPawnLocationTransformed.Z - VolumeExtent.Z));
+		Sides.Add(ESide::ES_Bottom,	FMath::Abs(PlayerPawnLocationTransformed.Z + VolumeExtent.Z));
 	}
 	else
 	{
-		Sides.Add(ESide::ES_Right, FMath::Abs(PlayerPawnLocationTransformed.X - VolumeExtent.X));
-		Sides.Add(ESide::ES_Left, FMath::Abs(PlayerPawnLocationTransformed.X + VolumeExtent.X));
-		Sides.Add(ESide::ES_Top, FMath::Abs(PlayerPawnLocationTransformed.Z - VolumeExtent.Z));
-		Sides.Add(ESide::ES_Bottom, FMath::Abs(PlayerPawnLocationTransformed.Z + VolumeExtent.Z));
+		Sides.Add(ESide::ES_Right,	FMath::Abs(PlayerPawnLocationTransformed.X - VolumeExtent.X));
+		Sides.Add(ESide::ES_Left,	FMath::Abs(PlayerPawnLocationTransformed.X + VolumeExtent.X));
+		Sides.Add(ESide::ES_Top,	FMath::Abs(PlayerPawnLocationTransformed.Z - VolumeExtent.Z));
+		Sides.Add(ESide::ES_Bottom,	FMath::Abs(PlayerPawnLocationTransformed.Z + VolumeExtent.Z));
 	}
 
 	Sides.ValueSort([](float Min, float Max) { return Min < Max; });
-
+	uint32 Index = 0;
 	for (auto& Pair : Sides)
 	{
-		NearestSide = Pair.Key;
-		break;
+		if (Index == 0)
+		{
+			NearestSide = Pair.Key;
+			break;
+		}
 	}
 
 	switch (NearestSide)
