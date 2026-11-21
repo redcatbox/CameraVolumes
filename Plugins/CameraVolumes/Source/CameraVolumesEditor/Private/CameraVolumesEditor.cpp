@@ -8,12 +8,10 @@ DEFINE_LOG_CATEGORY(CameraVolumesEditorLog);
 
 void FCameraVolumesEditorModule::StartupModule()
 {
-
 }
 
 void FCameraVolumesEditorModule::ShutdownModule()
 {
-
 }
 
 #undef LOCTEXT_NAMESPACE

@@ -7,9 +7,14 @@
 #include "CameraVolumesCameraManager.h"
 #include "CameraVolumeActor.h"
 
+#include "EnhancedInputSubsystems.h"
+#include "EnhancedInputComponent.h"
+#include "InputActionValue.h"
+
 #include UE_INLINE_GENERATED_CPP_BY_NAME(CamVolExamplePawn)
 
-ACamVolExamplePawn::ACamVolExamplePawn()
+ACamVolExamplePawn::ACamVolExamplePawn(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -60,28 +65,33 @@ void ACamVolExamplePawn::Tick(float DeltaTime)
 
 void ACamVolExamplePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	// set up gameplay key bindings
-	PlayerInputComponent->BindAxis("MoveRight", this, &ACamVolExamplePawn::MoveRight);
-	PlayerInputComponent->BindAxis("MoveForward", this, &ACamVolExamplePawn::MoveForward);
-	PlayerInputComponent->BindAxis("MoveUp", this, &ACamVolExamplePawn::MoveUp);
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+	if (IsValid(Subsystem))
+	{
+		Subsystem->ClearAllMappings();
+		Subsystem->AddMappingContext(InputMapping, 0);
+	}
+
+	UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+	if (IsValid(Input))
+	{
+		Input->BindAction(MoveHorizontalAction, ETriggerEvent::Triggered, this, &ThisClass::MoveHorizontal);
+		Input->BindAction(MoveVerticalAction, ETriggerEvent::Triggered, this, &ThisClass::MoveVertical);
+	}
 }
 
-void ACamVolExamplePawn::MoveRight(float Value)
+void ACamVolExamplePawn::MoveHorizontal(const FInputActionValue& Value)
 {
-	// add offset in that direction
-	AddActorLocalOffset(FVector(1.f, 0.f, 0.f) * Value * 5.f, true);
+	FVector2D InputValue = Value.Get<FVector2D>();
+	AddActorLocalOffset(FVector(1.f, 0.f, 0.f) * InputValue.X * 5.f, true);
+	AddActorLocalOffset(FVector(0.f, 1.f, 0.f) * InputValue.Y * 5.f, true);
 }
 
-void ACamVolExamplePawn::MoveForward(float Value)
+void ACamVolExamplePawn::MoveVertical(const FInputActionValue& Value)
 {
-	// add offset in that direction
-	AddActorLocalOffset(FVector(0.f, 1.f, 0.f) * Value * 5.f, true);
-}
-
-void ACamVolExamplePawn::MoveUp(float Value)
-{
-	// add offset in that direction
-	AddActorLocalOffset(FVector(0.f, 0.f, 1.f) * Value * 5.f, true);
+	float InputValue = Value.Get<float>();
+	AddActorLocalOffset(FVector(0.f, 0.f, 1.f) * InputValue * 5.f, true);
 }
 
 void ACamVolExamplePawn::OnCollisionPrimitiveComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

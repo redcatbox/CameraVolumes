@@ -5,9 +5,14 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 
+#include "EnhancedInputSubsystems.h"
+#include "EnhancedInputComponent.h"
+#include "InputActionValue.h"
+
 #include UE_INLINE_GENERATED_CPP_BY_NAME(CamVolPaperCharacter)
 
-ACamVolPaperCharacter::ACamVolPaperCharacter()
+ACamVolPaperCharacter::ACamVolPaperCharacter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	// Set the size of our collision capsule.
 	GetCapsuleComponent()->SetCapsuleHalfHeight(96.f);
@@ -80,20 +85,36 @@ void ACamVolPaperCharacter::Tick(float DeltaSeconds)
 	UpdateCharacter();
 }
 
-// Input
 void ACamVolPaperCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
-	PlayerInputComponent->BindAxis("MoveRight", this, &ACamVolPaperCharacter::MoveRight);
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+	if (IsValid(Subsystem))
+	{
+		Subsystem->ClearAllMappings();
+		Subsystem->AddMappingContext(InputMapping, 0);
+	}
+
+	UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+	if (IsValid(Input))
+	{
+		Input->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ThisClass::MoveInput);
+		Input->BindAction(JumpAction, ETriggerEvent::Started, this, &ThisClass::JumpInput);
+	}
+
 	PlayerInputComponent->BindTouch(IE_Pressed, this, &ACamVolPaperCharacter::TouchStarted);
 	PlayerInputComponent->BindTouch(IE_Released, this, &ACamVolPaperCharacter::TouchStopped);
 }
 
-void ACamVolPaperCharacter::MoveRight(float Value)
+void ACamVolPaperCharacter::MoveInput(const FInputActionValue& Value)
 {
-	// Apply the input to the character motion
-	AddMovementInput(FVector(1.f, 0.f, 0.f), Value);
+	float InputValue = Value.Get<FVector2D>().X;
+	AddMovementInput(FVector(1.f, 0.f, 0.f), InputValue);
+}
+
+void ACamVolPaperCharacter::JumpInput(const FInputActionValue& Value)
+{
+	Jump();
 }
 
 void ACamVolPaperCharacter::TouchStarted(const ETouchIndex::Type FingerIndex, const FVector Location)

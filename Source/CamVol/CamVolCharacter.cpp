@@ -5,9 +5,14 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "CameraVolumesCameraManager.h"
 
+#include "EnhancedInputSubsystems.h"
+#include "EnhancedInputComponent.h"
+#include "InputActionValue.h"
+
 #include UE_INLINE_GENERATED_CPP_BY_NAME(CamVolCharacter)
 
-ACamVolCharacter::ACamVolCharacter()
+ACamVolCharacter::ACamVolCharacter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.f);
@@ -45,28 +50,37 @@ ACamVolCharacter::ACamVolCharacter()
 	ACamVolCharacter::GetCameraComponent()->CameraFOVInterpSpeed = 5.f;
 }
 
-// Input
 void ACamVolCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
-	// set up gameplay key bindings
-	PlayerInputComponent->BindAxis("MoveRight", this, &ACamVolCharacter::MoveRight);
-	PlayerInputComponent->BindAxis("MoveForward", this, &ACamVolCharacter::MoveForward);
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+	if (IsValid(Subsystem))
+	{
+		Subsystem->ClearAllMappings();
+		Subsystem->AddMappingContext(InputMapping, 0);
+	}
+
+	UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+	if (IsValid(Input))
+	{
+		Input->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ThisClass::MoveInput);
+		Input->BindAction(JumpAction, ETriggerEvent::Started, this, &ThisClass::JumpInput);
+	}
+
 	PlayerInputComponent->BindTouch(IE_Pressed, this, &ACamVolCharacter::TouchStarted);
 	PlayerInputComponent->BindTouch(IE_Released, this, &ACamVolCharacter::TouchStopped);
 }
 
-void ACamVolCharacter::MoveRight(float Value)
+void ACamVolCharacter::MoveInput(const FInputActionValue& Value)
 {
-	// add movement in that direction
-	AddMovementInput(FVector(1.f, 0.f, 0.f), Value);
+	FVector2D InputValue = Value.Get<FVector2D>();
+	AddMovementInput(FVector(1.f, 0.f, 0.f), InputValue.X);
+	AddMovementInput(FVector(0.f, 1.f, 0.f), InputValue.Y);
 }
 
-void ACamVolCharacter::MoveForward(float Value)
+void ACamVolCharacter::JumpInput(const FInputActionValue& Value)
 {
-	// add movement in that direction
-	AddMovementInput(FVector(0.f, 1.f, 0.f), Value);
+	Jump();
 }
 
 void ACamVolCharacter::TouchStarted(const ETouchIndex::Type FingerIndex, const FVector Location)

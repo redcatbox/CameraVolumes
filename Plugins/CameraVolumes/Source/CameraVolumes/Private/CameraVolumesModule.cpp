@@ -16,13 +16,19 @@ void FCameraVolumesModule::StartupModule()
 #if SHOWDEBUG
 	if (!IsRunningDedicatedServer())
 	{
-		AHUD::OnShowDebugInfo.AddStatic(&FCameraVolumesModule::OnShowDebugInfo);
+		DebugDrawHandle = AHUD::OnShowDebugInfo.AddStatic(&FCameraVolumesModule::OnShowDebugInfo);
 	}
 #endif
 }
 
 void FCameraVolumesModule::ShutdownModule()
 {
+#if SHOWDEBUG
+	if (!IsRunningDedicatedServer())
+	{
+		AHUD::OnShowDebugInfo.Remove(DebugDrawHandle);
+	}
+#endif
 }
 
 #if SHOWDEBUG

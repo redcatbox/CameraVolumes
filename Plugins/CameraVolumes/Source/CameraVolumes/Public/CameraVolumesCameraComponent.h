@@ -23,6 +23,9 @@ class CAMERAVOLUMES_API UCameraVolumesCameraComponent : public UCameraComponent
 public:
 	UCameraVolumesCameraComponent();
 
+	// UActorComponent interface
+	virtual void OnRegister() override;
+	// End of UActorComponent interface
 
 	// Default parameters
 public:
@@ -101,7 +104,7 @@ public:
 	float CameraLagMaxTimeStep;
 
 	/** Max distance the camera target may lag behind the current location. If set to zero, no max distance is enforced. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | Lag", meta = (editcondition = "bEnableCameraLag", ClampMin = "0.0", UIMin = "0.0"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CameraSettings | Lag", meta = (editcondition = "bEnableCameraLocationLag", ClampMin = "0.0", UIMin = "0.0"))
 	float CameraLagMaxDistance;
 
 	/** If true AND the view target is simulating using physics then use the same max timestep cap as the physics system. Prevents camera jitter when delta time is clamped within Chaos Physics. */

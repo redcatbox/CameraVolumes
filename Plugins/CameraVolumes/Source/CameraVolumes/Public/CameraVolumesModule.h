@@ -17,5 +17,7 @@ public:
 
 #if SHOWDEBUG
 	static void OnShowDebugInfo(class AHUD* HUD, class UCanvas* Canvas, const FDebugDisplayInfo& DisplayInfo, float& YL, float& YPos);
+
+	FDelegateHandle DebugDrawHandle;
 #endif
 };

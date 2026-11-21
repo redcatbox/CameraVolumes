@@ -34,13 +34,15 @@ const ACameraVolumeActor* UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(
 					&& -CameraVolume->VolumeExtent.Z <= LocalPlayerPawnLocation.Z
 					&& LocalPlayerPawnLocation.Z <= CameraVolume->VolumeExtent.Z;
 			}
-		}
 
-		if (bInside
-			&& CameraVolume->Priority > MaxPriority)
-		{
-			MaxPriority = CameraVolume->Priority;
-			Result = CameraVolume;
+			if (bInside
+				&& CameraVolume->Priority > MaxPriority)
+			{
+				MaxPriority = CameraVolume->Priority;
+				Result = CameraVolume;
+			}
+
+			bInside = false;
 		}
 	}
 

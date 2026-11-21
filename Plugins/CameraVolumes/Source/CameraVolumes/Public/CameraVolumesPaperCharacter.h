@@ -18,7 +18,6 @@ class CAMERAVOLUMES_API ACameraVolumesPaperCharacter : public APaperCharacter, p
 	GENERATED_BODY()
 
 public:
-	ACameraVolumesPaperCharacter();
 	ACameraVolumesPaperCharacter(const FObjectInitializer& ObjectInitializer);
 	virtual void PostInitializeComponents() override;
 	virtual class UCameraVolumesCameraComponent* GetCameraComponent() const override;
@@ -29,7 +28,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CameraVolumes)
 	class UCameraVolumesCameraComponent* CameraComponent;
 
+	UFUNCTION()
 	virtual void OnCollisionPrimitiveComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 
+	UFUNCTION()
 	virtual void OnCollisionPrimitiveComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
 };

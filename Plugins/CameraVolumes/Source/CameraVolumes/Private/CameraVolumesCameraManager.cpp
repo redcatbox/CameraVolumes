@@ -18,6 +18,44 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(CameraVolumesCameraManager)
 
+static FVector SubstepVInterp(const FVector& Old, const FVector& Target, float DeltaTime, float MaxStep, float Speed)
+{
+	FVector Current = Old;
+	FVector LerpTarget = Old;
+	const FVector Step = (Target - Old) * (1.f / DeltaTime);
+
+	float RemainingTime = DeltaTime;
+	while (RemainingTime > UE_KINDA_SMALL_NUMBER)
+	{
+		const float LerpAmount = FMath::Min(MaxStep, RemainingTime);
+		LerpTarget += Step * LerpAmount;
+		RemainingTime -= LerpAmount;
+
+		Current = FMath::VInterpTo(Current, LerpTarget, LerpAmount, Speed);
+	}
+
+	return Current;
+}
+
+static FQuat SubstepQInterp(const FQuat& Old, const FQuat& Target, float DeltaTime, float MaxStep, float Speed)
+{
+	FQuat Current = Old;
+	FRotator LerpTarget = Old.Rotator();
+	const FRotator Step = (Target.Rotator() - Old.Rotator()).GetNormalized() * (1.f / DeltaTime);
+
+	float RemainingTime = DeltaTime;
+	while (RemainingTime > UE_KINDA_SMALL_NUMBER)
+	{
+		const float LerpAmount = FMath::Min(MaxStep, RemainingTime);
+		LerpTarget += Step * LerpAmount;
+		RemainingTime -= LerpAmount;
+
+		Current = FMath::QInterpTo(Current, LerpTarget.Quaternion(), LerpAmount, Speed);
+	}
+
+	return Current;
+}
+
 ACameraVolumesCameraManager::ACameraVolumesCameraManager(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
@@ -33,117 +71,125 @@ void ACameraVolumesCameraManager::UpdateCamera(float DeltaTime)
 {
 	if (bUpdateCamera)
 	{
-		PlayerPawn = GetOwningPlayerController()->GetPawn();
-		if (IsValid(PlayerPawn))
+		const APlayerController* PC = GetOwningPlayerController();
+		if (IsValid(PC))
 		{
-			ICameraVolumesCharacterInterface* PlayerCharacter = Cast<ICameraVolumesCharacterInterface>(PlayerPawn);
-			if (PlayerCharacter)
+			PlayerPawn = PC->GetPawn();
+			if (IsValid(PlayerPawn))
 			{
-				// Store previous values and prepare params
-				CameraVolumePrevious = CameraVolumeCurrent;
-				CameraVolumeCurrent = nullptr;
-
-				CameraComponent = PlayerCharacter->GetCameraComponent();
-				if (IsValid(CameraComponent))
+				ICameraVolumesCharacterInterface* PlayerCharacter = Cast<ICameraVolumesCharacterInterface>(PlayerPawn);
+				if (PlayerCharacter)
 				{
-					PlayerPawnLocation = PlayerPawn->GetActorLocation();
+					// Store previous values and prepare params
+					CameraVolumePrevious = CameraVolumeCurrent;
+					CameraVolumeCurrent = nullptr;
 
-					if (bProcessCameraVolumes)
+					CameraComponent = PlayerCharacter->GetCameraComponent();
+					if (IsValid(CameraComponent))
 					{
-						// Check if camera component not contains any overlapped camera volumes,
-						// try to get them from actors overlapping character's primitive component
-						// and put into camera component
-						if (CameraComponent->OverlappingCameraVolumes.Num() == 0)
-						{
-							TArray<AActor*> OverlappingActors;
-							PlayerCharacter->GetCollisionPrimitiveComponent()->GetOverlappingActors(OverlappingActors, ACameraVolumeActor::StaticClass());
+						PlayerPawnLocation = PlayerPawn->GetActorLocation();
 
-							if (OverlappingActors.Num() > 0)
+						if (bProcessCameraVolumes)
+						{
+							// Check if camera component not contains any overlapped camera volumes,
+							// try to get them from actors overlapping character's primitive component
+							// and put into camera component
+							if (CameraComponent->OverlappingCameraVolumes.Num() == 0)
 							{
-								for (AActor* OverlappingActor : OverlappingActors)
+								TArray<AActor*> OverlappingActors;
+								UPrimitiveComponent* CollisionPrimitiveComponent = PlayerCharacter->GetCollisionPrimitiveComponent();
+								if (IsValid(CollisionPrimitiveComponent))
 								{
-									ACameraVolumeActor* CameraVolume = Cast<ACameraVolumeActor>(OverlappingActor);
-									if (IsValid(CameraVolume))
-									{
-										CameraComponent->OverlappingCameraVolumes.Emplace(CameraVolume);
-									}
+									CollisionPrimitiveComponent->GetOverlappingActors(OverlappingActors, ACameraVolumeActor::StaticClass());
 								}
 
-								CameraVolumeCurrent = UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(CameraComponent->OverlappingCameraVolumes, PlayerPawnLocation);
+								if (OverlappingActors.Num() > 0)
+								{
+									for (AActor* OverlappingActor : OverlappingActors)
+									{
+										ACameraVolumeActor* CameraVolume = Cast<ACameraVolumeActor>(OverlappingActor);
+										if (IsValid(CameraVolume))
+										{
+											CameraComponent->OverlappingCameraVolumes.Emplace(CameraVolume);
+										}
+									}
+
+									CameraVolumeCurrent = UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(CameraComponent->OverlappingCameraVolumes, PlayerPawnLocation);
+								}
+								else
+								{
+									// There are no camera volumes overlapping character at this time,
+									// so we can stop processing until player pawn overlap some camera volume again.
+									SetProcessCameraVolumes(false);
+								}
 							}
 							else
 							{
-								// There are no camera volumes overlapping character at this time,
-								// so we can stop processing until player pawn overlap some camera volume again.
-								SetProcessCameraVolumes(false);
+								CameraVolumeCurrent = UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(CameraComponent->OverlappingCameraVolumes, PlayerPawnLocation);
 							}
-						}
-						else
-						{
-							CameraVolumeCurrent = UCameraVolumesFunctionLibrary::GetCurrentCameraVolume(CameraComponent->OverlappingCameraVolumes, PlayerPawnLocation);
-						}
 
-						if (IsValid(CameraVolumeCurrent))
-						{
-							if (CameraVolumeCurrent != CameraVolumePrevious) // Do we changed to another volume?
+							if (IsValid(CameraVolumeCurrent))
 							{
-								const FSideInfo& PassedSideInfoCurrent = CameraVolumeCurrent->GetNearestVolumeSideInfo(PlayerPawnLocation);
-
-								if (IsValid(CameraVolumePrevious))
+								if (CameraVolumeCurrent != CameraVolumePrevious) // Do we changed to another volume?
 								{
-									const FSideInfo& PassedSideInfoPrevious = CameraVolumePrevious->GetNearestVolumeSideInfo(PlayerPawnLocation);
+									const FSideInfo& PassedSideInfoCurrent = CameraVolumeCurrent->GetNearestVolumeSideInfo(PlayerPawnLocation);
 
-									if (UCameraVolumesFunctionLibrary::CompareSidesPairs(PassedSideInfoCurrent.Side, PassedSideInfoPrevious.Side, CameraVolumePrevious->bUse6DOFVolume))
+									if (IsValid(CameraVolumePrevious))
 									{
-										// We've passed to nearby volume
-										// Use settings of side we have passed to
-										SetTransitionBySideInfo(CameraVolumeCurrent, PassedSideInfoCurrent);
-									}
-									else
-									{
-										// We've passed to volume with another priority
-										if (CameraVolumeCurrent->Priority > CameraVolumePrevious->Priority)
+										const FSideInfo& PassedSideInfoPrevious = CameraVolumePrevious->GetNearestVolumeSideInfo(PlayerPawnLocation);
+
+										if (UCameraVolumesFunctionLibrary::CompareSidesPairs(PassedSideInfoCurrent.Side, PassedSideInfoPrevious.Side, CameraVolumePrevious->bUse6DOFVolume))
 										{
+											// We've passed to nearby volume
 											// Use settings of side we have passed to
 											SetTransitionBySideInfo(CameraVolumeCurrent, PassedSideInfoCurrent);
 										}
 										else
 										{
-											// Use settings of side we have passed from
-											SetTransitionBySideInfo(CameraVolumePrevious, PassedSideInfoPrevious);
+											// We've passed to volume with another priority
+											if (CameraVolumeCurrent->Priority > CameraVolumePrevious->Priority)
+											{
+												// Use settings of side we have passed to
+												SetTransitionBySideInfo(CameraVolumeCurrent, PassedSideInfoCurrent);
+											}
+											else
+											{
+												// Use settings of side we have passed from
+												SetTransitionBySideInfo(CameraVolumePrevious, PassedSideInfoPrevious);
+											}
 										}
 									}
-								}
-								else
-								{
-									// We've passed from void to volume
-									SetTransitionBySideInfo(CameraVolumeCurrent, PassedSideInfoCurrent);
+									else
+									{
+										// We've passed from void to volume
+										SetTransitionBySideInfo(CameraVolumeCurrent, PassedSideInfoCurrent);
+									}
 								}
 							}
+							else if (IsValid(CameraVolumePrevious)) // Do we passed from volume to void?
+							{
+								// Use settings of side we've passed from
+								const FSideInfo& PassedSideInfoPrevious = CameraVolumePrevious->GetNearestVolumeSideInfo(PlayerPawnLocation);
+								SetTransitionBySideInfo(CameraVolumePrevious, PassedSideInfoPrevious);
+							}
 						}
-						else if (IsValid(CameraVolumePrevious)) // Do we passed from volume to void?
+
+						// If our viewtarget is simulating using physics, we may need to clamp deltatime
+						if (CameraComponent->bClampToMaxPhysicsDeltaTime)
 						{
-							// Use settings of side we've passed from
-							const FSideInfo& PassedSideInfoPrevious = CameraVolumePrevious->GetNearestVolumeSideInfo(PlayerPawnLocation);
-							SetTransitionBySideInfo(CameraVolumePrevious, PassedSideInfoPrevious);
+							// Use the same max timestep cap as the physics system to avoid camera jitter when the viewtarget simulates less time than the camera
+							DeltaTime = FMath::Min(DeltaTime, UPhysicsSettings::Get()->MaxPhysicsDeltaTime);
 						}
+
+						CalculateCameraParams(DeltaTime);
+
+						// Update camera component
+						CameraComponent->UpdateCamera(CameraViewInfoFinal);
+
+						// Update camera manager
+						DefaultFOV = CameraFOVFinal;
+						DefaultOrthoWidth = CameraOrthoWidthFinal;
 					}
-
-					// If our viewtarget is simulating using physics, we may need to clamp deltatime
-					if (CameraComponent->bClampToMaxPhysicsDeltaTime)
-					{
-						// Use the same max timestep cap as the physics system to avoid camera jitter when the viewtarget simulates less time than the camera
-						DeltaTime = FMath::Min(DeltaTime, UPhysicsSettings::Get()->MaxPhysicsDeltaTime);
-					}
-
-					CalculateCameraParams(DeltaTime);
-
-					// Update camera component
-					CameraComponent->UpdateCamera(CameraViewInfoFinal);
-
-					// Update camera manager
-					DefaultFOV = CameraFOVFinal;
-					DefaultOrthoWidth = CameraOrthoWidthFinal;
 				}
 			}
 		}
@@ -296,7 +342,7 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 
 			if (bBlockingCalculations)
 			{
-				APlayerController* PC = GetOwningPlayerController();
+				const APlayerController* PC = GetOwningPlayerController();
 				if (IsValid(PC))
 				{
 					ULocalPlayer* LP = PC->GetLocalPlayer();
@@ -488,17 +534,7 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 					&& DeltaTime > CameraComponent->CameraLagMaxTimeStep
 					&& CameraComponent->CameraRotationLagSpeed > 0.f)
 				{
-					const FRotator RotStep = (CameraQuatNew.Rotator() - CameraQuatOld.Rotator()).GetNormalized() * (1.f / DeltaTime);
-					FRotator LerpTarget = CameraQuatOld.Rotator();
-					float RemainingTime = DeltaTime;
-					while (RemainingTime > UE_KINDA_SMALL_NUMBER)
-					{
-						const float LerpAmount = FMath::Min(CameraComponent->CameraLagMaxTimeStep, RemainingTime);
-						LerpTarget += RotStep * LerpAmount;
-						RemainingTime -= LerpAmount;
-
-						CameraQuatNew = FMath::QInterpTo(CameraQuatOld, FQuat(LerpTarget), LerpAmount, CameraComponent->CameraRotationLagSpeed);
-					}
+					CameraQuatNew = SubstepQInterp(CameraQuatOld, CameraQuatNew, DeltaTime, CameraComponent->CameraLagMaxTimeStep, CameraComponent->CameraRotationLagSpeed);
 				}
 				else
 				{
@@ -512,22 +548,22 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 					&& DeltaTime > CameraComponent->CameraLagMaxTimeStep
 					&& CameraComponent->CameraLocationLagSpeed > 0.f)
 				{
-					const FVector MovementStep = (CameraLocationSourceNew - CameraLocationSourceOld) * (1.f / DeltaTime);
-					FVector LerpTarget = CameraLocationSourceOld;
-
-					float RemainingTime = DeltaTime;
-					while (RemainingTime > UE_KINDA_SMALL_NUMBER)
-					{
-						const float LerpAmount = FMath::Min(CameraComponent->CameraLagMaxTimeStep, RemainingTime);
-						LerpTarget += MovementStep * LerpAmount;
-						RemainingTime -= LerpAmount;
-
-						CameraLocationSourceNew = FMath::VInterpTo(CameraLocationSourceOld, LerpTarget, LerpAmount, CameraComponent->CameraLocationLagSpeed);
-					}
+					CameraLocationSourceNew = SubstepVInterp(CameraLocationSourceOld, CameraLocationSourceNew, DeltaTime, CameraComponent->CameraLagMaxTimeStep, CameraComponent->CameraLocationLagSpeed);
 				}
 				else
 				{
 					CameraLocationSourceNew = FMath::VInterpTo(CameraLocationSourceOld, CameraLocationSourceNew, DeltaTime, CameraComponent->CameraLocationLagSpeed);
+				}
+			}
+
+			bClampedDist = false;
+			if (CameraComponent->bEnableCameraLocationLag && CameraComponent->CameraLagMaxDistance > 0.f && !bFirstPass)
+			{
+				const FVector FromTarget = CameraLocationSourceNew - PlayerPawnLocation; // lagged vs current unlagged
+				if (FromTarget.SizeSquared() > FMath::Square(CameraComponent->CameraLagMaxDistance))
+				{
+					CameraLocationSourceNew = PlayerPawnLocation + FromTarget.GetClampedToMaxSize(CameraComponent->CameraLagMaxDistance);
+					bClampedDist = true;
 				}
 			}
 
@@ -536,7 +572,6 @@ void ACameraVolumesCameraManager::CalculateCameraParams(float DeltaTime)
 			CameraLocationNew = CameraFocalPointNew + CameraQuatNew.RotateVector(CameraComponent->DefaultCameraLocation - CameraComponent->DefaultCameraFocalPoint);
 
 			// Clamp distance if requested
-			bClampedDist = false;
 			if (CameraComponent->CameraLagMaxDistance > 0.f)
 			{
 				const FVector FromOrigin = CameraLocationNew - CameraLocationSourceOld;
@@ -636,7 +671,6 @@ void ACameraVolumesCameraManager::SetTransitionBySideInfo(const ACameraVolumeAct
 	if (SideInfo.SideTransitionType == ESideTransitionType::ESTT_Smooth)
 	{
 		bNeedsSmoothTransition = true;
-		bSmoothTransitionJustStarted = true;
 
 		SmoothTransitionSpeed = CameraVolume->CameraSmoothTransitionSpeed;
 		SmoothTransitionEasingFunc = static_cast<uint8>(CameraVolume->SmoothTransitionEasingFunc);
@@ -664,12 +698,6 @@ void ACameraVolumesCameraManager::CalculateTransitions(float DeltaTime)
 {
 	if (bNeedsSmoothTransition)
 	{
-		if (bSmoothTransitionJustStarted)
-		{
-			CameraLocationNewFixed = CameraLocationNew;
-			bSmoothTransitionJustStarted = false;
-		}
-
 		SmoothTransitionAlpha = FMath::Clamp(SmoothTransitionAlpha + DeltaTime * SmoothTransitionSpeed, 0.f, 1.f);
 		SmoothTransitionAlphaEase = UKismetMathLibrary::Ease(0.f, 1.f, SmoothTransitionAlpha, static_cast<EEasingFunc::Type>(SmoothTransitionEasingFunc), EasingFuncBlendExp, EasingFuncSteps);
 
@@ -716,28 +744,29 @@ void ACameraVolumesCameraManager::CalculateTransitions(float DeltaTime)
 			bUseCameraRotationLag = CameraVolumeCurrent->bDisableCameraRotationLag ? false : bUseCameraRotationLag;
 		}
 
+		const FVector CameraLocationTarget = CameraLocationNew;
 		if (bUseCameraLocationLag)
 		{
 			if (CameraComponent->bUseCameraLagSubstepping
 				&& DeltaTime > CameraComponent->CameraLagMaxTimeStep
 				&& CameraComponent->CameraLocationLagSpeed > 0.f)
 			{
-				const FVector MovementStep = (CameraLocationNew - CameraLocationOld) * (1.f / DeltaTime);
-				FVector LerpTarget = CameraLocationOld;
-
-				float RemainingTime = DeltaTime;
-				while (RemainingTime > UE_KINDA_SMALL_NUMBER)
-				{
-					const float LerpAmount = FMath::Min(CameraComponent->CameraLagMaxTimeStep, RemainingTime);
-					LerpTarget += MovementStep * LerpAmount;
-					RemainingTime -= LerpAmount;
-
-					CameraLocationNew = FMath::VInterpTo(CameraLocationOld, LerpTarget, LerpAmount, CameraComponent->CameraLocationLagSpeed);
-				}
+				CameraLocationNew = SubstepVInterp(CameraLocationOld, CameraLocationNew, DeltaTime, CameraComponent->CameraLagMaxTimeStep, CameraComponent->CameraLocationLagSpeed);
 			}
 			else
 			{
 				CameraLocationNew = FMath::VInterpTo(CameraLocationOld, CameraLocationNew, DeltaTime, CameraComponent->CameraLocationLagSpeed);
+			}
+
+			bClampedDist = false;
+			if (CameraComponent->CameraLagMaxDistance > 0.f)
+			{
+				const FVector FromTarget = CameraLocationNew - CameraLocationTarget;
+				if (FromTarget.SizeSquared() > FMath::Square(CameraComponent->CameraLagMaxDistance))
+				{
+					CameraLocationNew = CameraLocationTarget + FromTarget.GetClampedToMaxSize(CameraComponent->CameraLagMaxDistance);
+					bClampedDist = true;
+				}
 			}
 		}
 
@@ -747,17 +776,7 @@ void ACameraVolumesCameraManager::CalculateTransitions(float DeltaTime)
 				&& DeltaTime > CameraComponent->CameraLagMaxTimeStep
 				&& CameraComponent->CameraRotationLagSpeed > 0.f)
 			{
-				const FRotator RotStep = (CameraQuatNew.Rotator() - CameraQuatOld.Rotator()).GetNormalized() * (1.f / DeltaTime);
-				FRotator LerpTarget = CameraQuatOld.Rotator();
-				float RemainingTime = DeltaTime;
-				while (RemainingTime > UE_KINDA_SMALL_NUMBER)
-				{
-					const float LerpAmount = FMath::Min(CameraComponent->CameraLagMaxTimeStep, RemainingTime);
-					LerpTarget += RotStep * LerpAmount;
-					RemainingTime -= LerpAmount;
-
-					CameraQuatNew = FMath::QInterpTo(CameraQuatOld, FQuat(LerpTarget), LerpAmount, CameraComponent->CameraRotationLagSpeed);
-				}
+				CameraQuatNew = SubstepQInterp(CameraQuatOld, CameraQuatNew, DeltaTime, CameraComponent->CameraLagMaxTimeStep, CameraComponent->CameraRotationLagSpeed);
 			}
 			else
 			{
@@ -766,7 +785,6 @@ void ACameraVolumesCameraManager::CalculateTransitions(float DeltaTime)
 		}
 
 		// Clamp distance if requested
-		bClampedDist = false;
 		if (CameraComponent->CameraLagMaxDistance > 0.f)
 		{
 			const FVector FromOrigin = CameraLocationNew - CameraLocationSourceOld;
@@ -809,7 +827,7 @@ FVector2D ACameraVolumesCameraManager::CalculateScreenWorldExtentAtDepth(float D
 {
 	FVector2D ScreenExtentResult = FVector2D::ZeroVector;
 
-	APlayerController* PC = GetOwningPlayerController();
+	const APlayerController* PC = GetOwningPlayerController();
 	if (IsValid(PC))
 	{
 		ULocalPlayer* LP = PC->GetLocalPlayer();
@@ -928,7 +946,6 @@ void ACameraVolumesCameraManager::ShowDebugInfo(UCanvas* Canvas) const
 		DisplayDebugManager.DrawString(TEXT("NeedsSmoothTransition = ") + FString(bNeedsSmoothTransition ? StringTrue : StringFalse));
 
 		DisplayDebugManager.DrawString(TEXT("SmoothTransitionInterrupted = ") + FString(bSmoothTransitionInterrupted ? StringTrue : StringFalse));
-		DisplayDebugManager.DrawString(TEXT("SmoothTransitionJustStarted = ") + FString(bSmoothTransitionJustStarted ? StringTrue : StringFalse));
 
 		DisplayDebugManager.DrawString(TEXT("SmoothTransitionSpeed = ") + FString::SanitizeFloat(SmoothTransitionSpeed));
 		DisplayDebugManager.DrawString(TEXT("SmoothTransitionAlpha = ") + FString::SanitizeFloat(SmoothTransitionAlpha));

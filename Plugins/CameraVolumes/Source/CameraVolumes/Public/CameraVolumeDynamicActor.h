@@ -15,4 +15,5 @@ class CAMERAVOLUMES_API ACameraVolumeDynamicActor : public ACameraVolumeActor
 
 public:
 	ACameraVolumeDynamicActor();
+	virtual void Tick(float DeltaSeconds) override;
 };

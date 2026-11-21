@@ -47,6 +47,8 @@ ACameraVolumeActor::ACameraVolumeActor()
 #endif
 	bPerformCameraBlocking = true;
 
+	bDisableMainBoxCollision = false;
+
 #if WITH_EDITORONLY_DATA
 	CameraProjectionMode = ECameraProjectionMode::Perspective;
 #endif
@@ -102,13 +104,13 @@ ACameraVolumeActor::ACameraVolumeActor()
 
 void ACameraVolumeActor::UpdateVolume()
 {
-	//Reset actor scale
+	// Reset actor scale
 	SetActorScale3D(FVector::OneVector);
 
-	//Extents
+	// Extents
 	CalculateVolumeExtents();
 
-	//Components
+	// Components
 	BoxComponent->ResetRelativeTransform();
 	BoxComponent->SetBoxExtent(VolumeExtent);
 	SetDisableMainBoxCollision(bDisableMainBoxCollision);
@@ -259,56 +261,31 @@ void ACameraVolumeActor::CalculateVolumeExtents()
 
 FSideInfo ACameraVolumeActor::GetNearestVolumeSideInfo(const FVector& PlayerPawnLocation) const
 {
-	ESide NearestSide = ESide::ES_Front;
-	TMap<ESide, float> Sides;
-	const FVector PlayerPawnLocationTransformed = GetActorTransform().InverseTransformPositionNoScale(PlayerPawnLocation);
+	const FVector Local = GetActorTransform().InverseTransformPositionNoScale(PlayerPawnLocation);
+
+	ESide NearestSide = ESide::ES_Right;
+	float MinDistance = FMath::Abs(Local.X - VolumeExtent.X);
+
+	auto Consider = [&](ESide Side, float Distance)
+	{
+		if (Distance < MinDistance)
+		{
+			MinDistance = Distance;
+			NearestSide = Side;
+		}
+	};
+
+	Consider(ESide::ES_Left,	FMath::Abs(Local.X + VolumeExtent.X));
+	Consider(ESide::ES_Top,		FMath::Abs(Local.Z - VolumeExtent.Z));
+	Consider(ESide::ES_Bottom,	FMath::Abs(Local.Z + VolumeExtent.Z));
 
 	if (bUse6DOFVolume)
 	{
-		Sides.Add(ESide::ES_Front,	FMath::Abs(PlayerPawnLocationTransformed.Y - VolumeExtent.Y));
-		Sides.Add(ESide::ES_Back,	FMath::Abs(PlayerPawnLocationTransformed.Y + VolumeExtent.Y));
-		Sides.Add(ESide::ES_Right,	FMath::Abs(PlayerPawnLocationTransformed.X - VolumeExtent.X));
-		Sides.Add(ESide::ES_Left,	FMath::Abs(PlayerPawnLocationTransformed.X + VolumeExtent.X));
-		Sides.Add(ESide::ES_Top,	FMath::Abs(PlayerPawnLocationTransformed.Z - VolumeExtent.Z));
-		Sides.Add(ESide::ES_Bottom,	FMath::Abs(PlayerPawnLocationTransformed.Z + VolumeExtent.Z));
-	}
-	else
-	{
-		Sides.Add(ESide::ES_Right,	FMath::Abs(PlayerPawnLocationTransformed.X - VolumeExtent.X));
-		Sides.Add(ESide::ES_Left,	FMath::Abs(PlayerPawnLocationTransformed.X + VolumeExtent.X));
-		Sides.Add(ESide::ES_Top,	FMath::Abs(PlayerPawnLocationTransformed.Z - VolumeExtent.Z));
-		Sides.Add(ESide::ES_Bottom,	FMath::Abs(PlayerPawnLocationTransformed.Z + VolumeExtent.Z));
+		Consider(ESide::ES_Front,	FMath::Abs(Local.Y - VolumeExtent.Y));
+		Consider(ESide::ES_Back,	FMath::Abs(Local.Y + VolumeExtent.Y));
 	}
 
-	Sides.ValueSort([](float Min, float Max) { return Min < Max; });
-	uint32 Index = 0;
-	for (auto& Pair : Sides)
-	{
-		if (Index == 0)
-		{
-			NearestSide = Pair.Key;
-			break;
-		}
-	}
-
-	switch (NearestSide)
-	{
-	case ESide::ES_Front:
-		return FrontSide;
-	case ESide::ES_Back:
-		return BackSide;
-	case ESide::ES_Right:
-		return RightSide;
-	case ESide::ES_Left:
-		return LeftSide;
-	case ESide::ES_Top:
-		return TopSide;
-	case ESide::ES_Bottom:
-		return BottomSide;
-	default:
-		UE_LOG(LogTemp, Warning, TEXT("Unknown side type! Using SideInfo(Front, Open, Normal)"));
-		return FSideInfo();
-	}
+	return GetSide(NearestSide);
 }
 
 #if WITH_EDITOR
@@ -342,12 +319,12 @@ void ACameraVolumeActor::CreateSidesIndicators()
 
 void ACameraVolumeActor::UpdateSidesIndicators()
 {
-	//Priority
+	// Priority
 	Text_Indicators[0]->SetText(FText::FromString(FString::FromInt(Priority)));
 	Text_Indicators[0]->SetWorldSize(2.f * TextSize);
 	Text_Indicators[0]->SetRelativeLocationAndRotation(FVector(0.f, VolumeExtent.Y + 5.f, 0.f), FRotator(0.f, 90.f, 0.f));
 
-	//Sides
+	// Sides
 	for (uint8 i = 1; i <= 18; i = i + 3)
 	{
 		Text_Indicators[i]->SetWorldSize(TextSize);
@@ -486,23 +463,36 @@ void ACameraVolumeActor::UpdateSidesIndicators()
 }
 #endif
 
-//Update with changed property
+// Update with changed property
 #if WITH_EDITOR
 void ACameraVolumeActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 	const FName PropertyName = PropertyChangedEvent.Property ? PropertyChangedEvent.Property->GetFName() : NAME_None;
-	if (PropertyName == TEXT("Priority") || TEXT("VolumeExtent")
-		|| TEXT("bUseZeroDepthExtent") || TEXT("bUse6DOFVolume")
-		|| TEXT("bDisableMainBoxCollision")
-		|| TEXT("CameraProjectionMode") || TEXT("CameraMobility")
-		|| TEXT("bOverrideCameraLocation") || TEXT("CameraLocation")
-		|| TEXT("bOverrideCameraRotation") || TEXT("CameraFocalPoint") || TEXT("CameraRoll")
-		|| TEXT("bOverrideCameraFieldOfView") || TEXT("CameraFieldOfView")
-		|| TEXT("bOverrideCameraOrthoWidth") || TEXT("CameraOrthoWidth")
-		|| TEXT("FrontSide") || TEXT("BackSide") || TEXT("RightSide") || TEXT("LeftSide") || TEXT("TopSide") || TEXT("BottomSide")
-		|| TEXT("TextSize")
-		|| TEXT("bUseCameraRotationAxis")
+	if (PropertyName == GET_MEMBER_NAME_CHECKED(ACameraVolumeActor, Priority)
+		|| PropertyName == GET_MEMBER_NAME_CHECKED(ACameraVolumeActor, VolumeExtent)
+		|| PropertyName == GET_MEMBER_NAME_CHECKED(ACameraVolumeActor, bUseZeroDepthExtent)
+		|| PropertyName == GET_MEMBER_NAME_CHECKED(ACameraVolumeActor, bUse6DOFVolume)
+		|| PropertyName == GET_MEMBER_NAME_CHECKED(ACameraVolumeActor, bDisableMainBoxCollision)
+		|| PropertyName == GET_MEMBER_NAME_CHECKED(ACameraVolumeActor, CameraProjectionMode)
+		|| PropertyName == GET_MEMBER_NAME_CHECKED(ACameraVolumeActor, CameraMobility)
+		|| PropertyName == GET_MEMBER_NAME_CHECKED(ACameraVolumeActor, bOverrideCameraLocation)
+		|| PropertyName == GET_MEMBER_NAME_CHECKED(ACameraVolumeActor, CameraLocation)
+		|| PropertyName == GET_MEMBER_NAME_CHECKED(ACameraVolumeActor, bOverrideCameraRotation)
+		|| PropertyName == GET_MEMBER_NAME_CHECKED(ACameraVolumeActor, CameraFocalPoint)
+		|| PropertyName == GET_MEMBER_NAME_CHECKED(ACameraVolumeActor, CameraRoll)
+		|| PropertyName == GET_MEMBER_NAME_CHECKED(ACameraVolumeActor, bOverrideCameraFieldOfView)
+		|| PropertyName == GET_MEMBER_NAME_CHECKED(ACameraVolumeActor, CameraFieldOfView)
+		|| PropertyName == GET_MEMBER_NAME_CHECKED(ACameraVolumeActor, bOverrideCameraOrthoWidth)
+		|| PropertyName == GET_MEMBER_NAME_CHECKED(ACameraVolumeActor, CameraOrthoWidth)
+		|| PropertyName == GET_MEMBER_NAME_CHECKED(ACameraVolumeActor, FrontSide)
+		|| PropertyName == GET_MEMBER_NAME_CHECKED(ACameraVolumeActor, BackSide)
+		|| PropertyName == GET_MEMBER_NAME_CHECKED(ACameraVolumeActor, RightSide)
+		|| PropertyName == GET_MEMBER_NAME_CHECKED(ACameraVolumeActor, LeftSide)
+		|| PropertyName == GET_MEMBER_NAME_CHECKED(ACameraVolumeActor, TopSide)
+		|| PropertyName == GET_MEMBER_NAME_CHECKED(ACameraVolumeActor, BottomSide)
+		|| PropertyName == GET_MEMBER_NAME_CHECKED(ACameraVolumeActor, TextSize)
+		|| PropertyName == GET_MEMBER_NAME_CHECKED(ACameraVolumeActor, bUseCameraRotationAxis)
 		)
 	{
 		UpdateVolume();
@@ -602,28 +592,30 @@ void ACameraVolumeActor::SetCameraRoll(float NewCameraRoll)
 	UpdateVolume();
 }
 
+const FSideInfo& ACameraVolumeActor::GetSide(ESide Side) const
+{
+	switch (Side)
+	{
+	case ESide::ES_Right:	return RightSide;
+	case ESide::ES_Left:	return LeftSide;
+	case ESide::ES_Top:		return TopSide;
+	case ESide::ES_Bottom:	return BottomSide;
+	case ESide::ES_Front:	return FrontSide;
+	case ESide::ES_Back:	return BackSide;
+	default:				return FrontSide;
+	}
+}
+
 void ACameraVolumeActor::SetSide(ESide Side, FSideInfo NewSideInfo)
 {
 	switch (Side)
 	{
-	case ESide::ES_Right:
-		RightSide = NewSideInfo;
-		break;
-	case ESide::ES_Left:
-		LeftSide = NewSideInfo;
-		break;
-	case ESide::ES_Top:
-		TopSide = NewSideInfo;
-		break;
-	case ESide::ES_Bottom:
-		BottomSide = NewSideInfo;
-		break;
-	case ESide::ES_Front:
-		FrontSide = NewSideInfo;
-		break;
-	case ESide::ES_Back:
-		BackSide = NewSideInfo;
-		break;
+	case ESide::ES_Right:	RightSide = NewSideInfo;	break;
+	case ESide::ES_Left:	LeftSide = NewSideInfo;		break;
+	case ESide::ES_Top:		TopSide = NewSideInfo;		break;
+	case ESide::ES_Bottom:	BottomSide = NewSideInfo;	break;
+	case ESide::ES_Front:	FrontSide = NewSideInfo;	break;
+	case ESide::ES_Back:	BackSide = NewSideInfo;		break;
 	}
 
 	CalculateVolumeExtents();
@@ -648,60 +640,60 @@ void ACameraVolumeActor::SetDisableMainBoxCollision(bool bNewDisableMainBoxColli
 #if WITH_EDITOR
 void ACameraVolumeActor::SetAllOpen()
 {
-	FrontSide.SideType = ESideType::EST_Open;
-	BackSide.SideType = ESideType::EST_Open;
-	RightSide.SideType = ESideType::EST_Open;
-	LeftSide.SideType = ESideType::EST_Open;
-	TopSide.SideType = ESideType::EST_Open;
-	BottomSide.SideType = ESideType::EST_Open;
+	FrontSide.SideType	= ESideType::EST_Open;
+	BackSide.SideType	= ESideType::EST_Open;
+	RightSide.SideType	= ESideType::EST_Open;
+	LeftSide.SideType	= ESideType::EST_Open;
+	TopSide.SideType	= ESideType::EST_Open;
+	BottomSide.SideType	= ESideType::EST_Open;
 
 	UpdateVolume();
 }
 
 void ACameraVolumeActor::SetAllClosed()
 {
-	FrontSide.SideType = ESideType::EST_Closed;
-	BackSide.SideType = ESideType::EST_Closed;
-	RightSide.SideType = ESideType::EST_Closed;
-	LeftSide.SideType = ESideType::EST_Closed;
-	TopSide.SideType = ESideType::EST_Closed;
-	BottomSide.SideType = ESideType::EST_Closed;
+	FrontSide.SideType	= ESideType::EST_Closed;
+	BackSide.SideType	= ESideType::EST_Closed;
+	RightSide.SideType	= ESideType::EST_Closed;
+	LeftSide.SideType	= ESideType::EST_Closed;
+	TopSide.SideType	= ESideType::EST_Closed;
+	BottomSide.SideType	= ESideType::EST_Closed;
 
 	UpdateVolume();
 }
 
 void ACameraVolumeActor::SetAllNormal()
 {
-	FrontSide.SideTransitionType = ESideTransitionType::ESTT_Normal;
-	BackSide.SideTransitionType = ESideTransitionType::ESTT_Normal;
-	RightSide.SideTransitionType = ESideTransitionType::ESTT_Normal;
-	LeftSide.SideTransitionType = ESideTransitionType::ESTT_Normal;
-	TopSide.SideTransitionType = ESideTransitionType::ESTT_Normal;
-	BottomSide.SideTransitionType = ESideTransitionType::ESTT_Normal;
+	FrontSide.SideTransitionType	= ESideTransitionType::ESTT_Normal;
+	BackSide.SideTransitionType		= ESideTransitionType::ESTT_Normal;
+	RightSide.SideTransitionType	= ESideTransitionType::ESTT_Normal;
+	LeftSide.SideTransitionType		= ESideTransitionType::ESTT_Normal;
+	TopSide.SideTransitionType		= ESideTransitionType::ESTT_Normal;
+	BottomSide.SideTransitionType	= ESideTransitionType::ESTT_Normal;
 
 	UpdateVolume();
 }
 
 void ACameraVolumeActor::SetAllSmooth()
 {
-	FrontSide.SideTransitionType = ESideTransitionType::ESTT_Smooth;
-	BackSide.SideTransitionType = ESideTransitionType::ESTT_Smooth;
-	RightSide.SideTransitionType = ESideTransitionType::ESTT_Smooth;
-	LeftSide.SideTransitionType = ESideTransitionType::ESTT_Smooth;
-	TopSide.SideTransitionType = ESideTransitionType::ESTT_Smooth;
-	BottomSide.SideTransitionType = ESideTransitionType::ESTT_Smooth;
+	FrontSide.SideTransitionType	= ESideTransitionType::ESTT_Smooth;
+	BackSide.SideTransitionType		= ESideTransitionType::ESTT_Smooth;
+	RightSide.SideTransitionType	= ESideTransitionType::ESTT_Smooth;
+	LeftSide.SideTransitionType		= ESideTransitionType::ESTT_Smooth;
+	TopSide.SideTransitionType		= ESideTransitionType::ESTT_Smooth;
+	BottomSide.SideTransitionType	= ESideTransitionType::ESTT_Smooth;
 
 	UpdateVolume();
 }
 
 void ACameraVolumeActor::SetAllCut()
 {
-	FrontSide.SideTransitionType = ESideTransitionType::ESTT_Cut;
-	BackSide.SideTransitionType = ESideTransitionType::ESTT_Cut;
-	RightSide.SideTransitionType = ESideTransitionType::ESTT_Cut;
-	LeftSide.SideTransitionType = ESideTransitionType::ESTT_Cut;
-	TopSide.SideTransitionType = ESideTransitionType::ESTT_Cut;
-	BottomSide.SideTransitionType = ESideTransitionType::ESTT_Cut;
+	FrontSide.SideTransitionType	= ESideTransitionType::ESTT_Cut;
+	BackSide.SideTransitionType		= ESideTransitionType::ESTT_Cut;
+	RightSide.SideTransitionType	= ESideTransitionType::ESTT_Cut;
+	LeftSide.SideTransitionType		= ESideTransitionType::ESTT_Cut;
+	TopSide.SideTransitionType		= ESideTransitionType::ESTT_Cut;
+	BottomSide.SideTransitionType	= ESideTransitionType::ESTT_Cut;
 
 	UpdateVolume();
 }

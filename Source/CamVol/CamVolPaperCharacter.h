@@ -6,14 +6,28 @@
 #include "PaperFlipbookComponent.h"
 #include "CamVolPaperCharacter.generated.h"
 
+class UInputMappingContext;
+class UInputAction;
+struct FInputActionValue;
+
 UCLASS(Config = Game)
 class ACamVolPaperCharacter : public ACameraVolumesPaperCharacter
 {
 	GENERATED_BODY()
 
 public:
-	ACamVolPaperCharacter();
+	ACamVolPaperCharacter(const FObjectInitializer& ObjectInitializer);
 	virtual void Tick(float DeltaSeconds) override;
+	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput")
+	UInputMappingContext* InputMapping;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput")
+	UInputAction* MoveAction;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput")
+	UInputAction* JumpAction;
 
 protected:
 	// The animation to play while running around
@@ -27,18 +41,14 @@ protected:
 	// Called to choose the correct animation to play based on the character's movement state
 	void UpdateAnimation();
 
-	// Called for side to side input
-	void MoveRight(float Value);
+	UFUNCTION()
+	void MoveInput(const FInputActionValue& Value);
 
-	// Handle touch inputs.
+	UFUNCTION()
+	void JumpInput(const FInputActionValue& Value);
+
 	void TouchStarted(const ETouchIndex::Type FingerIndex, const FVector Location);
-
-	// Handle touch stop event.
 	void TouchStopped(const ETouchIndex::Type FingerIndex, const FVector Location);
-
-	// APawn interface
-	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
-	// End of APawn interface
 
 	void UpdateCharacter();
 };

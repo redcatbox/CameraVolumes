@@ -122,7 +122,7 @@ public:
 
 #if WITH_EDITORONLY_DATA
 public:
-	// Camera projection mode (for camera frustrum preview only!)
+	// Camera projection mode (for camera frustum preview only!)
 	UPROPERTY(Config, EditAnywhere, BlueprintReadWrite, Category = Camera)
 	TEnumAsByte<ECameraProjectionMode::Type> CameraProjectionMode;
 #endif
@@ -297,28 +297,31 @@ public:
 	// Sides info
 public:
 	// Right side info
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "VolumeSides|Right", Meta = (ShowOnlyInnerProperties))
+	UPROPERTY(EditAnywhere, Category = "VolumeSides|Right", Meta = (ShowOnlyInnerProperties))
 	FSideInfo RightSide;
 
 	// Left side info
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "VolumeSides|Left", Meta = (ShowOnlyInnerProperties))
+	UPROPERTY(EditAnywhere, Category = "VolumeSides|Left", Meta = (ShowOnlyInnerProperties))
 	FSideInfo LeftSide;
 
 	// Top side info
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "VolumeSides|Top", Meta = (ShowOnlyInnerProperties))
+	UPROPERTY(EditAnywhere, Category = "VolumeSides|Top", Meta = (ShowOnlyInnerProperties))
 	FSideInfo TopSide;
 
 	// Bottom side info
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "VolumeSides|Bottom", Meta = (ShowOnlyInnerProperties))
+	UPROPERTY(EditAnywhere, Category = "VolumeSides|Bottom", Meta = (ShowOnlyInnerProperties))
 	FSideInfo BottomSide;
 
 	// Front side info
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "VolumeSides|Front", Meta = (ShowOnlyInnerProperties))
+	UPROPERTY(EditAnywhere, Category = "VolumeSides|Front", Meta = (ShowOnlyInnerProperties))
 	FSideInfo FrontSide;
 
 	// Back side info
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "VolumeSides|Back", Meta = (ShowOnlyInnerProperties))
+	UPROPERTY(EditAnywhere, Category = "VolumeSides|Back", Meta = (ShowOnlyInnerProperties))
 	FSideInfo BackSide;
+
+	UFUNCTION(BlueprintPure, Category = VolumeSides)
+	const FSideInfo& GetSide(ESide Side) const;
 
 	// Set new side info
 	UFUNCTION(BlueprintCallable, Category = VolumeSides)

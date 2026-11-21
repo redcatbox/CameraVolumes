@@ -13,21 +13,34 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 	DefaultCameraOrthoWidth = 512.f;
 
 	// Camera lag
+	bEnableCameraLocationLag = false;
 	CameraLocationLagSpeed = 10.0f;
+
+	bEnableCameraRotationLag = false;
 	CameraRotationLagSpeed = 10.0f;
-	CameraFOVInterpSpeed = 10.f;
-	CameraOrthoWidthInterpSpeed = 10.f;
+
 	bUseCameraLagSubstepping = true;
+	bDrawDebugLagMarkers = false;
 	CameraLagMaxTimeStep = 1.f / 60.f;
 	CameraLagMaxDistance = 0.f;
 	bClampToMaxPhysicsDeltaTime = false;
 
+	bEnableCameraFOVInterp = false;
+	CameraFOVInterpSpeed = 10.f;
+
+	bEnableCameraOrthoWidthInterp = false;
+	CameraOrthoWidthInterpSpeed = 10.f;
+
+	bUseAdditionalCameraParams = false;
+
 	// Camera collision
+	bDoCollisionTest = false;
 	ProbeSize = 12.f;
 	ProbeChannel = ECC_Camera;
 
 	// Camera rotation
 	bUpdateControlRotationFromCameraRotation = true;
+	bUsePawnControlRotationCV = false;
 	bInheritPitchCV = true;
 	bInheritYawCV = true;
 	bInheritRollCV = true;
@@ -39,6 +52,14 @@ UCameraVolumesCameraComponent::UCameraVolumesCameraComponent()
 #if WITH_EDITOR
 	UpdateCameraComponent();
 #endif
+}
+
+void UCameraVolumesCameraComponent::OnRegister()
+{
+	DefaultCameraRotation = UCameraVolumesFunctionLibrary::CalculateCameraRotation(DefaultCameraLocation, DefaultCameraFocalPoint, DefaultCameraRoll);
+	SetRelativeLocationAndRotation(DefaultCameraLocation, DefaultCameraRotation);
+
+	Super::OnRegister();
 }
 
 void UCameraVolumesCameraComponent::UpdateCamera(FMinimalViewInfo& InViewInfo)
@@ -71,17 +92,18 @@ void UCameraVolumesCameraComponent::UpdateCameraComponent()
 }
 #endif
 
-//Update with changed property
+// Update with changed property
 #if WITH_EDITOR
 void UCameraVolumesCameraComponent::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 	const FName PropertyName = PropertyChangedEvent.Property ? PropertyChangedEvent.Property->GetFName() : NAME_None;
-	if (PropertyName == TEXT("ProjectionMode")
-		|| TEXT("DefaultCameraLocation")
-		|| TEXT("DefaultCameraFocalPoint")
-		|| TEXT("DefaultCameraRoll")
-		|| TEXT("DefaultCameraFieldOfView") || TEXT("DefaultCameraOrthoWidth")
+	if (PropertyName == GET_MEMBER_NAME_CHECKED(UCameraVolumesCameraComponent, ProjectionMode)
+		|| PropertyName == GET_MEMBER_NAME_CHECKED(UCameraVolumesCameraComponent, DefaultCameraLocation)
+		|| PropertyName == GET_MEMBER_NAME_CHECKED(UCameraVolumesCameraComponent, DefaultCameraFocalPoint)
+		|| PropertyName == GET_MEMBER_NAME_CHECKED(UCameraVolumesCameraComponent, DefaultCameraRoll)
+		|| PropertyName == GET_MEMBER_NAME_CHECKED(UCameraVolumesCameraComponent, DefaultCameraFieldOfView)
+		|| PropertyName == GET_MEMBER_NAME_CHECKED(UCameraVolumesCameraComponent, DefaultCameraOrthoWidth)
 		)
 	{
 		UpdateCameraComponent();

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "CameraVolumesTypes.h"
 #include "CameraVolumesFunctionLibrary.generated.h"
 
 UCLASS()

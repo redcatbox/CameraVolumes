@@ -10,19 +10,6 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(CameraVolumesCharacter)
 
-ACameraVolumesCharacter::ACameraVolumesCharacter()
-{
-	// Create a camera
-	CameraComponent = CreateDefaultSubobject<UCameraVolumesCameraComponent>(TEXT("Camera"));
-	CameraComponent->bUsePawnControlRotation = false; // We don't want the controller rotating the camera
-
-	// Configure character movement
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = false;
-	bUseControllerRotationRoll = false;
-	GetCharacterMovement()->bOrientRotationToMovement = true;
-}
-
 ACameraVolumesCharacter::ACameraVolumesCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {

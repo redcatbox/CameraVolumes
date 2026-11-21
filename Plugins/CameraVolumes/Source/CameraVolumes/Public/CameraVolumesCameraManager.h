@@ -135,7 +135,6 @@ protected:
 	FVector CameraLocationSourceNew;
 	FVector CameraLocationOld;
 	FVector CameraLocationNew;
-	FVector CameraLocationNewFixed;
 	FVector CameraLocationFinal;
 
 	FVector CameraFocalPointNew;
@@ -161,7 +160,6 @@ protected:
 	bool bNeedsSmoothTransition;
 	bool bSmoothTransitionInterrupted;
 
-	bool bSmoothTransitionJustStarted;
 	float SmoothTransitionSpeed;
 	float SmoothTransitionAlpha;
 	float SmoothTransitionAlphaEase;

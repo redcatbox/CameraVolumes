@@ -11,3 +11,8 @@ ACameraVolumeDynamicActor::ACameraVolumeDynamicActor()
 	// Default root
 	RootComponent->SetMobility(EComponentMobility::Movable);
 }
+
+void ACameraVolumeDynamicActor::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+}
